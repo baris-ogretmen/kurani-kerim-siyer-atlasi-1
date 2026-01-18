@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kuran & Siyer Atlası - Final Sürüm</title>
+    <title>Kuran & Siyer Atlası - Pro Final</title>
     
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -39,13 +39,14 @@
         }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
         
+        /* Highlight Style */
+        .highlight-text { background-color: #f59e0b; color: #000; padding: 0 4px; border-radius: 4px; font-weight: bold; }
+
         .prose p { margin-bottom: 0.7em; line-height: 1.6; }
         .prose strong { color: #34d399; font-weight: 700; }
         .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; opacity: 0.9; }
         .prose ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 0.5em; }
         .prose li { margin-bottom: 0.5em; }
-        
-        /* Custom Scrollbar for Content */
         .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
     </style>
@@ -89,8 +90,11 @@
             Link: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
             Scale: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>,
             Activity: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
-            Save: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
-            Check: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"/></svg>
+            Check: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"/></svg>,
+            CheckCircle: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+            Bookmark: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>,
+            Copy: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>,
+            Compass: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
         };
 
         // --- FIREBASE AYARLARI ---
@@ -107,7 +111,7 @@
         } catch (e) { console.warn("Firebase hatası:", e); }
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'kuran-siyer-app-v2';
 
-        // --- API & DATA ---
+        // --- GEMINI API YARDIMCISI ---
         const callGemini = async (prompt) => {
             const apiKey = localStorage.getItem('geminiApiKey') || ""; 
             if (!apiKey) throw new Error("Lütfen önce Ayarlar menüsünden Google Gemini API Anahtarınızı girip kaydediniz.");
@@ -123,6 +127,13 @@
             } catch (error) { console.error("Gemini Error:", error); throw error; }
         };
 
+        // --- SABİT VERİLER ---
+        const MEAL_SOURCES = [
+            { id: 'tr.diyanet', name: 'Diyanet İşleri', type: 'Meal' },
+            { id: 'tr.yazir', name: 'Elmalılı Hamdi Yazır', type: 'Tefsirli Meal' },
+            { id: 'custom.bediuzzaman', name: 'Bediüzzaman (Risale-i Nur)', type: 'İzahlı', baseId: 'tr.yazir' }
+        ];
+
         const TURKISH_SURAH_NAMES = {
             1: "Fatiha", 2: "Bakara", 3: "Al-i İmran", 4: "Nisa", 5: "Maide", 6: "En'am", 7: "A'raf", 8: "Enfal", 9: "Tevbe", 10: "Yunus", 11: "Hud", 12: "Yusuf", 13: "Ra'd", 14: "İbrahim", 15: "Hicr", 16: "Nahl", 17: "İsra", 18: "Kehf", 19: "Meryem", 20: "Taha", 21: "Enbiya", 22: "Hac", 23: "Mü'minun", 24: "Nur", 25: "Furkan", 26: "Şuara", 27: "Neml", 28: "Kasas", 29: "Ankebut", 30: "Rum", 31: "Lokman", 32: "Secde", 33: "Ahzab", 34: "Sebe", 35: "Fatır", 36: "Yasin", 37: "Saffat", 38: "Sad", 39: "Zümer", 40: "Mü'min (Gafir)", 41: "Fussilet", 42: "Şura", 43: "Zuhruf", 44: "Duhan", 45: "Casiye", 46: "Ahkaf", 47: "Muhammed", 48: "Fetih", 49: "Hucurat", 50: "Kaf", 51: "Zariyat", 52: "Tur", 53: "Necm", 54: "Kamer", 55: "Rahman", 56: "Vakıa", 57: "Hadid", 58: "Mücadele", 59: "Haşr", 60: "Mümtehine", 61: "Saf", 62: "Cuma", 63: "Münafikun", 64: "Teğabun", 65: "Talak", 66: "Tahrim", 67: "Mülk", 68: "Kalem", 69: "Hakka", 70: "Mearic", 71: "Nuh", 72: "Cin", 73: "Müzzemmil", 74: "Müddessir", 75: "Kıyamet", 76: "İnsan", 77: "Mürselat", 78: "Nebe", 79: "Naziat", 80: "Abese", 81: "Tekvir", 82: "İnfitar", 83: "Mutaffifin", 84: "İnşikak", 85: "Buruc", 86: "Tarık", 87: "A'la", 88: "Gaşiye", 89: "Fecr", 90: "Beled", 91: "Şems", 92: "Leyl", 93: "Duha", 94: "İnşirah", 95: "Tin", 96: "Alak", 97: "Kadir", 98: "Beyyine", 99: "Zilzal", 100: "Adiyat", 101: "Karia", 102: "Tekasür", 103: "Asr", 104: "Hümeze", 105: "Fil", 106: "Kureyş", 107: "Maun", 108: "Kevser", 109: "Kafirun", 110: "Nasr", 111: "Tebbet", 112: "İhlas", 113: "Felak", 114: "Nas"
         };
@@ -135,7 +146,6 @@
             { start: 51, end: 85, year: "Nübüvvet 10-12. Yıl", era: "Hüzün Yılı & İsra", desc: "Hüznün yaşandığı, ardından Mirac ile teselli olunan dönem." },
             { start: 86, end: 114, year: "Medine Dönemi", era: "Hicret & Devletleşme", desc: "Müslümanların Medine'ye hicret ettiği dönem." }
         ];
-        
         const getSurahTimelineData = (surah) => {
              const period = SIYER_PERIODS_DATA.find(p => surah.revelationType === 'Meccan' 
                 ? (surah.number >= p.start && surah.number <= p.end) 
@@ -157,7 +167,7 @@
             "111:1": { title: "Ebu Leheb", color: "slate", before: { title: "Safa Tepesi", text: "Peygamberimiz akrabalarını uyardı." }, revelation: { title: "Beddua", text: "Ebu Leheb 'Tebben lek' (Elin kurusun) deyince bu sure indi." }, after: { title: "Mucize", text: "Ebu Leheb iman etmeden feci şekilde öldü." } }
         };
 
-        // --- COMPONENTS (DEFINED OUTSIDE TO FIX RE-RENDER BUGS) ---
+        // --- COMPONENTS ---
 
         const Loading = () => (
             <div className="flex flex-col items-center justify-center h-64 text-emerald-500 animate-pulse">
@@ -165,6 +175,22 @@
                 <p className="font-amiri text-lg font-bold">Kuran & Siyer Atlası Yükleniyor...</p>
             </div>
         );
+
+        // Highlight Component - Improved for visibility
+        const HighlightedText = ({ text, highlight }) => {
+            if (!highlight || !highlight.trim()) return <span>{text}</span>;
+            const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const parts = text.split(new RegExp(`(${escapeRegExp(highlight)})`, 'gi'));
+            
+            return (
+                <span>
+                    {parts.map((part, i) => 
+                        part.toLocaleLowerCase('tr') === highlight.toLocaleLowerCase('tr') ? 
+                        <span key={i} className="bg-yellow-500 text-black font-extrabold px-1 rounded shadow-md border border-yellow-600">{part}</span> : part
+                    )}
+                </span>
+            );
+        };
 
         const NuzulTimelineCard = ({ data, isRemote = false }) => {
             const colors = { indigo: "border-indigo-500 bg-indigo-900/40 text-indigo-100", amber: "border-amber-500 bg-amber-900/40 text-amber-100", rose: "border-rose-500 bg-rose-900/40 text-rose-100", slate: "border-slate-500 bg-slate-800 text-slate-100", emerald: "border-emerald-500 bg-emerald-900/40 text-emerald-100" };
@@ -227,17 +253,51 @@
                             <label className="text-xs font-bold text-emerald-400 mb-2 block">Google Gemini API Anahtarı</label>
                             <div className="flex gap-2">
                                 <input type="password" value={tempKey} onChange={(e) => setTempKey(e.target.value)} className="flex-1 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Anahtarı buraya yapıştırın"/>
-                                <button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors"><Icons.Check size={20}/></button>
+                                <button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold"><Icons.Check size={20}/> KAYDET</button>
                             </div>
-                            {saved && <p className="text-emerald-400 text-xs mt-2 flex items-center gap-1 animate-fade-in"><Icons.CheckCircle size={12}/> Başarıyla Kaydedildi!</p>}
+                            {saved && <p className="text-emerald-400 text-xs mt-3 flex items-center gap-1 animate-fade-in bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20"><Icons.CheckCircle size={14}/> Başarıyla Kaydedildi!</p>}
                         </div>
                         <div className="mb-4"><label className="text-xs opacity-50 mb-2 block">Yazı Boyutu</label><input type="range" min="14" max="32" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full accent-emerald-500" /></div>
                     </div>
                 </div>
             );
         };
+        
+        // --- JUMP TO (HIZLI GİT) MODAL ---
+        const JumpToModal = ({ isOpen, onClose, setCurrentSurah, setView }) => {
+            if(!isOpen) return null;
+            const [inputVal, setInputVal] = React.useState('');
+            
+            const handleJump = () => {
+                const parts = inputVal.split(':');
+                if(parts.length === 2) {
+                    const surahNo = parseInt(parts[0]);
+                    const ayahNo = parseInt(parts[1]);
+                    if(surahNo > 0 && surahNo <= 114) {
+                         // Find surah info - simplified since we don't have full list in modal scope easily, 
+                         // but we can pass a dummy object enough to trigger fetch
+                         // ideally we should pass surahs list, but for simplicity:
+                         setCurrentSurah({number: surahNo, revelationType: 'Meccan', numberOfAyahs: 286}); // details fetched in detail view
+                         setView('surah');
+                         // Store target ayah in sessionStorage to scroll after load
+                         sessionStorage.setItem('jumpToAyah', ayahNo);
+                         onClose();
+                    }
+                }
+            };
+            
+            return (
+                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+                     <div className="w-full max-w-xs bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-lg">Hızlı Git</h3><button onClick={onClose}><Icons.X size={20}/></button></div>
+                        <input type="text" placeholder="Sure No:Ayet No (Örn: 2:255)" value={inputVal} onChange={e => setInputVal(e.target.value)} className="w-full p-3 mb-4 rounded-xl bg-black/30 border border-slate-700 text-sm outline-none text-center" />
+                        <button onClick={handleJump} className="w-full bg-emerald-600 text-white p-3 rounded-xl font-bold">GİT</button>
+                     </div>
+                </div>
+            );
+        };
 
-        const SurahDetail = ({ surah, setView, handleAiRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, fontSize }) => {
+        const SurahDetail = ({ surah, setView, handleAiRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, fontSize, lastRead, setLastRead, highlightedSearch, setJumpModalOpen }) => {
             const [ayahs, setAyahs] = React.useState([]);
             const [translation, setTranslation] = React.useState([]);
             const [detailLoading, setDetailLoading] = React.useState(true);
@@ -245,18 +305,30 @@
 
             React.useEffect(() => {
                 setDetailLoading(true);
+                const mealSourceObj = MEAL_SOURCES.find(m => m.id === 'tr.diyanet'); 
+                const apiMealId = mealSourceObj?.baseId || 'tr.diyanet';
+                
                 Promise.all([
                     fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/ar.alafasy`),
-                    fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/tr.diyanet`)
+                    fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/${apiMealId}`)
                 ]).then(async ([resAr, resTr]) => {
                     const dataAr = await resAr.json();
                     const dataTr = await resTr.json();
                     setAyahs(dataAr.data.ayahs);
                     setTranslation(dataTr.data.ayahs);
                     setDetailLoading(false);
+                    
+                    // Check for jump request
+                    const jumpAyah = sessionStorage.getItem('jumpToAyah');
+                    if(jumpAyah) {
+                        setTimeout(() => {
+                            const el = document.getElementById(`ayah-${jumpAyah}`);
+                            if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                            sessionStorage.removeItem('jumpToAyah');
+                        }, 500);
+                    }
                 });
                 
-                // Firestore permission errors handled by catch to prevent crash
                 if (typeof db !== 'undefined') {
                      try {
                         db.collection('artifacts').doc('kuran-siyer-app-v2')
@@ -264,10 +336,25 @@
                           .collection('siyer_contexts').doc(String(surah.number))
                           .get()
                           .then(doc => { if (doc && doc.exists) setRemoteContexts(doc.data()); })
-                          .catch(() => {}); // Silently fail on permission error
+                          .catch(() => {});
                      } catch(e) {}
                 }
             }, [surah]);
+
+            // Save Last Read (Local Storage Priority)
+            const handleBookmark = (ayahNo) => {
+                const newLastRead = { surahNo: surah.number, surahName: getTurkishName(surah.number), ayahNo };
+                setLastRead(newLastRead);
+                localStorage.setItem('lastRead', JSON.stringify(newLastRead));
+                alert(`Kaldığınız yer kaydedildi: ${getTurkishName(surah.number)} ${ayahNo}. Ayet`);
+            };
+
+            // Copy Ayah
+            const handleCopy = (ayahText, trText, ayahNo) => {
+                const text = `"${ayahText}"\n\n${trText}\n\n(${getTurkishName(surah.number)} Suresi, ${ayahNo}. Ayet)`;
+                navigator.clipboard.writeText(text);
+                alert("Ayet kopyalandı!");
+            };
 
             if (detailLoading) return <Loading />;
             const trName = getTurkishName(surah.number);
@@ -282,11 +369,18 @@
                             <p className="text-[10px] opacity-60 uppercase tracking-widest">{surah.revelationType === 'Meccan' ? 'Mekke' : 'Medine'} • {surah.numberOfAyahs} Ayet</p>
                         </div>
                         <div className="flex gap-1">
-                            <button onClick={() => handleAiRequest(`Sen deneyimli bir müfessirsin. ${trName} Suresi hakkında özet ve analiz hazırla.`, 'summary')} className="p-2 text-indigo-400" title="Sure Özeti"><Icons.BookOpen size={20}/></button>
-                            <button onClick={() => handleAiRequest(`Sen bir yaşam koçusun. "${trName} Suresi"nin öğretilerine dayanarak haftalık eylem planı hazırla.`, 'action')} className="p-2 text-teal-400" title="Amel Planı"><Icons.ListChecks size={20}/></button>
-                            <button onClick={() => handleAiRequest(`Sen bir sınav hazırlayıcısısın. "${trName} Suresi" ile ilgili 5 soru hazırla.`, 'quiz')} className="p-2 text-amber-400" title="Sınav"><Icons.Award size={20}/></button>
+                             <button onClick={() => setJumpModalOpen(true)} className="p-2 rounded-full hover:bg-slate-800" title="Hızlı Git"><Icons.Compass size={20}/></button>
+                            <button onClick={() => setShowSettings(true)} className="p-2"><Icons.Settings size={20}/></button>
                         </div>
                     </div>
+                    
+                    {/* Action Bar (below header for easier access) */}
+                     <div className="px-4 py-2 flex gap-2 overflow-x-auto scrollbar-hide border-b border-white/5 mb-2">
+                        <button onClick={() => handleAiRequest(`Sen deneyimli bir müfessirsin. ${trName} Suresi hakkında özet ve analiz hazırla.`, 'summary')} className="flex items-center gap-1 px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.BookOpen size={14}/> Özet</button>
+                        <button onClick={() => handleAiRequest(`Sen bir yaşam koçusun. "${trName} Suresi"nin öğretilerine dayanarak haftalık eylem planı hazırla.`, 'action')} className="flex items-center gap-1 px-3 py-1 bg-teal-500/20 text-teal-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.ListChecks size={14}/> Eylem Planı</button>
+                        <button onClick={() => handleAiRequest(`Sen bir sınav hazırlayıcısısın. "${trName} Suresi" ile ilgili 5 soru hazırla.`, 'quiz')} className="flex items-center gap-1 px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.Award size={14}/> Sınav</button>
+                    </div>
+
 
                     <div className="px-2"> <NuzulTimelineCard data={timelineData} /> </div>
 
@@ -295,20 +389,28 @@
                             const trText = translation[index] ? translation[index].text : "...";
                             const isFav = favorites.some(f => f.uid === `${surah.number}:${ayah.numberInSurah}`);
                             const isPlaying = playingAyah?.id === ayah.number;
+                            const isLastRead = lastRead?.surahNo === surah.number && lastRead?.ayahNo === ayah.numberInSurah;
                             const contextData = remoteContexts[String(ayah.numberInSurah)] || DETAILED_CONTEXTS[`${surah.number}:${ayah.numberInSurah}`];
 
                             return (
-                                <div key={ayah.number}>
+                                <div key={ayah.number} id={`ayah-${ayah.numberInSurah}`}>
                                     {contextData && <NuzulTimelineCard data={contextData} isRemote={!!remoteContexts[String(ayah.numberInSurah)]} />}
-                                    <div className={`relative p-4 rounded-2xl transition-all ${isPlaying ? 'bg-slate-800 border-l-4 border-emerald-500' : 'bg-slate-800'} shadow-sm`}>
+                                    <div className={`relative p-4 rounded-2xl transition-all ${isPlaying ? 'bg-slate-800 border-l-4 border-emerald-500' : 'bg-slate-800'} shadow-sm ${isLastRead ? 'ring-2 ring-emerald-500/50' : ''}`}>
+                                        {/* Ayah Toolbar */}
                                         <div className="flex justify-between items-center mb-3 border-b border-slate-700 pb-2">
                                             <div className="flex items-center gap-3">
-                                                <span className="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-600 text-white text-xs font-bold">{ayah.numberInSurah}</span>
+                                                <span className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-xs font-bold ${isLastRead ? 'bg-emerald-500' : 'bg-slate-700'}`}>{ayah.numberInSurah}</span>
                                                 <button onClick={() => toggleAudio(ayah.audio, ayah.number)} className="p-2 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
                                                     {isPlaying ? <Icons.Pause size={16} /> : <Icons.Play size={16} />}
                                                 </button>
+                                                <button onClick={() => handleBookmark(ayah.numberInSurah)} className={`p-2 rounded-full hover:bg-slate-700 transition-all ${isLastRead ? 'text-emerald-400' : 'text-slate-500'}`} title="Kaldığım Yer">
+                                                    <Icons.BookOpen size={16} />
+                                                </button>
                                             </div>
-                                            <div className="flex gap-2 overflow-x-auto scrollbar-hide max-w-[200px] sm:max-w-none">
+                                            
+                                            {/* Scrollable Action Buttons */}
+                                            <div className="flex gap-2 overflow-x-auto scrollbar-hide max-w-[180px] sm:max-w-none pl-2">
+                                                <button onClick={() => handleCopy(ayah.text, trText, ayah.numberInSurah)} className="p-2 text-slate-400"><Icons.Copy size={16}/></button>
                                                 <button onClick={() => handleAiRequest(`Aşağıdaki ayetin kelime analizini yap: ${ayah.text}`, 'concepts')} className="p-2 text-fuchsia-400"><Icons.ZoomIn size={16}/></button>
                                                 <button onClick={() => handleAiRequest(`Şu ayet ile benzer konulu başka ayetleri bul: ${trText}`, 'related')} className="p-2 text-sky-400"><Icons.Link size={16}/></button>
                                                 <button onClick={() => handleAiRequest(`Bu ayeti fıkhi, tasavvufi ve güncel açıdan yorumla: ${trText}`, 'comparison')} className="p-2 text-emerald-400"><Icons.Scale size={16}/></button>
@@ -318,8 +420,11 @@
                                                 <button onClick={() => toggleFavorite(ayah, surah)} className={`p-2 ${isFav ? 'text-rose-500' : 'text-slate-400'}`}><Icons.Heart size={16} fill={isFav?"currentColor":"none"}/></button>
                                             </div>
                                         </div>
+                                        
                                         <p className="text-right font-amiri leading-[2.4] mb-4 text-emerald-500 dir-rtl text-2xl">{ayah.text}</p>
-                                        <div className="leading-relaxed font-serif text-gray-300" style={{fontSize: `${fontSize}px`}}>{trText}</div>
+                                        <div className="leading-relaxed font-serif text-gray-300" style={{fontSize: `${fontSize}px`}}>
+                                            <HighlightedText text={trText} highlight={highlightedSearch} />
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -329,25 +434,37 @@
             );
         };
 
-        const Home = ({ surahs, searchQuery, setSearchQuery, setCurrentSurah, setView, chatQuery, setChatQuery, handleGeneralChat, duaQuery, setDuaQuery, handleDuaRequest, handleAiRequest, setShowSettings, performDeepSearch, searchResults, isSearching }) => {
+        const Home = ({ surahs, searchQuery, setSearchQuery, setCurrentSurah, setView, chatQuery, setChatQuery, handleGeneralChat, duaQuery, setDuaQuery, handleDuaRequest, handleAiRequest, setShowSettings, performDeepSearch, searchResults, isSearching, lastRead, setJumpModalOpen }) => {
             
-            const handleSearchChange = (e) => {
-                const q = e.target.value;
-                setSearchQuery(q);
-                if (q.length > 2) {
-                    performDeepSearch(q);
+            const handleSearchTrigger = () => {
+                if (searchQuery.length > 2) {
+                    performDeepSearch(searchQuery);
                 }
             };
 
             return (
                 <div className="min-h-screen pb-24 bg-slate-950 text-slate-100">
-                    <div className="relative p-6 pt-12 pb-8 bg-gradient-to-br from-emerald-900 via-slate-900 to-black rounded-b-[3rem] shadow-2xl mb-6">
+                    <div className="relative p-6 pt-8 pb-8 bg-gradient-to-br from-emerald-900 via-slate-900 to-black rounded-b-[3rem] shadow-2xl mb-6">
                         {/* Header with Settings */}
-                        <div className="flex justify-between items-start mb-6">
-                            <div className="w-8"></div> {/* Spacer */}
-                            <h1 className="text-4xl font-amiri text-white text-center">Kuran & Siyer Atlası</h1>
-                            <button onClick={() => setShowSettings(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"><Icons.Settings size={20} /></button>
+                        <div className="flex justify-between items-center mb-6">
+                            <button onClick={() => setJumpModalOpen(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white"><Icons.Compass size={20} /></button>
+                            <h1 className="text-3xl font-amiri text-white text-center drop-shadow-md">Kuran & Siyer Atlası</h1>
+                            <button onClick={() => setShowSettings(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10"><Icons.Settings size={20} /></button>
                         </div>
+                        
+                        {/* LAST READ CARD */}
+                        {lastRead && (
+                            <div onClick={() => { setCurrentSurah(surahs.find(s => s.number === lastRead.surahNo)); setView('surah'); }} className="mb-6 mx-auto max-w-sm bg-white/5 border border-white/10 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-full"><Icons.BookOpen size={16}/></div>
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Kaldığın Yer</p>
+                                        <p className="text-sm font-bold text-white">{lastRead.surahName}, {lastRead.ayahNo}. Ayet</p>
+                                    </div>
+                                </div>
+                                <Icons.ChevronLeft size={16} className="text-slate-500 rotate-180"/>
+                            </div>
+                        )}
                         
                         {/* DUA PANEL */}
                         <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-violet-900/80 to-fuchsia-900/80 shadow-lg border border-white/10 backdrop-blur-sm relative overflow-hidden">
@@ -366,7 +483,7 @@
 
                         {/* CHAT & SEARCH */}
                         <div className="flex gap-2 mb-4">
-                            <button onClick={() => handleAiRequest('Bana İslam tarihinden ibretlik bir kıssa anlat.', 'story')} className="bg-blue-600/20 border border-blue-500/30 rounded-xl p-3 text-blue-400"><Icons.Book size={20}/></button>
+                            <button onClick={() => handleAiRequest('Bana İslam tarihinden ibretlik bir kıssa anlat.', 'story')} className="bg-blue-600/20 border border-blue-500/30 rounded-xl p-3 text-blue-400 min-w-[50px] flex items-center justify-center"><Icons.Book size={20}/></button>
                             <div className="flex-1 bg-white/10 backdrop-blur-md rounded-xl p-1 border border-white/10 flex items-center shadow-lg">
                                 <input type="text" placeholder="Siyer Asistanına sor..." className="flex-1 bg-transparent border-none outline-none text-white px-3 py-2 text-sm" value={chatQuery} onChange={(e) => setChatQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGeneralChat()}/>
                                 <button onClick={handleGeneralChat} className="bg-emerald-500 p-2 rounded-lg"><Icons.Sparkles size={16} /></button>
@@ -374,35 +491,45 @@
                         </div>
 
                         {/* SEARCH BAR (DEEP SEARCH) */}
-                        <div className="relative">
-                            <Icons.Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                        <div className="flex bg-slate-900/50 rounded-xl border border-slate-700 overflow-hidden items-center shadow-lg relative z-10">
+                            <div className="pl-3 text-slate-400"><Icons.Search size={18} /></div>
                             <input 
                                 type="text" 
-                                placeholder="Sure veya ayetlerde ara (Örn: Miraç)..." 
+                                placeholder="Kuran'da ara (Örn: Miraç, Sabır)..." 
                                 value={searchQuery} 
-                                onChange={handleSearchChange} 
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/50 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 transition-all"
+                                onChange={(e) => setSearchQuery(e.target.value)} 
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearchTrigger()}
+                                className="flex-1 bg-transparent border-none outline-none text-white px-3 py-3 text-sm placeholder-slate-500 h-full"
                             />
+                            <button 
+                                onClick={handleSearchTrigger}
+                                className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 font-bold text-xs transition-colors h-full flex items-center"
+                            >
+                                ARA
+                            </button>
                         </div>
                     </div>
 
-                    {/* SEARCH RESULTS OR SURAH LIST */}
-                    {searchQuery.length > 2 && isSearching ? (
-                        <div className="px-4 py-10 text-center opacity-50">Aranıyor...</div>
-                    ) : searchQuery.length > 2 && searchResults.length > 0 ? (
-                        <div className="px-4 space-y-3">
-                            <h3 className="font-bold text-emerald-400 mb-2">Arama Sonuçları ({searchResults.length})</h3>
+                    {/* RESULTS */}
+                    {isSearching ? (
+                        <div className="px-4 py-10 text-center opacity-50 flex flex-col items-center"><div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>Aranıyor...</div>
+                    ) : searchQuery.length > 0 && searchResults.length > 0 ? (
+                        <div className="px-4 space-y-3 pb-10">
+                            <h3 className="font-bold text-emerald-400 mb-2 px-1">Arama Sonuçları ({searchResults.length})</h3>
                             {searchResults.map((res, i) => (
-                                <div key={i} onClick={() => { setCurrentSurah({number: res.surah.number, revelationType: res.surah.revelationType, numberOfAyahs: res.surah.numberOfAyahs}); setView('surah'); }} className="p-4 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer hover:border-emerald-500/50">
-                                    <div className="flex justify-between mb-1">
-                                        <span className="font-bold text-emerald-400">{getTurkishName(res.surah.number)} Suresi, {res.numberInSurah}. Ayet</span>
+                                <div key={i} onClick={() => { setCurrentSurah({number: res.surah.number, revelationType: res.surah.revelationType, numberOfAyahs: res.surah.numberOfAyahs}); setView('surah'); }} className="p-4 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition-all">
+                                    <div className="flex justify-between mb-2">
+                                        <span className="font-bold text-emerald-400 text-sm bg-emerald-900/30 px-2 py-0.5 rounded">{getTurkishName(res.surah.number)} Suresi, {res.numberInSurah}. Ayet</span>
+                                        <Icons.ChevronLeft size={14} className="text-slate-600 rotate-180"/>
                                     </div>
-                                    <p className="text-sm opacity-80 line-clamp-2">{res.text}</p>
+                                    <div className="text-sm opacity-90 line-clamp-3 leading-relaxed text-gray-300">
+                                        <HighlightedText text={res.text} highlight={searchQuery} />
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="px-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="px-4 grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 pb-10">
                             {surahs.filter(s => getTurkishName(s.number).toLowerCase().includes(searchQuery.toLowerCase())).map(surah => (
                                 <div key={surah.number} onClick={() => { setCurrentSurah(surah); setView('surah'); }} className="flex items-center p-4 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition-all group">
                                     <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 font-bold mr-4">{surah.number}</div>
@@ -457,6 +584,8 @@
             const [fontSize, setFontSize] = React.useState(18);
             const [chatQuery, setChatQuery] = React.useState('');
             const [duaQuery, setDuaQuery] = React.useState('');
+            const [lastRead, setLastRead] = React.useState(null);
+            const [jumpModalOpen, setJumpModalOpen] = React.useState(false);
             
             // AI States
             const [aiModalOpen, setAiModalOpen] = React.useState(false);
@@ -471,22 +600,35 @@
 
             // Deep Search Function
             const performDeepSearch = React.useCallback(async (query) => {
-                if (query.length < 3) { setSearchResults([]); return; }
+                if (query.length < 2) { setSearchResults([]); return; }
                 setIsSearching(true);
+                setSearchResults([]); // Clear previous
                 try {
+                    // Using alquran.cloud search API
                     const res = await fetch(`https://api.alquran.cloud/v1/search/${query}/all/tr.diyanet`);
                     const data = await res.json();
-                    if (data.data && data.data.matches) {
+                    
+                    if (data.code === 200 && data.data && data.data.matches) {
                         setSearchResults(data.data.matches);
                     } else {
                         setSearchResults([]);
                     }
-                } catch (e) { console.error("Search error", e); }
+                } catch (e) { 
+                    console.error("Search error", e); 
+                    setSearchResults([]);
+                }
                 finally { setIsSearching(false); }
             }, []);
 
             React.useEffect(() => {
                 setGeminiKey(localStorage.getItem('geminiApiKey') || '');
+                const savedLastRead = localStorage.getItem('lastRead');
+                if(savedLastRead) setLastRead(JSON.parse(savedLastRead));
+                
+                // Local Favorites Init
+                const localFavs = localStorage.getItem('favs');
+                if(localFavs) setFavorites(JSON.parse(localFavs));
+
                 const initAuth = async () => {
                     if (isFirebaseAvailable) {
                         try {
@@ -504,8 +646,6 @@
                             .onSnapshot((docSnap) => { if (docSnap.exists) setFavorites(docSnap.data().list || []); }, (err) => {});
                         }
                     });
-                } else {
-                    setFavorites(JSON.parse(localStorage.getItem('favs') || '[]'));
                 }
                 fetch('https://api.alquran.cloud/v1/surah').then(res => res.json()).then(data => { setSurahs(data.data); setLoading(false); });
             }, []);
@@ -530,17 +670,24 @@
                 const favItem = { surahNo: surahInfo.number, surahName: getTurkishName(surahInfo.number), ayahNo: ayahData.numberInSurah, text: ayahData.text.substring(0, 50) + "...", uid: `${surahInfo.number}:${ayahData.numberInSurah}` };
                 let newFavs = [...favorites];
                 const isFav = favorites.some(f => f.uid === favItem.uid);
+                
+                // Optimistic UI update for LocalStorage
+                if(isFav) newFavs = newFavs.filter(f => f.uid !== favItem.uid); 
+                else newFavs.push(favItem);
+                setFavorites(newFavs); 
+                localStorage.setItem('favs', JSON.stringify(newFavs));
+
+                // Sync with Firebase if available
                 if (isFirebaseAvailable && user) {
                     const docRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('favorites').doc('main');
-                    if (isFav) await docRef.update({ list: firebase.firestore.FieldValue.arrayRemove(favorites.find(f => f.uid === favItem.uid)) });
-                    else {
-                        const doc = await docRef.get();
-                        if (!doc.exists) await docRef.set({ list: [favItem] });
-                        else await docRef.update({ list: firebase.firestore.FieldValue.arrayUnion(favItem) });
-                    }
-                } else {
-                    if(isFav) newFavs = newFavs.filter(f => f.uid !== favItem.uid); else newFavs.push(favItem);
-                    setFavorites(newFavs); localStorage.setItem('favs', JSON.stringify(newFavs));
+                    try {
+                        if (isFav) await docRef.update({ list: firebase.firestore.FieldValue.arrayRemove(favorites.find(f => f.uid === favItem.uid)) });
+                        else {
+                            const doc = await docRef.get();
+                            if (!doc.exists) await docRef.set({ list: [favItem] });
+                            else await docRef.update({ list: firebase.firestore.FieldValue.arrayUnion(favItem) });
+                        }
+                    } catch(e) { console.warn("Firebase sync failed, using local"); }
                 }
             };
 
@@ -584,6 +731,8 @@
                         performDeepSearch={performDeepSearch}
                         searchResults={searchResults}
                         isSearching={isSearching}
+                        lastRead={lastRead}
+                        setJumpModalOpen={setJumpModalOpen}
                     />}
                     
                     {view === 'surah' && currentSurah && <SurahDetail 
@@ -596,6 +745,10 @@
                         toggleFavorite={toggleFavorite}
                         favorites={favorites}
                         fontSize={fontSize}
+                        lastRead={lastRead}
+                        setLastRead={setLastRead}
+                        highlightedSearch={searchQuery}
+                        setJumpModalOpen={setJumpModalOpen}
                     />}
                     
                     {view === 'favorites' && <Favorites 
@@ -613,6 +766,13 @@
                         setGeminiKey={setGeminiKey} 
                         fontSize={fontSize} 
                         setFontSize={setFontSize} 
+                    />
+                    
+                    <JumpToModal 
+                        isOpen={jumpModalOpen}
+                        onClose={() => setJumpModalOpen(false)}
+                        setCurrentSurah={setCurrentSurah}
+                        setView={setView}
                     />
                     
                     <AiAnalysisModal 
@@ -638,5 +798,3 @@
     </script>
 </body>
 </html>
-
-
