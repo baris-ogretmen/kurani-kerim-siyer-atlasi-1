@@ -138,11 +138,12 @@
             } catch (error) { console.error("Gemini Error:", error); throw error; }
         };
 
-        // --- SABİT VERİLER ---
+        // --- MEAL KAYNAKLARI (GÜNCELLENDİ) ---
         const MEAL_SOURCES = [
-            { id: 'tr.diyanet', name: 'Diyanet İşleri', type: 'Meal' },
-            { id: 'tr.yazir', name: 'Elmalılı Hamdi Yazır', type: 'Tefsirli Meal' },
-            { id: 'custom.bediuzzaman', name: 'Bediüzzaman (Risale-i Nur)', type: 'İzahlı', baseId: 'tr.yazir' }
+            { id: 'tr.yazir', name: 'Elmalılı Hamdi Yazır (Önerilen)' },
+            { id: 'tr.vakfi', name: 'Diyanet Vakfı' },
+            { id: 'tr.diyanet', name: 'Diyanet İşleri' },
+            { id: 'tr.bulac', name: 'Ali Bulaç' }
         ];
 
         const TURKISH_SURAH_NAMES = {
@@ -267,17 +268,20 @@
             );
         };
 
-        const SettingsModal = ({ isOpen, onClose, geminiKey, setGeminiKey, geminiModel, setGeminiModel, fontSize, setFontSize }) => {
+        const SettingsModal = ({ isOpen, onClose, geminiKey, setGeminiKey, geminiModel, setGeminiModel, fontSize, setFontSize, mealSource, setMealSource }) => {
             if (!isOpen) return null;
             const [tempKey, setTempKey] = React.useState(geminiKey);
             const [tempModel, setTempModel] = React.useState(geminiModel);
+            const [tempMeal, setTempMeal] = React.useState(mealSource);
             const [saved, setSaved] = React.useState(false);
 
             const handleSave = () => {
                 setGeminiKey(tempKey);
                 setGeminiModel(tempModel);
+                setMealSource(tempMeal);
                 localStorage.setItem('geminiApiKey', tempKey);
                 localStorage.setItem('geminiModel', tempModel);
+                localStorage.setItem('mealSource', tempMeal);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 2000);
             };
@@ -292,7 +296,12 @@
                             <input type="password" value={tempKey} onChange={(e) => setTempKey(e.target.value)} className="w-full mb-3 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Anahtarı buraya yapıştırın"/>
                             
                             <label className="text-xs font-bold text-emerald-400 mb-2 block">Yapay Zeka Modeli</label>
-                            <input type="text" value={tempModel} onChange={(e) => setTempModel(e.target.value)} className="w-full mb-4 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Örn: gemini-1.5-flash"/>
+                            <input type="text" value={tempModel} onChange={(e) => setTempModel(e.target.value)} className="w-full mb-3 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Örn: gemini-1.5-flash"/>
+
+                            <label className="text-xs font-bold text-emerald-400 mb-2 block">Meal Kaynağı (Çeviri)</label>
+                            <select value={tempMeal} onChange={(e) => setTempMeal(e.target.value)} className="w-full mb-4 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none text-white">
+                                {MEAL_SOURCES.map(m => <option key={m.id} value={m.id} className="bg-slate-900">{m.name}</option>)}
+                            </select>
                             
                             <button onClick={handleSave} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold"><Icons.Check size={20}/> KAYDET</button>
                             
@@ -443,7 +452,7 @@
             );
         };
 
-        const SurahDetail = ({ surah, setView, handleAiRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, fontSize, lastRead, setLastRead, highlightedSearch, setJumpModalOpen }) => {
+        const SurahDetail = ({ surah, setView, handleAiRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, fontSize, lastRead, setLastRead, highlightedSearch, setJumpModalOpen, mealSource }) => {
             const [ayahs, setAyahs] = React.useState([]);
             const [translation, setTranslation] = React.useState([]);
             const [detailLoading, setDetailLoading] = React.useState(true);
@@ -452,12 +461,10 @@
 
             React.useEffect(() => {
                 setDetailLoading(true);
-                const mealSourceObj = MEAL_SOURCES.find(m => m.id === 'tr.diyanet'); 
-                const apiMealId = mealSourceObj?.baseId || 'tr.diyanet';
                 
                 Promise.all([
                     fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/ar.alafasy`),
-                    fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/${apiMealId}`)
+                    fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/${mealSource}`)
                 ]).then(async ([resAr, resTr]) => {
                     const dataAr = await resAr.json();
                     const dataTr = await resTr.json();
@@ -492,7 +499,7 @@
                           .catch(() => {});
                      } catch(e) {}
                 }
-            }, [surah]);
+            }, [surah, mealSource]); // Added mealSource dependency
 
             // Save Last Read
             const handleBookmark = (ayahNo) => {
@@ -954,6 +961,7 @@
             const [geminiKey, setGeminiKey] = React.useState('');
             const [geminiModel, setGeminiModel] = React.useState('gemini-1.5-flash');
             const [fontSize, setFontSize] = React.useState(18);
+            const [mealSource, setMealSource] = React.useState('tr.yazir'); // VARSAYILAN MEAL ELMALILI OLDU
             
             const [chatQuery, setChatQuery] = React.useState('');
             const [duaQuery, setDuaQuery] = React.useState('');
@@ -981,8 +989,8 @@
                 setSearchResults([]); 
                 setSearchCount(0);
                 try {
-                    // Using alquran.cloud search API
-                    const res = await fetch(`https://api.alquran.cloud/v1/search/${query}/all/tr.diyanet`);
+                    // API Araması artık seçilen meale (mealSource) göre yapılır.
+                    const res = await fetch(`https://api.alquran.cloud/v1/search/${query}/all/${mealSource}`);
                     const data = await res.json();
                     
                     if (data.code === 200 && data.data && data.data.matches) {
@@ -998,7 +1006,7 @@
                     setSearchCount(0);
                 }
                 finally { setIsSearching(false); }
-            }, []);
+            }, [mealSource]);
 
             // "Anında Bulma" özelliği (Debounce Effect)
             React.useEffect(() => {
@@ -1017,6 +1025,8 @@
             React.useEffect(() => {
                 setGeminiKey(localStorage.getItem('geminiApiKey') || '');
                 setGeminiModel(localStorage.getItem('geminiModel') || 'gemini-1.5-flash');
+                setMealSource(localStorage.getItem('mealSource') || 'tr.yazir'); // Kaydedilmiş meal ayarı alınır
+                
                 const savedLastRead = localStorage.getItem('lastRead');
                 if(savedLastRead) setLastRead(JSON.parse(savedLastRead));
                 
@@ -1175,6 +1185,7 @@
                         setLastRead={setLastRead}
                         highlightedSearch={searchQuery}
                         setJumpModalOpen={setJumpModalOpen}
+                        mealSource={mealSource}
                     />}
                     
                     {view === 'favorites' && <Favorites 
@@ -1202,6 +1213,8 @@
                         setGeminiModel={setGeminiModel}
                         fontSize={fontSize} 
                         setFontSize={setFontSize} 
+                        mealSource={mealSource}
+                        setMealSource={setMealSource}
                     />
                     
                     <JumpToModal 
