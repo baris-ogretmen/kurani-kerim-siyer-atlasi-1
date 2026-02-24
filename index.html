@@ -103,7 +103,8 @@
             Leaf: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>,
             BookHeart: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M12 6.5c-1.12-.9-3-.3-3 1.5 0 2.5 3 4.5 3 4.5s3-2 3-4.5c0-1.8-1.88-2.4-3-1.5z"/></svg>,
             Shuffle: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>,
-            Star: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Star: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+            Headphones: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
         };
 
         // --- FIREBASE AYARLARI ---
@@ -143,7 +144,16 @@
             { id: 'tr.yazir', name: 'Elmalılı Hamdi Yazır (Önerilen)' },
             { id: 'tr.vakfi', name: 'Diyanet Vakfı' },
             { id: 'tr.diyanet', name: 'Diyanet İşleri' },
-            { id: 'tr.bulac', name: 'Ali Bulaç' }
+            { id: 'tr.bulac', name: 'Ali Bulaç' },
+            { id: 'tr.kucuk', name: 'Ali Küçük' }
+        ];
+
+        // --- KIRAAT (OKUYUCU) KAYNAKLARI ---
+        const RECITER_SOURCES = [
+            { id: 'ar.abdulbasitmurattal', name: 'Abdulbasit Abdussamed (Murattal)' },
+            { id: 'ar.alafasy', name: 'Mishary Rashid Alafasy' },
+            { id: 'ar.mahermuaiqly', name: 'Maher Al Muaiqly' },
+            { id: 'ar.minshawi', name: 'Minshawi' }
         ];
 
         const TURKISH_SURAH_NAMES = {
@@ -248,7 +258,7 @@
                 prophetic_edu: 'Nebevi Eğitim Metodu', divine_path: 'Rabbani Yol & Tezkiye',
                 prophetic_med: 'Nebevi Tıp', quran_duas: 'Kuran Duaları Rehberi',
                 teacher_assistant: 'Öğretmen Asistanı (Ders Planı)', youth_defense: 'Gençlik & İnanç Savunması',
-                esma: 'Esma-ül Hüsna Analizi'
+                esma: 'Esma-ül Hüsna Analizi', thematic_search: 'Konu/Tema Analizi', mey_siyer: 'M. Emin Yıldırım Usulü Siyer'
             };
             const displayTitle = titles[type] || 'AI Analizi';
             return (
@@ -268,20 +278,23 @@
             );
         };
 
-        const SettingsModal = ({ isOpen, onClose, geminiKey, setGeminiKey, geminiModel, setGeminiModel, fontSize, setFontSize, mealSource, setMealSource }) => {
+        const SettingsModal = ({ isOpen, onClose, geminiKey, setGeminiKey, geminiModel, setGeminiModel, fontSize, setFontSize, mealSource, setMealSource, reciterSource, setReciterSource }) => {
             if (!isOpen) return null;
             const [tempKey, setTempKey] = React.useState(geminiKey);
             const [tempModel, setTempModel] = React.useState(geminiModel);
             const [tempMeal, setTempMeal] = React.useState(mealSource);
+            const [tempReciter, setTempReciter] = React.useState(reciterSource);
             const [saved, setSaved] = React.useState(false);
 
             const handleSave = () => {
                 setGeminiKey(tempKey);
                 setGeminiModel(tempModel);
                 setMealSource(tempMeal);
+                setReciterSource(tempReciter);
                 localStorage.setItem('geminiApiKey', tempKey);
                 localStorage.setItem('geminiModel', tempModel);
                 localStorage.setItem('mealSource', tempMeal);
+                localStorage.setItem('reciterSource', tempReciter);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 2000);
             };
@@ -298,9 +311,14 @@
                             <label className="text-xs font-bold text-emerald-400 mb-2 block">Yapay Zeka Modeli</label>
                             <input type="text" value={tempModel} onChange={(e) => setTempModel(e.target.value)} className="w-full mb-3 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Örn: gemini-1.5-flash"/>
 
-                            <label className="text-xs font-bold text-emerald-400 mb-2 block">Meal Kaynağı (Çeviri)</label>
-                            <select value={tempMeal} onChange={(e) => setTempMeal(e.target.value)} className="w-full mb-4 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none text-white">
+                            <label className="text-xs font-bold text-emerald-400 mb-2 block flex items-center gap-1"><Icons.BookOpen size={14}/> Meal Kaynağı (Çeviri)</label>
+                            <select value={tempMeal} onChange={(e) => setTempMeal(e.target.value)} className="w-full mb-3 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none text-white">
                                 {MEAL_SOURCES.map(m => <option key={m.id} value={m.id} className="bg-slate-900">{m.name}</option>)}
+                            </select>
+
+                            <label className="text-xs font-bold text-emerald-400 mb-2 block flex items-center gap-1"><Icons.Headphones size={14}/> Kıraat (Okuyucu)</label>
+                            <select value={tempReciter} onChange={(e) => setTempReciter(e.target.value)} className="w-full mb-4 p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none text-white">
+                                {RECITER_SOURCES.map(m => <option key={m.id} value={m.id} className="bg-slate-900">{m.name}</option>)}
                             </select>
                             
                             <button onClick={handleSave} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold"><Icons.Check size={20}/> KAYDET</button>
@@ -452,7 +470,7 @@
             );
         };
 
-        const SurahDetail = ({ surah, setView, handleAiRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, fontSize, lastRead, setLastRead, highlightedSearch, setJumpModalOpen, mealSource }) => {
+        const SurahDetail = ({ surah, setView, handleAiRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, fontSize, lastRead, setLastRead, highlightedSearch, setJumpModalOpen, mealSource, reciterSource }) => {
             const [ayahs, setAyahs] = React.useState([]);
             const [translation, setTranslation] = React.useState([]);
             const [detailLoading, setDetailLoading] = React.useState(true);
@@ -462,32 +480,47 @@
             React.useEffect(() => {
                 setDetailLoading(true);
                 
-                Promise.all([
-                    fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/ar.alafasy`),
-                    fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/${mealSource}`)
-                ]).then(async ([resAr, resTr]) => {
-                    const dataAr = await resAr.json();
-                    const dataTr = await resTr.json();
-                    setAyahs(dataAr.data.ayahs);
-                    setTranslation(dataTr.data.ayahs);
-                    setDetailLoading(false);
-                    
-                    // Check for jump request and highlight it
-                    const jumpAyah = sessionStorage.getItem('jumpToAyah');
-                    if(jumpAyah) {
-                        setTimeout(() => {
-                            const el = document.getElementById(`ayah-${jumpAyah}`);
-                            if(el) {
-                                el.scrollIntoView({behavior: 'smooth', block: 'center'});
-                                el.classList.add('ring-4', 'ring-emerald-500', 'bg-emerald-900/50', 'transition-all', 'duration-500');
-                                setTimeout(() => {
-                                    el.classList.remove('ring-4', 'ring-emerald-500', 'bg-emerald-900/50');
-                                }, 3000); // Remove glow after 3 seconds
-                            }
-                            sessionStorage.removeItem('jumpToAyah');
-                        }, 500); // Shorter timeout for smoother feel
+                const fetchSurahData = async () => {
+                    try {
+                        // KIRAAT GETIRME VE YEDEK (FALLBACK) MEKANIZMASI
+                        let arRes = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/${reciterSource}`);
+                        if (!arRes.ok) arRes = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/ar.alafasy`);
+                        
+                        // MEAL GETIRME VE YEDEK (FALLBACK) MEKANIZMASI
+                        let trRes = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/${mealSource}`);
+                        if (!trRes.ok) {
+                            console.warn("Seçilen meal desteklenmiyor, Elmalılı'ya geçiliyor.");
+                            trRes = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/tr.yazir`);
+                        }
+                        
+                        const dataAr = await arRes.json();
+                        const dataTr = await trRes.json();
+                        
+                        setAyahs(dataAr.data.ayahs);
+                        setTranslation(dataTr.data.ayahs);
+                    } catch (e) {
+                        console.error("Veri çekme hatası:", e);
+                    } finally {
+                        setDetailLoading(false);
+                        // Check for jump request and highlight it
+                        const jumpAyah = sessionStorage.getItem('jumpToAyah');
+                        if(jumpAyah) {
+                            setTimeout(() => {
+                                const el = document.getElementById(`ayah-${jumpAyah}`);
+                                if(el) {
+                                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                                    el.classList.add('ring-4', 'ring-emerald-500', 'bg-emerald-900/50', 'transition-all', 'duration-500');
+                                    setTimeout(() => {
+                                        el.classList.remove('ring-4', 'ring-emerald-500', 'bg-emerald-900/50');
+                                    }, 3000); // Remove glow after 3 seconds
+                                }
+                                sessionStorage.removeItem('jumpToAyah');
+                            }, 500); // Shorter timeout for smoother feel
+                        }
                     }
-                });
+                };
+
+                fetchSurahData();
                 
                 if (typeof db !== 'undefined') {
                      try {
@@ -499,7 +532,7 @@
                           .catch(() => {});
                      } catch(e) {}
                 }
-            }, [surah, mealSource]); // Added mealSource dependency
+            }, [surah, mealSource, reciterSource]);
 
             // Save Last Read
             const handleBookmark = (ayahNo) => {
@@ -828,6 +861,10 @@
 
                             {/* DİĞER KEŞİF ARAÇLARI */}
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                <button onClick={() => setHomePromptConfig({ type: 'mey_siyer', title: 'Sahabe İklimi (M.E. Yıldırım)', placeholder: 'Örn: Mus\'ab Bin Umeyr, Bedir, Uhud...', prefix: 'Sen siyer ve sahabe hayatı konusunda uzman, kıymetli hoca Muhammed Emin Yıldırım\'ın o samimi, heyecanlı, yüreklere dokunan ve günümüze mesajlar çıkaran muhteşem anlatım üslubunu benimsemiş bir yapay zekasın. Kullanıcının sorduğu şu konuyu/sahabeyi bu özel üslupla, sanki bir Siyer Vakfı sohbetindeymişiz gibi anlat: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-amber-500/50 hover:border-amber-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <div className="p-2 bg-amber-500/20 text-amber-300 rounded-full group-hover:bg-amber-500 group-hover:text-white transition-colors"><Icons.Users size={20}/></div>
+                                    <span className="text-[11px] font-bold text-amber-100">Sahabe İklimi (M.E.Y)</span>
+                                </button>
                                 <button onClick={() => setHomePromptConfig({ type: 'esma', title: 'Esma-ül Hüsna Analizi', placeholder: 'Örn: Er-Rahman, El-Vedud, El-Fettah...', prefix: 'Sen bir İslam teolojisi ve Esma-ül Hüsna uzmanısın. Kullanıcının girdiği Allah\'ın şu isminin (Esma) sözlük anlamını, Kuran\'da geçtiği bağlamları, tecellilerini ve insanın bu isimden nasıl ahlaki bir pay (tahalluk) çıkarabileceğini derinlemesine anlat. İsim: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-yellow-500/20 hover:border-yellow-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                     <div className="p-2 bg-yellow-500/10 text-yellow-400 rounded-full group-hover:bg-yellow-500 group-hover:text-white transition-colors"><Icons.Star size={20}/></div>
                                     <span className="text-[11px] font-bold text-yellow-100">Esma-ül Hüsna</span>
@@ -855,10 +892,6 @@
                                 <button onClick={() => setHomePromptConfig({ type: 'theme', title: 'Konulu Kuran Okuması', placeholder: 'Örn: Sabır, Adalet, Aile hayatı...', prefix: 'Sen bir Kuran rehberisin. Kullanıcının verdiği şu konu hakkında Kuran perspektifinden bir okuma rehberi, ilgili ayetler ve felsefi/manevi analiz hazırla. Konu: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-indigo-500/20 hover:border-indigo-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                     <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-full group-hover:bg-indigo-500 group-hover:text-white transition-colors"><Icons.Layers size={20}/></div>
                                     <span className="text-[11px] font-bold text-indigo-100">Konulu Okuma</span>
-                                </button>
-                                <button onClick={() => setHomePromptConfig({ type: 'event', title: 'Siyer Olay Analizi', placeholder: 'Örn: Uhud Savaşı, Hudeybiye...', prefix: 'Sen bir İslam Tarihi uzmanısın. Kullanıcının verdiği şu olayın arka planını, Kuran ayetleriyle ilişkisini (esbab-ı nüzul), önemini ve çıkarılacak dersleri detaylıca anlat. Olay: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-cyan-500/20 hover:border-cyan-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
-                                    <div className="p-2 bg-cyan-500/10 text-cyan-400 rounded-full group-hover:bg-cyan-500 group-hover:text-white transition-colors"><Icons.History size={20}/></div>
-                                    <span className="text-[11px] font-bold text-cyan-100">Olay Analizi</span>
                                 </button>
                             </div>
                         </div>
@@ -897,11 +930,16 @@
                         <div className="px-4 py-10 text-center opacity-50 flex flex-col items-center"><div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>Aranıyor...</div>
                     ) : searchQuery.length > 0 && searchResults.length > 0 ? (
                         <div className="px-4 space-y-3 pb-10">
-                            {/* KELİME İSTATİSTİĞİ BANNER'I */}
-                            <div className="bg-gradient-to-r from-emerald-900/40 to-teal-900/40 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between shadow-lg mb-4">
+                            {/* KELİME İSTATİSTİĞİ VE KONU/TEMA ANALİZİ BANNER'I */}
+                            <div className="bg-gradient-to-r from-emerald-900/40 to-teal-900/40 border border-emerald-500/30 rounded-2xl p-4 flex flex-col gap-4 shadow-lg mb-6">
                                 <div>
                                     <h3 className="text-emerald-400 font-bold text-xs mb-1 flex items-center gap-1"><Icons.Activity size={14}/> Kelime İstatistiği</h3>
-                                    <p className="text-white text-sm">"<span className="text-yellow-400 font-bold">{searchQuery}</span>" kelimesi Kur'an-ı Kerim'de tam <span className="bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold">{searchCount}</span> defa geçmektedir.</p>
+                                    <p className="text-white text-sm leading-relaxed">"<span className="text-yellow-400 font-bold">{searchQuery}</span>" kelimesi Kur'an-ı Kerim'de tam <span className="bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold shadow-md">{searchCount}</span> defa geçmektedir.</p>
+                                </div>
+                                <div className="border-t border-emerald-500/20 pt-3">
+                                    <button onClick={() => handleAiRequest(`"${searchQuery}" kavramı Kur'an-ı Kerim'de sadece bir kelime olarak değil, *konu ve tema* olarak hangi bağlamlarda, hangi surelerde işlenmektedir? Bu konunun Siyer'deki ve Peygamberimizin hayatındaki pratik karşılığı nedir? Lütfen Muhammed Emin Yıldırım hocanın o samimi, coşkulu, sahabe örnekleriyle dolu ve kalbe dokunan üslubunu kullanarak detaylıca analiz et.`, 'thematic_search')} className="w-full bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/50 text-emerald-100 py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all">
+                                        <Icons.Sparkles size={16}/> KONU OLARAK YAPAY ZEKAYA İNCELET (M. Emin Yıldırım Üslubuyla)
+                                    </button>
                                 </div>
                             </div>
 
@@ -961,7 +999,8 @@
             const [geminiKey, setGeminiKey] = React.useState('');
             const [geminiModel, setGeminiModel] = React.useState('gemini-1.5-flash');
             const [fontSize, setFontSize] = React.useState(18);
-            const [mealSource, setMealSource] = React.useState('tr.yazir'); // VARSAYILAN MEAL ELMALILI OLDU
+            const [mealSource, setMealSource] = React.useState('tr.yazir');
+            const [reciterSource, setReciterSource] = React.useState('ar.abdulbasitmurattal'); // VARSAYILAN: ABDULBASIT
             
             const [chatQuery, setChatQuery] = React.useState('');
             const [duaQuery, setDuaQuery] = React.useState('');
@@ -1025,7 +1064,8 @@
             React.useEffect(() => {
                 setGeminiKey(localStorage.getItem('geminiApiKey') || '');
                 setGeminiModel(localStorage.getItem('geminiModel') || 'gemini-1.5-flash');
-                setMealSource(localStorage.getItem('mealSource') || 'tr.yazir'); // Kaydedilmiş meal ayarı alınır
+                setMealSource(localStorage.getItem('mealSource') || 'tr.yazir'); 
+                setReciterSource(localStorage.getItem('reciterSource') || 'ar.abdulbasitmurattal');
                 
                 const savedLastRead = localStorage.getItem('lastRead');
                 if(savedLastRead) setLastRead(JSON.parse(savedLastRead));
@@ -1186,6 +1226,7 @@
                         highlightedSearch={searchQuery}
                         setJumpModalOpen={setJumpModalOpen}
                         mealSource={mealSource}
+                        reciterSource={reciterSource}
                     />}
                     
                     {view === 'favorites' && <Favorites 
@@ -1215,6 +1256,8 @@
                         setFontSize={setFontSize} 
                         mealSource={mealSource}
                         setMealSource={setMealSource}
+                        reciterSource={reciterSource}
+                        setReciterSource={setReciterSource}
                     />
                     
                     <JumpToModal 
