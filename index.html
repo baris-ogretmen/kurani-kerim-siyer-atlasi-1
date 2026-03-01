@@ -22,7 +22,7 @@
 
     <style>
         .font-amiri { font-family: 'Amiri', serif; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .dir-rtl { direction: rtl; }
@@ -31,7 +31,12 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px) translateX(-50%); }
+            to { opacity: 1; transform: translateY(0) translateX(-50%); }
+        }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
         
         /* Highlight Style */
         .highlight-text { background-color: #f59e0b; color: #000; padding: 0 4px; border-radius: 4px; font-weight: bold; }
@@ -41,8 +46,9 @@
         .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; opacity: 0.9; }
         .prose ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 0.5em; }
         .prose li { margin-bottom: 0.5em; }
-        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.4); border-radius: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 6px; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100">
@@ -56,6 +62,7 @@
             Search: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
             Heart: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M19 14c1.49-1.28 3.6-2.34 3.6-5.36a4.83 4.83 0 0 0-5.5-5.36C15.22 3.79 15 5.79 15 6h-3.17A4.62 4.62 0 0 0 9.5 2.5 5.25 5.25 0 0 0 2.5 7.5c0 3.09 3.06 4.7 5.1 6.5l6.4 6z"/></svg>,
             ChevronLeft: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m15 18-6-6 6-6"/></svg>,
+            ChevronUp: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m18 15-6-6-6 6"/></svg>,
             Moon: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
             Sun: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>,
             X: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 6 6 18"/><path d="m6 6 18 18"/></svg>,
@@ -108,7 +115,8 @@
             Feather: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z"/><path d="M16 8 2 22"/><path d="M17.5 15H9"/></svg>,
             Gamepad2: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></svg>,
             GitMerge: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>,
-            ClipboardList: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+            ClipboardList: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>,
+            Quote: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
         };
 
         // --- FIREBASE AYARLARI ---
@@ -169,6 +177,49 @@
         const DUA_VERSES = { "1:1":true,"1:2":true,"1:3":true,"1:4":true,"1:5":true,"1:6":true,"1:7":true, "2:201":true, "2:250":true, "2:286":true, "3:8":true, "3:9":true, "3:16":true, "3:53":true, "3:147":true, "3:193":true, "3:194":true, "7:23":true, "14:40":true, "14:41":true, "21:87":true, "21:89":true, "25:74":true, "27:19":true, "40:7":true, "59:10":true, "60:4":true, "66:8":true, "113:1":true, "114:1":true, "114:2":true, "114:3":true };
         const EDU_VERSES = { "31:13":true, "31:14":true, "31:15":true, "31:16":true, "31:17":true, "31:18":true, "31:19":true, "20:114":true, "96:1":true, "96:2":true, "96:3":true, "96:4":true, "96:5":true, "66:6":true, "17:23":true, "17:24":true, "18:66":true, "18:67":true, "3:159":true };
 
+        // GÜNÜN İLHAMI İÇİN SEÇME AYETLER
+        const INSPIRATION_VERSES = [
+            { surahNo: 2, ayahNo: 286, text: "Allah hiçbir nefse gücünün yeteceğinden ötesini yüklemez.", ar: "لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا" },
+            { surahNo: 94, ayahNo: 5, text: "Demek ki zorlukla beraber bir kolaylık vardır.", ar: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا" },
+            { surahNo: 3, ayahNo: 139, text: "Gevşemeyin, hüzünlenmeyin. Eğer (gerçekten) iman etmiş kimselerseniz üstün olan sizlersiniz.", ar: "وَلَا تَهِنُوا۟ وَلَا تَحْزَنُوا۟ وَأَنتُمُ ٱلْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ" },
+            { surahNo: 2, ayahNo: 152, text: "Öyleyse beni (ibadetle) anın ki ben de sizi anayım. Bana şükredin; sakın bana nankörlük etmeyin!", ar: "فَٱذْكُرُونِىٓ أَذْكُرْكُمْ وَٱشْكُرُوا۟ لِى وَلَا تَكْفُرُونِ" },
+            { surahNo: 50, ayahNo: 16, text: "Andolsun, insanı biz yarattık ve nefsinin ona verdiği vesveseyi de biz biliriz. Çünkü biz ona şah damarından daha yakınız.", ar: "وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ ٱلْوَرِيدِ" },
+            { surahNo: 39, ayahNo: 53, text: "De ki: Ey kendi nefisleri aleyhine haddi aşan kullarım! Allah'ın rahmetinden ümit kesmeyin!", ar: "قُلْ يَٰعِبَادِىَ ٱلَّذِينَ أَسْرَفُوا۟ عَلَىٰٓ أَنفُسِهِمْ لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ" },
+            { surahNo: 65, ayahNo: 3, text: "Kim Allah'a tevekkül ederse, O kendisine yeter.", ar: "وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥ" },
+            { surahNo: 20, ayahNo: 46, text: "Korkmayın, çünkü ben sizinle beraberim; işitir ve görürüm.", ar: "قَالَ لَا تَخَافَآ ۖ إِنَّنِى مَعَكُمَآ أَسْمَعُ وَأَرَىٰ" },
+            { surahNo: 2, ayahNo: 214, text: "Sabır ve namazla Allah'tan yardım isteyin. Şüphesiz bu, kalbi Allah'a saygıdan ürperenler dışında herkese zor gelir.", ar: "وَٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِ ۚ وَإِنَّهَا لَكَبِيرَةٌ إِلَّا عَلَى ٱلْخَٰشِعِينَ" },
+            { surahNo: 13, ayahNo: 28, text: "Bilesiniz ki kalpler ancak Allah'ı anmakla huzur bulur.", ar: "أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ" }
+        ];
+
+        // GÜNÜN ESMASI
+        const DAILY_ESMA = [
+            { name: "Er-Rahmân", desc: "Dünyada bütün mahlûkata merhamet eden, şefkat gösteren." },
+            { name: "El-Vedûd", desc: "İtaatkâr kullarını çok seven, sevilmeye en lâyık olan." },
+            { name: "El-Fettâh", desc: "Her türlü sıkıntıları açan ve kolaylaştıran." },
+            { name: "El-Gafûr", desc: "Bağışlaması, af ve mağfireti çok olan." },
+            { name: "Eş-Şâfî", desc: "Maddi ve manevi hastalıklara şifa veren." },
+            { name: "El-Latîf", desc: "Kullarına sezilmez yollardan iyilikler, güzellikler ulaştıran." },
+            { name: "El-Mucîb", desc: "Duaları, istekleri kabul eden, cevap veren." },
+            { name: "El-Vekîl", desc: "Kendisine tevekkül edenlerin işlerini en iyi şekilde neticelendiren." },
+            { name: "El-Hafîz", desc: "Her şeyi koruyan, gözeten, muhafaza eden." },
+            { name: "El-Bâsit", desc: "Dilediğine rızkı genişleten, ferahlık veren." }
+        ];
+
+        // GÜNÜN HADİSİ
+        const DAILY_HADITH = [
+            { text: "Kolaylaştırınız, zorlaştırmayınız. Müjdeleyiniz, nefret ettirmeyiniz.", source: "Buhârî, İlim, 11" },
+            { text: "İnsanlara merhamet etmeyene Allah merhamet etmez.", source: "Müslim, Tevhîd, 66" },
+            { text: "Sizin en hayırlınız, ahlakı en güzel olanınızdır.", source: "Buhârî, Edeb, 38" },
+            { text: "Amellerin en faziletlisi az da olsa devamlı olanıdır.", source: "Müslim, Müsâfirîn, 218" },
+            { text: "Müslüman, elinden ve dilinden Müslümanların emin olduğu kimsedir.", source: "Buhârî, Îmân, 4" },
+            { text: "Kişi sevdiği ile beraberdir.", source: "Buhârî, Edeb, 96" },
+            { text: "Zulümden sakının. Çünkü zulüm kıyamet gününde zifiri karanlık olacaktır.", source: "Müslim, Birr, 56" },
+            { text: "İki nimet vardır ki insanların çoğu bunda aldanmıştır: Sağlık ve boş vakit.", source: "Buhârî, Rikâk, 1" },
+            { text: "Allah sizin suretlerinize ve mallarınıza bakmaz, kalplerinize ve amellerinize bakar.", source: "Müslim, Birr, 34" },
+            { text: "İman etmedikçe cennete giremezsiniz, birbirinizi sevmedikçe de (gerçek anlamda) iman etmiş olamazsınız.", source: "Müslim, Îmân, 93" },
+            { text: "Kim bir kardeşinin ihtiyacını giderirse, Allah da onun ihtiyacını giderir.", source: "Buhârî, Mezâlim, 3" }
+        ];
+
         const JUZ_CONTENT = [
             "Fatiha, Bakara (1-141)", "Bakara (142-252)", "Bakara (253-286), Al-i İmran (1-92)", "Al-i İmran (93-200), Nisa (1-23)", "Nisa (24-147)", "Nisa (148-176), Maide (1-81)", "Maide (82-120), En'am (1-110)", "En'am (111-165), A'raf (1-87)", "A'raf (88-206), Enfal (1-40)", "Enfal (41-75), Tevbe (1-92)", "Tevbe (93-129), Yunus, Hud (1-5)", "Hud (6-123), Yusuf (1-52)", "Yusuf (53-111), Ra'd, İbrahim", "Hicr, Nahl", "İsra, Kehf (1-74)", "Kehf (75-110), Meryem, Taha", "Enbiya, Hac", "Mü'minun, Nur, Furkan (1-20)", "Furkan (21-77), Şuara, Neml (1-55)", "Neml (56-93), Kasas, Ankebut (1-45)", "Ankebut (46-69), Rum, Lokman, Secde, Ahzab (1-30)", "Ahzab (31-73), Sebe, Fatır, Yasin (1-27)", "Yasin (28-83), Saffat, Sad, Zümer (1-31)", "Zümer (32-75), Mü'min, Fussilet (1-46)", "Fussilet (47-54), Şura, Zuhruf, Duhan, Casiye", "Ahkaf, Muhammed, Fetih, Hucurat, Kaf, Zariyat (1-30)", "Zariyat (31-60), Tur, Necm, Kamer, Rahman, Vakıa, Hadid", "Mücadele'den Tahrim'e kadar", "Mülk'ten Mürselat'a kadar", "Nebe'den Nas'a kadar (Amme Cüzü)"
         ];
@@ -204,11 +255,48 @@
         // --- COMPONENTS ---
 
         const Loading = () => (
-            <div className="flex flex-col items-center justify-center h-64 text-emerald-500 animate-pulse">
+            <div className="flex flex-col items-center justify-center h-screen bg-slate-950 text-emerald-500 animate-pulse">
                 <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
                 <p className="font-amiri text-lg font-bold">Kuran & Siyer Atlası Yükleniyor...</p>
             </div>
         );
+
+        // Yukarı Çık Butonu
+        const ScrollToTop = () => {
+            const [isVisible, setIsVisible] = React.useState(false);
+
+            React.useEffect(() => {
+                const toggleVisibility = () => {
+                    if (window.scrollY > 300) setIsVisible(true);
+                    else setIsVisible(false);
+                };
+                window.addEventListener("scroll", toggleVisibility);
+                return () => window.removeEventListener("scroll", toggleVisibility);
+            }, []);
+
+            if (!isVisible) return null;
+
+            return (
+                <button 
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    className="fixed bottom-20 right-4 z-50 p-3 bg-emerald-600/90 backdrop-blur-sm text-white rounded-full shadow-lg shadow-emerald-900/50 hover:bg-emerald-500 transition-all animate-fade-in"
+                    title="Yukarı Çık"
+                >
+                    <Icons.ChevronUp size={24} />
+                </button>
+            );
+        };
+
+        // Toast Bildirimi
+        const Toast = ({ message, visible }) => {
+            if (!visible) return null;
+            return (
+                <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-full shadow-lg flex items-center gap-2 animate-slide-down">
+                    <Icons.CheckCircle size={16} />
+                    {message}
+                </div>
+            );
+        };
 
         // Highlight Component
         const HighlightedText = ({ text, highlight }) => {
@@ -256,7 +344,7 @@
                 meal: 'Meal Karşılaştırması', contemplation: 'Tefekkür Modu', coach: 'Hatim Koçu Analizi', 
                 custom: 'Ayet Asistanı', quest: 'Günün Manevi Görevi', sahaba: 'Sahabe & Şahsiyet Analizi', 
                 theme: 'Konulu Kuran Okuması', event: 'Siyer Olay Analizi', 
-                concept_deep: 'Kur\'ani Kavram Analizi', sermon: 'Sohbet & Hutbe Hazırlayıcı',
+                concept_deep: 'Kur\'ani Kavram Analizi', sermon: 'Sohbet & Hutbe Metni',
                 surah_dua: 'Suredan Dua Üretimi', family: 'Aile & Eğitim Rehberi', 
                 friday: 'Özel Cuma Mesajı', hadith: 'Hadis İklimi', modern_life: 'Modern Hayata Uyarlama',
                 prophetic_edu: 'Nebevi Eğitim Metodu', divine_path: 'Rabbani Yol & Tezkiye',
@@ -267,33 +355,33 @@
                 risale_problem: 'Risale-i Nur Şifası', metaphor: 'Kıssa & Metafor Üretici',
                 class_activity: 'Sınıf İçi Etkinlik Planı', siyak_sibak: 'Siyak-Sibak Analizi',
                 surah_esma: 'Suredeki Esma-ül Hüsna', surah_stories: 'Kıssalar ve Karakterler',
-                surah_fiqh: 'Ameli ve Fıkhi Hükümler', spiritual_checkup: 'Manevi Check-Up'
+                surah_fiqh: 'Ameli ve Fıkhi Hükümler', spiritual_checkup: 'Manevi Check-Up',
+                quiz: 'İnteraktif Sure Testi', dream: 'Rüya ve Sembol Yorumu'
             };
             const displayTitle = titles[type] || 'AI Analizi';
             return (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
                     <div className="w-full max-w-lg bg-slate-900 border border-emerald-500/30 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
-                        <div className="p-5 bg-gradient-to-r from-emerald-900 to-slate-900 border-b border-white/10 flex justify-between items-center">
+                        <div className="p-5 bg-gradient-to-r from-emerald-900 to-slate-900 border-b border-white/10 flex justify-between items-center shrink-0">
                             <h3 className="font-bold text-lg text-white flex items-center gap-2"><Icons.Sparkles size={20} className="text-emerald-400"/> AI: {displayTitle}</h3>
                             <button onClick={onClose}><Icons.X size={20}/></button>
                         </div>
-                        <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+                        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
                             {isLoading ? <div className="text-center py-10"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>Hazırlanıyor...</div> : 
                              error ? <div className="text-red-400 text-center p-4">{error}</div> : 
-                             <div className="prose prose-invert prose-sm max-w-none"><div dangerouslySetInnerHTML={{ __html: marked.parse(content || "") }} /></div>}
+                             <div className="prose prose-invert prose-sm max-w-none pb-6"><div dangerouslySetInnerHTML={{ __html: marked.parse(content || "") }} /></div>}
                         </div>
                     </div>
                 </div>
             );
         };
 
-        const SettingsModal = ({ isOpen, onClose, geminiKey, setGeminiKey, geminiModel, setGeminiModel, fontSize, setFontSize, mealSource, setMealSource, reciterSource, setReciterSource }) => {
+        const SettingsModal = ({ isOpen, onClose, geminiKey, setGeminiKey, geminiModel, setGeminiModel, fontSize, setFontSize, mealSource, setMealSource, reciterSource, setReciterSource, showToast }) => {
             if (!isOpen) return null;
             const [tempKey, setTempKey] = React.useState(geminiKey);
             const [tempModel, setTempModel] = React.useState(geminiModel);
             const [tempMeal, setTempMeal] = React.useState(mealSource);
             const [tempReciter, setTempReciter] = React.useState(reciterSource);
-            const [saved, setSaved] = React.useState(false);
 
             const handleSave = () => {
                 setGeminiKey(tempKey);
@@ -304,12 +392,12 @@
                 localStorage.setItem('geminiModel', tempModel);
                 localStorage.setItem('mealSource', tempMeal);
                 localStorage.setItem('reciterSource', tempReciter);
-                setSaved(true);
-                setTimeout(() => setSaved(false), 2000);
+                showToast("Ayarlar başarıyla kaydedildi!");
+                onClose();
             };
 
             return (
-                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in" onClick={onClose}>
                     <div className="w-full max-w-sm bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6"><h3 className="font-bold text-lg">Ayarlar</h3><button onClick={onClose}><Icons.X size={20}/></button></div>
                         
@@ -331,13 +419,11 @@
                             </select>
                             
                             <button onClick={handleSave} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold"><Icons.Check size={20}/> KAYDET</button>
-                            
-                            {saved && <p className="text-emerald-400 text-xs mt-3 flex items-center gap-1 animate-fade-in bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20"><Icons.CheckCircle size={14}/> Başarıyla Kaydedildi!</p>}
                         </div>
 
                         <div className="mb-4 mt-6">
-                            <label className="text-xs opacity-50 mb-2 block">Yazı Boyutu</label>
-                            <input type="range" min="14" max="32" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full accent-emerald-500" />
+                            <label className="text-xs opacity-50 mb-2 block">Arapça Metin Yazı Boyutu</label>
+                            <input type="range" min="14" max="40" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full accent-emerald-500" />
                         </div>
                     </div>
                 </div>
@@ -345,7 +431,7 @@
         };
         
         // --- JUMP TO (HIZLI GİT) MODAL ---
-        const JumpToModal = ({ isOpen, onClose, setCurrentSurah, setView, surahs }) => {
+        const JumpToModal = ({ isOpen, onClose, setCurrentSurah, setView, surahs, showToast }) => {
             if(!isOpen) return null;
             const [inputVal, setInputVal] = React.useState('');
             
@@ -387,15 +473,15 @@
                      setInputVal(''); // Temizle
                      onClose();
                 } else {
-                     alert("Geçerli bir format girmediniz.\nÖrnek Kullanımlar:\n- 2:255\n- Bakara 255\n- yasin 9");
+                     showToast("Geçerli bir format girmediniz. Örn: 2:255 veya Bakara 255");
                 }
             };
             
             return (
-                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in" onClick={onClose}>
                      <div className="w-full max-w-xs bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-lg">Hızlı Git</h3><button onClick={onClose}><Icons.X size={20}/></button></div>
-                        <input type="text" placeholder="Sure:Ayet (2:255) veya Sure Ayet (Bakara 255)" value={inputVal} onChange={e => setInputVal(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleJump()} className="w-full p-3 mb-4 rounded-xl bg-black/30 border border-slate-700 text-xs outline-none text-center" autoFocus />
+                        <input type="text" placeholder="Örn: 2:255 veya Bakara 255" value={inputVal} onChange={e => setInputVal(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleJump()} className="w-full p-3 mb-4 rounded-xl bg-black/30 border border-slate-700 text-xs outline-none text-center" autoFocus />
                         <button onClick={handleJump} className="w-full bg-emerald-600 hover:bg-emerald-500 transition-colors text-white p-3 rounded-xl font-bold">GİT</button>
                      </div>
                 </div>
@@ -414,7 +500,7 @@
             };
 
             return (
-                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in" onClick={onClose}>
                     <div className="w-full max-w-md bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-emerald-500/30" onClick={e => e.stopPropagation()}>
                         <div className="p-5 bg-gradient-to-r from-emerald-900 to-slate-900 border-b border-white/10 flex justify-between items-center">
                             <h3 className="font-bold text-lg text-white flex items-center gap-2"><Icons.Sparkles size={20} className="text-emerald-400"/> Ayet Asistanına Sor</h3>
@@ -431,10 +517,10 @@
                                 onChange={(e) => setQuery(e.target.value)} 
                                 rows="3"
                                 className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none resize-none mb-4" 
-                                placeholder="Örn: Bu ayette bahsedilen sabır kavramını günlük hayatımda iş stresiyle başa çıkmak için nasıl kullanabilirim?"
+                                placeholder="Örn: Bu ayette bahsedilen sabır kavramını günlük hayatımda nasıl kullanabilirim?"
                             ></textarea>
                             <button onClick={handleSubmit} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold shadow-lg shadow-emerald-900/50">
-                                <Icons.Sparkles size={18}/> YAPAY ZEKAYA SOR
+                                ✨ YAPAY ZEKAYA SOR
                             </button>
                         </div>
                     </div>
@@ -442,7 +528,7 @@
             );
         };
 
-        // --- HOME PROMPT MODAL (YENİ KEŞİF ARAÇLARI İÇİN) ---
+        // --- HOME PROMPT MODAL ---
         const HomePromptModal = ({ promptConfig, isOpen, onClose, onSubmit }) => {
             if(!isOpen || !promptConfig) return null;
             const [query, setQuery] = React.useState('');
@@ -454,7 +540,7 @@
             };
 
             return (
-                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in" onClick={onClose}>
                     <div className="w-full max-w-md bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-emerald-500/30" onClick={e => e.stopPropagation()}>
                         <div className="p-5 bg-gradient-to-r from-emerald-900 to-slate-900 border-b border-white/10 flex justify-between items-center">
                             <h3 className="font-bold text-lg text-white flex items-center gap-2"><Icons.Sparkles size={20} className="text-emerald-400"/> {promptConfig.title}</h3>
@@ -471,7 +557,7 @@
                                 autoFocus
                             />
                             <button onClick={handleSubmit} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold shadow-lg shadow-emerald-900/50">
-                                <Icons.Sparkles size={18}/> ANALİZ ET
+                                ✨ ANALİZ ET
                             </button>
                         </div>
                     </div>
@@ -479,26 +565,31 @@
             );
         };
 
-        const SurahDetail = ({ surah, setView, handleAiRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, fontSize, lastRead, setLastRead, highlightedSearch, setJumpModalOpen, mealSource, reciterSource }) => {
+        // --- SURAH DETAIL VIEW ---
+        const SurahDetail = ({ surah, setView, handleAiRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, fontSize, lastRead, setLastRead, highlightedSearch, setJumpModalOpen, mealSource, reciterSource, showToast }) => {
             const [ayahs, setAyahs] = React.useState([]);
             const [translation, setTranslation] = React.useState([]);
             const [detailLoading, setDetailLoading] = React.useState(true);
             const [remoteContexts, setRemoteContexts] = React.useState({});
             const [customPromptAyah, setCustomPromptAyah] = React.useState(null);
 
+            // OTOMATİK EN ÜSTE ÇIKMA (Eğer Hızlı Git ile gelmediyse)
+            React.useEffect(() => {
+                if (!sessionStorage.getItem('jumpToAyah')) {
+                    window.scrollTo(0, 0);
+                }
+            }, [surah]);
+
             React.useEffect(() => {
                 setDetailLoading(true);
                 
                 const fetchSurahData = async () => {
                     try {
-                        // KIRAAT GETIRME VE YEDEK (FALLBACK) MEKANIZMASI
                         let arRes = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/${reciterSource}`);
                         if (!arRes.ok) arRes = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/ar.alafasy`);
                         
-                        // MEAL GETIRME VE YEDEK (FALLBACK) MEKANIZMASI
                         let trRes = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/${mealSource}`);
                         if (!trRes.ok) {
-                            console.warn("Seçilen meal desteklenmiyor, Elmalılı'ya geçiliyor.");
                             trRes = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/tr.yazir`);
                         }
                         
@@ -511,20 +602,22 @@
                         console.error("Veri çekme hatası:", e);
                     } finally {
                         setDetailLoading(false);
-                        // Check for jump request and highlight it
                         const jumpAyah = sessionStorage.getItem('jumpToAyah');
                         if(jumpAyah) {
                             setTimeout(() => {
                                 const el = document.getElementById(`ayah-${jumpAyah}`);
                                 if(el) {
-                                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                                    // Header yüksekliği kadar offset vermek için
+                                    const y = el.getBoundingClientRect().top + window.scrollY - 100;
+                                    window.scrollTo({top: y, behavior: 'smooth'});
+                                    
                                     el.classList.add('ring-4', 'ring-emerald-500', 'bg-emerald-900/50', 'transition-all', 'duration-500');
                                     setTimeout(() => {
                                         el.classList.remove('ring-4', 'ring-emerald-500', 'bg-emerald-900/50');
-                                    }, 3000); // Remove glow after 3 seconds
+                                    }, 3000); 
                                 }
                                 sessionStorage.removeItem('jumpToAyah');
-                            }, 500); // Shorter timeout for smoother feel
+                            }, 500);
                         }
                     }
                 };
@@ -543,19 +636,17 @@
                 }
             }, [surah, mealSource, reciterSource]);
 
-            // Save Last Read
             const handleBookmark = (ayahNo) => {
                 const newLastRead = { surahNo: surah.number, surahName: getTurkishName(surah.number), ayahNo };
                 setLastRead(newLastRead);
                 localStorage.setItem('lastRead', JSON.stringify(newLastRead));
-                alert(`Kaldığınız yer kaydedildi: ${getTurkishName(surah.number)} ${ayahNo}. Ayet`);
+                showToast(`Kaldığınız yer kaydedildi: ${getTurkishName(surah.number)} ${ayahNo}. Ayet`);
             };
 
-            // Copy Ayah
             const handleCopy = (ayahText, trText, ayahNo) => {
                 const text = `"${ayahText}"\n\n${trText}\n\n(${getTurkishName(surah.number)} Suresi, ${ayahNo}. Ayet)`;
                 navigator.clipboard.writeText(text);
-                alert("Ayet kopyalandı!");
+                showToast("Ayet kopyalandı!");
             };
 
             if (detailLoading) return <Loading />;
@@ -572,39 +663,32 @@
                         </div>
                         <div className="flex gap-1">
                              <button onClick={() => setJumpModalOpen(true)} className="p-2 rounded-full hover:bg-slate-800" title="Hızlı Git"><Icons.Compass size={20}/></button>
-                            <button onClick={() => setShowSettings(true)} className="p-2"><Icons.Settings size={20}/></button>
+                            <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-slate-800 rounded-full"><Icons.Settings size={20}/></button>
                         </div>
                     </div>
                     
-                    {/* Action Bar (Enhanced AI Actions) */}
-                     <div className="px-4 py-2 flex gap-2 overflow-x-auto scrollbar-hide border-b border-white/5 mb-2">
-                        <button onClick={() => handleAiRequest(`Sen deneyimli bir müfessirsin. ${trName} Suresi hakkında özet ve analiz hazırla.`, 'summary')} className="flex items-center gap-1 px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.BookOpen size={14}/> Özet</button>
-                        <button onClick={() => handleAiRequest(`Sen bir yaşam koçusun. "${trName} Suresi"nin öğretilerine dayanarak haftalık eylem planı hazırla.`, 'action')} className="flex items-center gap-1 px-3 py-1 bg-teal-500/20 text-teal-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.ListChecks size={14}/> Eylem Planı</button>
-                        {/* Nüzul & Tarihçe */}
-                        <button onClick={() => handleAiRequest(`Sen bir tarih ve siyer uzmanısın. "${trName} Suresi"nin hangi olaylar üzerine (esbab-ı nüzul) indiğini, o dönemki toplumsal yapıyı ve siyerdeki yerini detaylıca açıkla.`, 'history')} className="flex items-center gap-1 px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.History size={14}/> Nüzul & Tarihçe</button>
-                        {/* TEFEKKÜR MODU */}
-                        <button onClick={() => handleAiRequest(`Sen bir İslam bilimi ve tasavvuf uzmanısın. ${trName} Suresi'nin derin felsefi, tasavvufi ve manevi boyutlarını (tefekkür) analiz et. Günümüz insanının ruhsal problemlerine bu sureden nasıl şifalar çıkarılabileceğini anlat.`, 'contemplation')} className="flex items-center gap-1 px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.Sparkles size={14}/> ✨ Tefekkür Modu</button>
-                        {/* SUREDEN DUA ÜRET */}
-                        <button onClick={() => handleAiRequest(`Sen manevi bir rehbersin. ${trName} Suresi'nin ana mesajlarını, ruhunu ve hikmetini baz alarak, bu sureyi okuyan bir müminin kalbinden dökülebilecek çok içten, edebi ve manevi bir dua metni hazırla.`, 'surah_dua')} className="flex items-center gap-1 px-3 py-1 bg-pink-500/20 text-pink-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.Hands size={14}/> ✨ Suredan Dua Üret</button>
-                        {/* RİSALE-İ NUR PERSPEKTİFİ (SURE) */}
-                        <button onClick={() => handleAiRequest(`Sen Risale-i Nur Külliyatı'na tam hakim bir alimsin. Şuan kullanıcının ekranında "${trName} Suresi" var. Lütfen doğrudan bu surenin ana konularını, içerdiği kıssaları ve mesajları Bediüzzaman Said Nursi'nin tefekkür dünyası (Tevhid, Haşir, Nübüvvet, Adalet) ışığında analiz et. Surenin kendi hakikatlerinin, asrımız insanının manevi ve psikolojik yaralarına (vesvese, ümitsizlik, mana arayışı vb.) nasıl bir 'reçete' sunduğunu Sözler ve Lem'alar penceresinden açıkla.`, 'risale_surah')} className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.Feather size={14}/> ✨ Risale-i Nur Perspektifi</button>
-                        {/* YENİ: Sınıf İçi Etkinlik Planı */}
-                        <button onClick={() => handleAiRequest(`Sen bir din kültürü ve ahlak bilgisi veya değerler eğitimi öğretmenisin. Şu an ekrandaki "${trName} Suresi"ni sınıftaki çocuklara veya gençlere sıkıcı olmadan, interaktif, oyunlaştırma ve drama gibi modern eğitim teknikleriyle nasıl işleyebileceğime dair 40 dakikalık harika bir ders işleniş ve etkinlik planı hazırla.`, 'class_activity')} className="flex items-center gap-1 px-3 py-1 bg-sky-500/20 text-sky-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.Gamepad2 size={14}/> 🎓 Sınıf Etkinlik Planı</button>
-                        {/* YENİ: Siyak-Sibak Analizi */}
-                        <button onClick={() => handleAiRequest(`Sen bir Kuran ilimleri ve tefsir uzmanısın. Şu anki "${trName} Suresi"nin Kuran-ı Kerim'deki sıralamasını (Siyak-Sibak ilişkisini) analiz et. Bu sure neden bir önceki sureden sonra geliyor, neden bir sonraki sureye bağlanıyor? Aralarındaki anlamsal, tematik ve matematiksel dizilimi muazzam bir dille açıkla.`, 'siyak_sibak')} className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.GitMerge size={14}/> 🔗 Siyak-Sibak İlişkisi</button>
-                        {/* YENİ: Suredeki Esma-ül Hüsna */}
-                        <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nde Allah'ın hangi isimleri (Esma-ül Hüsna) daha çok ön plana çıkıyor? Celal isimleri mi yoksa Cemal isimleri mi? Neden bu isimler tercih edilmiş ve bu surenin ana temasıyla olan bağı nedir? Detaylıca analiz et.`, 'surah_esma')} className="flex items-center gap-1 px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.Star size={14}/> ✨ Esma-ül Hüsna Analizi</button>
-                        {/* YENİ: Kıssalar ve Karakterler */}
-                        <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nde adı geçen veya atıf yapılan peygamberleri, kavimleri ve karakterleri (Örn: inananlar, münafıklar, firavun, ashab-ı kehf vb.) listele. Bu karakterlerin temsil ettiği psikolojik ve sosyolojik arketipleri ve günümüz insanına verdikleri mesajı analiz et.`, 'surah_stories')} className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.Users size={14}/> 📜 Kıssalar ve Karakterler</button>
-                        {/* YENİ: Ameli ve Fıkhi Hükümler */}
-                        <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nin içerdiği ameli, ahlaki ve fıkhi hükümleri (helaller, haramlar, sosyal kurallar, miras, ibadet vb.) maddeler halinde özetle. Eğer sure Mekki ise ve daha çok inanç konuları barındırıyorsa, bu inanç esaslarının ahlaki yansımalarını açıkla.`, 'surah_fiqh')} className="flex items-center gap-1 px-3 py-1 bg-fuchsia-500/20 text-fuchsia-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.Scale size={14}/> ⚖️ Ameli ve Fıkhi Hükümler</button>
-                        {/* YENİ: Manevi Check-Up */}
-                        <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"ni okuyan bir müminin kendi iç dünyasına dönüp sorması gereken 5 kritik nefis muhasebesi (manevi check-up) sorusu hazırla. Bu sorular, surenin vermek istediği ana mesaja dayansın ve insanı sarsıp uyandıran derinlikte olsun.`, 'spiritual_checkup')} className="flex items-center gap-1 px-3 py-1 bg-rose-500/20 text-rose-400 rounded-full text-xs font-bold whitespace-nowrap"><Icons.ClipboardList size={14}/> ❤️ Manevi Check-Up</button>
+                    {/* Sure Genel AI Araçları (A'dan Z'ye Tüm Araçlar Geri Eklendi) */}
+                     <div className="px-4 py-2 flex gap-2 overflow-x-auto custom-scrollbar border-b border-white/5 mb-2 pb-3 mt-2">
+                        {/* YENİ ÖZELLİK: İNTERAKTİF SÜRE QUİZİ */}
+                        <button onClick={() => handleAiRequest(`Sen bir Kuran eğitmenisin. Şu anki "${trName} Suresi" hakkında kullanıcının anlama seviyesini test etmek için 3 adet harika ve düşündürücü çoktan seçmeli soru hazırla. Her sorunun altına kısa bir hikmetli açıklama ile doğru cevabı (spoiler tarzında veya sonradan okunacak gibi) ekle.`, 'quiz')} className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-500/20 text-orange-300 hover:bg-orange-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-orange-500/30">✨ İnteraktif Sure Quizi</button>
+                        
+                        <button onClick={() => handleAiRequest(`Sen deneyimli bir müfessirsin. ${trName} Suresi hakkında özet ve analiz hazırla.`, 'summary')} className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-indigo-500/30"><Icons.BookOpen size={14}/> Surenin Özeti</button>
+                        <button onClick={() => handleAiRequest(`Sen bir tarih ve siyer uzmanısın. "${trName} Suresi"nin hangi olaylar üzerine indiğini, esbab-ı nüzulünü ve siyerdeki yerini açıkla.`, 'history')} className="flex items-center gap-1.5 px-4 py-1.5 bg-amber-500/20 text-amber-300 hover:bg-amber-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-amber-500/30"><Icons.History size={14}/> Nüzul & Tarihçe</button>
+                        <button onClick={() => handleAiRequest(`Sen bir yaşam koçusun. "${trName} Suresi"nin öğretilerine dayanarak haftalık eylem planı hazırla.`, 'action')} className="flex items-center gap-1.5 px-4 py-1.5 bg-teal-500/20 text-teal-300 hover:bg-teal-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-teal-500/30"><Icons.ListChecks size={14}/> Eylem Planı</button>
+                        <button onClick={() => handleAiRequest(`Sen bir tasavvuf uzmanısın. ${trName} Suresi'nin derin felsefi, tasavvufi ve manevi boyutlarını (tefekkür) analiz et. Günümüz insanına şifa olacak reçeteler sun.`, 'contemplation')} className="flex items-center gap-1.5 px-4 py-1.5 bg-purple-500/20 text-purple-300 hover:bg-purple-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-purple-500/30"><Icons.Sparkles size={14}/> Tefekkür Modu</button>
+                        <button onClick={() => handleAiRequest(`Sen manevi bir rehbersin. ${trName} Suresi'nin ana mesajlarını baz alarak, bu sureyi okuyan bir müminin kalbinden dökülebilecek çok içten bir dua metni hazırla.`, 'surah_dua')} className="flex items-center gap-1.5 px-4 py-1.5 bg-pink-500/20 text-pink-300 hover:bg-pink-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-pink-500/30"><Icons.Hands size={14}/> Suredan Dua Üret</button>
+                        <button onClick={() => handleAiRequest(`Şu an ekrandaki "${trName} Suresi"ni Bediüzzaman Said Nursi'nin tefekkür dünyası ışığında analiz et. Surenin mesajlarını Risale-i Nur penceresinden asrımız insanının manevi yaralarına reçete olarak sun.`, 'risale_surah')} className="flex items-center gap-1.5 px-4 py-1.5 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-emerald-500/30"><Icons.Feather size={14}/> Risale-i Nur İzahı</button>
+                        <button onClick={() => handleAiRequest(`Sen bir din kültürü ve ahlak bilgisi veya değerler eğitimi öğretmenisin. Şu an ekrandaki "${trName} Suresi"ni sınıftaki çocuklara veya gençlere sıkıcı olmadan, interaktif, oyunlaştırma ve drama gibi modern eğitim teknikleriyle nasıl işleyebileceğime dair harika bir ders işleniş ve etkinlik planı hazırla.`, 'class_activity')} className="flex items-center gap-1.5 px-4 py-1.5 bg-sky-500/20 text-sky-300 hover:bg-sky-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-sky-500/30"><Icons.Gamepad2 size={14}/> Sınıf Etkinlik Planı</button>
+                        <button onClick={() => handleAiRequest(`Sen bir Kuran ilimleri ve tefsir uzmanısın. Şu anki "${trName} Suresi"nin Kuran-ı Kerim'deki sıralamasını (Siyak-Sibak ilişkisini) analiz et. Bu sure neden bir önceki sureden sonra geliyor, neden bir sonraki sureye bağlanıyor?`, 'siyak_sibak')} className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-blue-500/30"><Icons.GitMerge size={14}/> Siyak-Sibak İlişkisi</button>
+                        <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nde Allah'ın hangi isimleri (Esma-ül Hüsna) daha çok ön plana çıkıyor? Analiz et.`, 'surah_esma')} className="flex items-center gap-1.5 px-4 py-1.5 bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-yellow-500/30"><Icons.Star size={14}/> Esma-ül Hüsna</button>
+                        <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nde adı geçen veya atıf yapılan peygamberleri, kavimleri ve karakterleri listele. Bu karakterlerin günümüz insanına verdikleri mesajı analiz et.`, 'surah_stories')} className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-500/20 text-orange-300 hover:bg-orange-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-orange-500/30"><Icons.Users size={14}/> Kıssalar ve Karakterler</button>
+                        <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nin içerdiği ameli, ahlaki ve fıkhi hükümleri (helaller, haramlar, sosyal kurallar vb.) maddeler halinde özetle.`, 'surah_fiqh')} className="flex items-center gap-1.5 px-4 py-1.5 bg-fuchsia-500/20 text-fuchsia-300 hover:bg-fuchsia-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-fuchsia-500/30"><Icons.Scale size={14}/> Ameli ve Fıkhi Hükümler</button>
+                        <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"ni okuyan bir müminin kendi iç dünyasına dönüp sorması gereken 5 kritik nefis muhasebesi (manevi check-up) sorusu hazırla.`, 'spiritual_checkup')} className="flex items-center gap-1.5 px-4 py-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-rose-500/30"><Icons.ClipboardList size={14}/> Manevi Check-Up</button>
                     </div>
 
                     <div className="px-2"> <NuzulTimelineCard data={timelineData} /> </div>
 
-                    <div className="px-4 space-y-4 pt-2">
+                    <div className="px-4 space-y-8 pt-2">
                         {ayahs.map((ayah, index) => {
                             const trText = translation[index] ? translation[index].text : "...";
                             const isFav = favorites.some(f => f.uid === `${surah.number}:${ayah.numberInSurah}`);
@@ -612,30 +696,30 @@
                             const isLastRead = lastRead?.surahNo === surah.number && lastRead?.ayahNo === ayah.numberInSurah;
                             const contextData = remoteContexts[String(ayah.numberInSurah)] || DETAILED_CONTEXTS[`${surah.number}:${ayah.numberInSurah}`];
 
-                            // VURGULU AYET KONTROLLERİ (Dua ve Eğitim Ayetleri)
                             const isDuaVerse = DUA_VERSES[`${surah.number}:${ayah.numberInSurah}`];
                             const isEduVerse = EDU_VERSES[`${surah.number}:${ayah.numberInSurah}`];
                             
-                            let ayahBgClass = 'bg-slate-800 border-l-4 border-transparent';
+                            let ayahBgClass = 'bg-slate-800/80 border-l-4 border-transparent';
                             let specialBadge = null;
                             
                             if (isPlaying) {
                                 ayahBgClass = 'bg-slate-800 border-l-4 border-emerald-500';
                             } else if (isDuaVerse) {
-                                ayahBgClass = 'bg-pink-900/20 border-l-4 border-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.1)]';
+                                ayahBgClass = 'bg-pink-950/30 border-l-4 border-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.1)]';
                                 specialBadge = <span className="absolute -top-3 right-4 text-[10px] bg-pink-500 text-white px-2 py-0.5 rounded-full font-bold flex items-center gap-1 shadow-md z-10"><Icons.BookHeart size={12}/> Kur'an Duası</span>;
                             } else if (isEduVerse) {
-                                ayahBgClass = 'bg-sky-900/20 border-l-4 border-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.1)]';
+                                ayahBgClass = 'bg-sky-950/30 border-l-4 border-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.1)]';
                                 specialBadge = <span className="absolute -top-3 right-4 text-[10px] bg-sky-500 text-white px-2 py-0.5 rounded-full font-bold flex items-center gap-1 shadow-md z-10"><Icons.GraduationCap size={12}/> Eğitim Ayeti</span>;
                             }
 
                             return (
                                 <div key={ayah.number} id={`ayah-${ayah.numberInSurah}`}>
                                     {contextData && <NuzulTimelineCard data={contextData} isRemote={!!remoteContexts[String(ayah.numberInSurah)]} />}
-                                    <div className={`relative p-4 rounded-2xl transition-all mt-2 ${ayahBgClass} ${isLastRead ? 'ring-2 ring-emerald-500/50' : ''}`}>
+                                    <div className={`relative p-4 md:p-6 rounded-2xl transition-all mt-2 ${ayahBgClass} ${isLastRead ? 'ring-2 ring-emerald-500/50' : ''}`}>
                                         {specialBadge}
-                                        {/* Ayah Toolbar */}
-                                        <div className="flex justify-between items-center mb-3 border-b border-slate-700 pb-2">
+                                        
+                                        {/* Ayah Meta (Number, Audio, Bookmark) */}
+                                        <div className="flex justify-between items-center mb-5 border-b border-slate-700/50 pb-3">
                                             <div className="flex items-center gap-3">
                                                 <span className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-xs font-bold ${isLastRead ? 'bg-emerald-500' : 'bg-slate-700'}`}>{ayah.numberInSurah}</span>
                                                 <button onClick={() => toggleAudio(ayah.audio, ayah.number)} className="p-2 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
@@ -644,33 +728,57 @@
                                                 <button onClick={() => handleBookmark(ayah.numberInSurah)} className={`p-2 rounded-full hover:bg-slate-700 transition-all ${isLastRead ? 'text-emerald-400' : 'text-slate-500'}`} title="Kaldığım Yer">
                                                     <Icons.BookOpen size={16} />
                                                 </button>
-                                            </div>
-                                            
-                                            {/* Scrollable Action Buttons - Expanded with Tooltips & Meal Comparison */}
-                                            <div className="flex gap-2 overflow-x-auto scrollbar-hide max-w-[180px] sm:max-w-none pl-2">
-                                                <button onClick={() => handleCopy(ayah.text, trText, ayah.numberInSurah)} className="p-2 text-slate-400" title="Kopyala"><Icons.Copy size={16}/></button>
-                                                {/* RİSALE-İ NUR İZAHI (AYET) */}
-                                                <button onClick={() => handleAiRequest(`Bediüzzaman Said Nursi'nin Risale-i Nur Külliyatı perspektifinden şu ayetin ("${trText}") derin manevi, imani ve tefekküri izahını yap. Ayetin işaret ettiği hakikatleri asrımızın anlayışına uygun olarak 'mana-yı harfi' ile açıkla.`, 'risale_ayah')} className="p-2 text-emerald-400 hover:bg-emerald-400/10 rounded-full transition-colors" title="Risale-i Nur İzahı"><Icons.Feather size={16}/></button>
-                                                {/* HADİS İKLİMİ */}
-                                                <button onClick={() => handleAiRequest(`Bu ayeti ("${ayah.text}" - Meal: "${trText}") açıklayan, destekleyen veya Peygamber Efendimiz'in (s.a.v) hayatında pratiğe döktüğü en bilindik sahih hadisleri ve Siyer örneklerini derle.`, 'hadith')} className="p-2 text-cyan-400 hover:bg-cyan-400/10 rounded-full transition-colors" title="Hadis & Siyer İklimi"><Icons.Book size={16}/></button>
-                                                {/* MODERN HAYATA UYARLAMA */}
-                                                <button onClick={() => handleAiRequest(`Bu ayetin ("${trText}") mesajını 21. yüzyıl modern hayatına, iş dünyasına, aile yaşantısına ve dijital çağın sorunlarına pratik olarak nasıl uygulayabileceğimizi maddeler halinde, ilham verici bir şekilde anlat.`, 'modern_life')} className="p-2 text-indigo-400 hover:bg-indigo-400/10 rounded-full transition-colors" title="Modern Hayata Uyarlama"><Icons.Briefcase size={16}/></button>
-                                                {/* AYET ASİSTANI */}
-                                                <button onClick={() => setCustomPromptAyah({ ...ayah, trText })} className="p-2 text-yellow-400 hover:bg-yellow-400/10 rounded-full transition-colors" title="Ayete Dair Soru Sor (Yapay Zeka)"><Icons.HelpCircle size={16}/></button>
-                                                <button onClick={() => handleAiRequest(`Aşağıdaki ayetin kelime analizini yap: ${ayah.text}`, 'concepts')} className="p-2 text-fuchsia-400" title="Kelime Analizi"><Icons.ZoomIn size={16}/></button>
-                                                <button onClick={() => handleAiRequest(`Şu ayet ile benzer konulu başka ayetleri bul: ${trText}`, 'related')} className="p-2 text-sky-400" title="Benzer Ayetler"><Icons.Link size={16}/></button>
-                                                <button onClick={() => handleAiRequest(`Bu ayeti fıkhi, tasavvufi ve güncel açıdan yorumla: ${trText}`, 'comparison')} className="p-2 text-emerald-400" title="Tefsir Karşılaştırması"><Icons.Scale size={16}/></button>
-                                                <button onClick={() => handleAiRequest(`Bu ayetin (${trText}) farklı meallerdeki (Diyanet, Elmalılı, Kuramer, Diyanet Vakfı vb.) çevirilerini karşılaştır ve aralarındaki anlam farklılıklarını, dil nüanslarını incele. Orijinal Arapça metni (${ayah.text}) baz alarak yap.`, 'meal')} className="p-2 text-amber-400" title="Meal Karşılaştırması"><Icons.Layers size={16}/></button>
-                                                <button onClick={() => handleAiRequest(`Bu ayetin tecvid analizini yap: ${ayah.text}`, 'tajweed')} className="p-2 text-rose-400" title="Tecvid Analizi"><Icons.Activity size={16}/></button>
-                                                <button onClick={() => handleAiRequest(`Aşağıdaki ayeti çocuklar için anlat: ${trText}`, 'child')} className="p-2 text-orange-400" title="Çocuklar İçin"><Icons.Baby size={16}/></button>
-                                                <button onClick={() => handleAiRequest(`Aşağıdaki ayetin nüzul sebebini ve siyer bağlamını anlat: ${ayah.text}`, 'verse')} className="p-2 text-slate-400" title="Siyer Analizi & Nüzul Sebebi"><Icons.Sparkles size={16}/></button>
-                                                <button onClick={() => toggleFavorite({ ...ayah, text: trText }, surah)} className={`p-2 ${isFav ? 'text-rose-500' : 'text-slate-500'}`} title="Favorilere Ekle"><Icons.Heart size={16} fill={isFav?"currentColor":"none"}/></button>
+                                                <button onClick={() => toggleFavorite({ ...ayah, text: trText }, surah)} className={`p-2 rounded-full hover:bg-slate-700 transition-all ${isFav ? 'text-rose-500' : 'text-slate-500'}`} title="Favorilere Ekle">
+                                                    <Icons.Heart size={16} fill={isFav?"currentColor":"none"}/>
+                                                </button>
                                             </div>
                                         </div>
                                         
-                                        <p className="text-right font-amiri leading-[2.4] mb-4 text-emerald-500 dir-rtl text-2xl">{ayah.text}</p>
-                                        <div className="leading-relaxed font-serif text-gray-300" style={{fontSize: `${fontSize}px`}}>
+                                        <p className="text-right font-amiri leading-[2.6] mb-6 text-emerald-400 dir-rtl" style={{fontSize: `${fontSize + 6}px`}}>{ayah.text}</p>
+                                        <div className="leading-relaxed font-serif text-slate-300 mb-6" style={{fontSize: `${fontSize}px`}}>
                                             <HighlightedText text={trText} highlight={highlightedSearch} />
+                                        </div>
+
+                                        {/* AYAH AI TOOLS - Mobile Friendly Pill Buttons (TÜMÜ KORUNDU) */}
+                                        <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-2 pt-2 border-t border-slate-700/50">
+                                            <button onClick={() => handleCopy(ayah.text, trText, ayah.numberInSurah)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 shrink-0 transition-colors" title="Ayeti Kopyala">
+                                                <Icons.Copy size={14}/><span className="text-[10px] font-bold tracking-wider">KOPYALA</span>
+                                            </button>
+                                            <button onClick={() => setCustomPromptAyah({ ...ayah, trText })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-900/20 text-yellow-400 hover:bg-yellow-900/40 border border-yellow-500/30 shrink-0 transition-colors" title="Ayete Dair Soru Sor">
+                                                <Icons.HelpCircle size={14}/><span className="text-[10px] font-bold tracking-wider">AYETE SOR</span>
+                                            </button>
+                                            <button onClick={() => handleAiRequest(`Aşağıdaki ayetin nüzul sebebini ve siyer bağlamını anlat: ${ayah.text}`, 'verse')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Siyer Analizi ve Nüzul Sebebi">
+                                                <Icons.Sparkles size={14}/><span className="text-[10px] font-bold tracking-wider">NÜZUL SEBEBİ</span>
+                                            </button>
+                                            <button onClick={() => handleAiRequest(`Bediüzzaman Said Nursi'nin Risale-i Nur Külliyatı perspektifinden şu ayetin ("${trText}") derin manevi izahını yap.`, 'risale_ayah')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Risale-i Nur İzahı">
+                                                <Icons.Feather size={14}/><span className="text-[10px] font-bold tracking-wider">RİSALE-İ NUR</span>
+                                            </button>
+                                            <button onClick={() => handleAiRequest(`Bu ayeti açıklayan, destekleyen sahih hadisleri ve Siyer örneklerini derle: ${trText}`, 'hadith')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-cyan-400 hover:bg-slate-700 border border-cyan-500/30 shrink-0 transition-colors" title="Hadis ve Siyer İklimi">
+                                                <Icons.Book size={14}/><span className="text-[10px] font-bold tracking-wider">HADİS & SİYER</span>
+                                            </button>
+                                            <button onClick={() => handleAiRequest(`Bu ayetin ("${trText}") mesajını 21. yüzyıl modern hayatına, iş dünyasına, aile yaşantısına nasıl uygulayabiliriz?`, 'modern_life')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-indigo-400 hover:bg-slate-700 border border-indigo-500/30 shrink-0 transition-colors" title="Modern Hayata Uyarlama">
+                                                <Icons.Briefcase size={14}/><span className="text-[10px] font-bold tracking-wider">MODERN HAYAT</span>
+                                            </button>
+                                            <button onClick={() => handleAiRequest(`Aşağıdaki ayetin kelime analizini yap: ${ayah.text}`, 'concepts')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-fuchsia-400 hover:bg-slate-700 border border-fuchsia-500/30 shrink-0 transition-colors" title="Kelime Analizi">
+                                                <Icons.ZoomIn size={14}/><span className="text-[10px] font-bold tracking-wider">KELİME ANALİZİ</span>
+                                            </button>
+                                            <button onClick={() => handleAiRequest(`Şu ayet ile benzer konulu başka ayetleri bul: ${trText}`, 'related')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-sky-400 hover:bg-slate-700 border border-sky-500/30 shrink-0 transition-colors" title="Benzer Ayetler">
+                                                <Icons.Link size={14}/><span className="text-[10px] font-bold tracking-wider">BENZER AYETLER</span>
+                                            </button>
+                                            
+                                            <button onClick={() => handleAiRequest(`Bu ayeti fıkhi, tasavvufi ve güncel açıdan detaylıca yorumla ve tefsir et: ${trText}`, 'comparison')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Tefsir Karşılaştırması">
+                                                <Icons.Scale size={14}/><span className="text-[10px] font-bold tracking-wider">TEFSİR</span>
+                                            </button>
+                                            <button onClick={() => handleAiRequest(`Bu ayetin tecvid analizini ve doğru okunuş kurallarını anlat: ${ayah.text}`, 'tajweed')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-rose-400 hover:bg-slate-700 border border-rose-500/30 shrink-0 transition-colors" title="Tecvid Analizi">
+                                                <Icons.Activity size={14}/><span className="text-[10px] font-bold tracking-wider">TECVİD</span>
+                                            </button>
+
+                                            <button onClick={() => handleAiRequest(`Bu ayetin farklı meallerdeki çevirilerini karşılaştır ve aralarındaki dil nüanslarını incele. Orijinal: ${ayah.text}`, 'meal')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-amber-400 hover:bg-slate-700 border border-amber-500/30 shrink-0 transition-colors" title="Farklı Mealleri Kıyasla">
+                                                <Icons.Layers size={14}/><span className="text-[10px] font-bold tracking-wider">MEALLERİ KIYASLA</span>
+                                            </button>
+                                            <button onClick={() => handleAiRequest(`Aşağıdaki ayeti çocuklar için bir masal/hikaye gibi anlat: ${trText}`, 'child')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-orange-400 hover:bg-slate-700 border border-orange-500/30 shrink-0 transition-colors" title="Çocuklar İçin Anlat">
+                                                <Icons.Baby size={14}/><span className="text-[10px] font-bold tracking-wider">ÇOCUKLAR İÇİN</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -692,36 +800,39 @@
             );
         };
 
-        const Favorites = ({ favorites, toggleFavorite, surahs, setCurrentSurah, setView }) => (
-            <div className="min-h-screen pb-20 bg-slate-950 text-slate-100 p-6 pt-10">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Icons.Heart className="text-rose-500"/> Favorilerim</h2>
-                {favorites.length === 0 ? <p className="opacity-50 text-center mt-10">Henüz favori yok.</p> : (
-                    <div className="space-y-3">
-                        {favorites.map((fav, i) => (
-                            <div key={i} className="p-4 rounded-xl bg-slate-900 border-l-4 border-rose-500 flex justify-between items-start cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => {
-                                const s = surahs.find(x => x.number === fav.surahNo);
-                                if(s) { 
-                                    setCurrentSurah(s); 
-                                    setView('surah'); 
-                                    sessionStorage.setItem('jumpToAyah', fav.ayahNo);
-                                }
-                            }}>
-                                <div className="w-full">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <p className="text-xs font-bold text-rose-400">{fav.surahName}, {fav.ayahNo}. Ayet</p>
-                                        <button onClick={(e) => { e.stopPropagation(); toggleFavorite({ numberInSurah: fav.ayahNo, text: fav.text }, { number: fav.surahNo }); }} className="text-slate-500 hover:text-rose-500"><Icons.X size={16}/></button>
+        const Favorites = ({ favorites, toggleFavorite, surahs, setCurrentSurah, setView }) => {
+            React.useEffect(() => { window.scrollTo(0, 0); }, []);
+            return (
+                <div className="min-h-screen pb-20 bg-slate-950 text-slate-100 p-6 pt-10">
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Icons.Heart className="text-rose-500"/> Favorilerim</h2>
+                    {favorites.length === 0 ? <p className="opacity-50 text-center mt-10">Henüz favori yok.</p> : (
+                        <div className="space-y-3">
+                            {favorites.map((fav, i) => (
+                                <div key={i} className="p-4 rounded-xl bg-slate-900 border-l-4 border-rose-500 flex justify-between items-start cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => {
+                                    const s = surahs.find(x => x.number === fav.surahNo);
+                                    if(s) { 
+                                        setCurrentSurah(s); 
+                                        setView('surah'); 
+                                        sessionStorage.setItem('jumpToAyah', fav.ayahNo);
+                                    }
+                                }}>
+                                    <div className="w-full">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <p className="text-xs font-bold text-rose-400">{fav.surahName}, {fav.ayahNo}. Ayet</p>
+                                            <button onClick={(e) => { e.stopPropagation(); toggleFavorite({ numberInSurah: fav.ayahNo, text: fav.text }, { number: fav.surahNo }); }} className="text-slate-500 hover:text-rose-500"><Icons.X size={16}/></button>
+                                        </div>
+                                        <p className="text-sm opacity-80 line-clamp-3 leading-relaxed">"{fav.text}"</p>
                                     </div>
-                                    <p className="text-sm opacity-80 line-clamp-3 leading-relaxed">"{fav.text}"</p>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        );
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        };
 
-        // --- HATIM VIEW (YENİ VE GELİŞTİRİLMİŞ) ---
         const HatimView = ({ hatimProgress, toggleCuz, setView, resetHatim, handleAiRequest }) => {
+            React.useEffect(() => { window.scrollTo(0, 0); }, []);
             const completedCount = hatimProgress.filter(Boolean).length;
             const percentage = Math.round((completedCount / 30) * 100);
             const isFinished = completedCount === 30;
@@ -729,7 +840,6 @@
 
             return (
                 <div className="min-h-screen pb-24 bg-slate-950 text-slate-100 p-6 relative">
-                    {/* Arka plan animasyonu */}
                     {isFinished && <div className="absolute inset-0 bg-emerald-900/20 pointer-events-none animate-pulse-slow"></div>}
                     
                     <div className="flex justify-between items-center mb-6 relative z-10">
@@ -761,7 +871,6 @@
                         </div>
                     </div>
 
-                    {/* YENİ: HATİM KOÇU BUTONU */}
                     <button 
                         onClick={() => handleAiRequest(isFinished 
                             ? "Kullanıcı 30 cüzlük Kuran hatmini başarıyla tamamladı! Onu tebrik eden, hatim yapmanın faziletini anlatan ve ona özel manevi bir 'Hatim Duası' niyetine kısa bir metin hazırla."
@@ -769,7 +878,7 @@
                         className="w-full mb-6 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/50 hover:from-emerald-500 hover:to-teal-500 transition-all relative overflow-hidden group"
                     >
                         <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                        <Icons.Sparkles size={20} className="animate-pulse"/> ✨ Hatim Koçu Analizi
+                        ✨ Hatim Koçu Analizi
                     </button>
 
                     <div className="space-y-3 relative z-10">
@@ -809,8 +918,23 @@
         };
 
         const Home = ({ surahs, searchQuery, setSearchQuery, setCurrentSurah, setView, chatQuery, setChatQuery, handleGeneralChat, duaQuery, setDuaQuery, handleDuaRequest, handleAiRequest, setShowSettings, performDeepSearch, searchResults, searchCount, isSearching, lastRead, setJumpModalOpen, handleRandomAyah }) => {
-            
+            React.useEffect(() => { window.scrollTo(0, 0); }, []);
             const [homePromptConfig, setHomePromptConfig] = React.useState(null);
+            
+            // Sonsuz Mod (Endless Inspiration) States
+            const [ayahOfDay, setAyahOfDay] = React.useState(null);
+            const [esmaOfDay, setEsmaOfDay] = React.useState(null);
+            const [hadithOfDay, setHadithOfDay] = React.useState(null); 
+            
+            const shuffleAyah = () => setAyahOfDay(INSPIRATION_VERSES[Math.floor(Math.random() * INSPIRATION_VERSES.length)]);
+            const shuffleEsma = () => setEsmaOfDay(DAILY_ESMA[Math.floor(Math.random() * DAILY_ESMA.length)]);
+            const shuffleHadith = () => setHadithOfDay(DAILY_HADITH[Math.floor(Math.random() * DAILY_HADITH.length)]);
+
+            React.useEffect(() => {
+                shuffleAyah();
+                shuffleEsma();
+                shuffleHadith();
+            }, []);
 
             const handleSearchTrigger = () => {
                 if (searchQuery.length > 2) {
@@ -830,6 +954,70 @@
                             <h1 className="text-2xl font-amiri text-white text-center drop-shadow-md flex-1">Kuran & Siyer Atlası</h1>
                             <button onClick={() => setShowSettings(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10" title="Ayarlar"><Icons.Settings size={20} /></button>
                         </div>
+
+                        {/* SONSUZ İLHAM KARTLARI (Yatay Scroll & Döndür Butonları) */}
+                        <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-4 mb-2 snap-x relative">
+                            {/* GÜNÜN AYETİ */}
+                            {ayahOfDay && (
+                                <div className="min-w-[280px] md:min-w-[320px] bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-emerald-500/30 rounded-2xl p-4 shadow-lg backdrop-blur-sm snap-center flex flex-col justify-between relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none"><Icons.Quote size={60}/></div>
+                                    <button onClick={shuffleAyah} className="absolute top-3 right-3 p-1.5 bg-white/10 hover:bg-white/20 rounded-full z-20 text-white transition-all shadow-md active:scale-95" title="Başka Bir Ayet Getir">
+                                        <Icons.RefreshCw size={14}/>
+                                    </button>
+                                    <div>
+                                        <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-bold tracking-widest uppercase mb-2">
+                                            <Icons.Sparkles size={14}/> İlham Ayeti
+                                        </div>
+                                        <p className="font-amiri text-lg text-emerald-300 text-right dir-rtl mb-2 leading-relaxed">{ayahOfDay.ar}</p>
+                                        <p className="text-sm text-slate-300 italic mb-4 line-clamp-3 leading-relaxed">"{ayahOfDay.text}"</p>
+                                    </div>
+                                    <div className="flex items-center justify-between border-t border-slate-700/50 pt-3 relative z-10">
+                                        <span className="text-xs font-bold text-slate-400">{getTurkishName(ayahOfDay.surahNo)}, {ayahOfDay.ayahNo}</span>
+                                        <button onClick={() => handleAiRequest(`Bu ayeti ("${ayahOfDay.text}") tasavvufi ve hikmet açısından kısaca tefekkür et.`, 'contemplation')} className="bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/40 px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors">Tefekkür Et</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* GÜNÜN HADİSİ */}
+                            {hadithOfDay && (
+                                <div className="min-w-[280px] md:min-w-[320px] bg-gradient-to-br from-cyan-900/40 to-slate-900/80 border border-cyan-500/30 rounded-2xl p-4 shadow-lg backdrop-blur-sm snap-center flex flex-col justify-between relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none"><Icons.Book size={60}/></div>
+                                    <button onClick={shuffleHadith} className="absolute top-3 right-3 p-1.5 bg-white/10 hover:bg-white/20 rounded-full z-20 text-white transition-all shadow-md active:scale-95" title="Başka Bir Hadis Getir">
+                                        <Icons.RefreshCw size={14}/>
+                                    </button>
+                                    <div>
+                                        <div className="flex items-center gap-2 text-cyan-400 text-[10px] font-bold tracking-widest uppercase mb-2">
+                                            <Icons.Book size={14}/> Nebevi Hadis
+                                        </div>
+                                        <p className="text-lg font-serif text-cyan-300 italic mb-4 line-clamp-4 leading-relaxed">"{hadithOfDay.text}"</p>
+                                    </div>
+                                    <div className="flex items-center justify-between border-t border-slate-700/50 pt-3 relative z-10">
+                                        <span className="text-[10px] font-bold text-slate-400 opacity-80">{hadithOfDay.source}</span>
+                                        <button onClick={() => handleAiRequest(`Şu hadis-i şerifin ("${hadithOfDay.text}") hikmetini, modern hayattaki pratik karşılığını ve ardındaki manevi dersleri açıkla.`, 'hadith')} className="bg-cyan-600/20 text-cyan-400 hover:bg-cyan-600/40 px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors">Hadisi İncele</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* GÜNÜN ESMASI */}
+                            {esmaOfDay && (
+                                <div className="min-w-[280px] md:min-w-[320px] bg-gradient-to-br from-amber-900/40 to-slate-900/80 border border-amber-500/30 rounded-2xl p-4 shadow-lg backdrop-blur-sm snap-center flex flex-col justify-between relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none"><Icons.Star size={60}/></div>
+                                    <button onClick={shuffleEsma} className="absolute top-3 right-3 p-1.5 bg-white/10 hover:bg-white/20 rounded-full z-20 text-white transition-all shadow-md active:scale-95" title="Başka Bir Esma Getir">
+                                        <Icons.RefreshCw size={14}/>
+                                    </button>
+                                    <div>
+                                        <div className="flex items-center gap-2 text-amber-400 text-[10px] font-bold tracking-widest uppercase mb-2">
+                                            <Icons.Star size={14}/> Esma-ül Hüsna
+                                        </div>
+                                        <h3 className="font-amiri text-3xl font-bold text-amber-300 mb-2">{esmaOfDay.name}</h3>
+                                        <p className="text-sm text-slate-300 mb-4 line-clamp-3 leading-relaxed">{esmaOfDay.desc}</p>
+                                    </div>
+                                    <div className="border-t border-slate-700/50 pt-3 flex justify-end relative z-10">
+                                        <button onClick={() => handleAiRequest(`Allah'ın "${esmaOfDay.name}" isminin sırlarını, tecellilerini ve insanın bu isimden nasıl feyizlenebileceğini detaylıca anlat.`, 'esma')} className="bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors">Derinlemesine İncele</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         
                         {/* LAST READ CARD */}
                         {lastRead && (
@@ -844,14 +1032,6 @@
                                 <Icons.ChevronLeft size={16} className="text-slate-500 rotate-180"/>
                             </div>
                         )}
-                        
-                        {/* HATIM KARTI */}
-                        <div onClick={() => setView('hatim')} className="cursor-pointer relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900/80 to-teal-900/80 border border-emerald-500/30 p-4 flex flex-col items-center justify-center text-center group mb-6 shadow-lg">
-                            <div className="absolute top-0 right-0 p-4 opacity-10"><Icons.Grid size={64}/></div>
-                            <Icons.Grid size={32} className="text-emerald-300 mb-2 group-hover:scale-110 transition-transform"/>
-                            <h3 className="font-bold text-white text-lg">Hatim Takip</h3>
-                            <p className="text-xs text-emerald-200">Cüzlerini tamamla, ilerlemeni gör</p>
-                        </div>
 
                         {/* DUA PANEL */}
                         <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-violet-900/80 to-fuchsia-900/80 shadow-lg border border-white/10 backdrop-blur-sm relative overflow-hidden">
@@ -868,37 +1048,46 @@
                             </div>
                         </div>
 
-                        {/* YENİ: YAPAY ZEKA KEŞİF ARAÇLARI */}
+                        {/* YAPAY ZEKA KEŞİF ARAÇLARI */}
                         <div className="mb-6">
                             <h3 className="font-bold text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wide px-1"><Icons.Sparkles size={16} className="text-emerald-400"/> AI Keşif Araçları</h3>
                             
-                            {/* ÖĞRETMEN ÖZEL BÖLÜMÜ */}
+                            {/* YENİ ÖZELLİKLER BURAYA EKLENDİ */}
+                            <div className="grid grid-cols-2 gap-2 mb-2">
+                                <button onClick={() => setHomePromptConfig({ type: 'dream', title: 'Rüya & Sembol Yorumu', placeholder: 'Rüyanızı veya sembolü yazın...', prefix: 'Sen Kuran sembolizmine ve Hz. Yusuf\'un ilmine vakıf manevi bir rehbersin. Kullanıcının paylaştığı şu rüyayı veya sembolü psikanalitik ve manevi açıdan, hikmetle yorumla (gaybı sadece Allah bilir uyarısını nazikçe ekleyerek): ' })} className="bg-gradient-to-r from-indigo-600/30 to-purple-600/30 border border-indigo-500/50 hover:from-indigo-500/50 hover:to-purple-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <div className="p-2 bg-indigo-500/20 text-indigo-300 rounded-full group-hover:bg-indigo-500 group-hover:text-white transition-colors"><Icons.CloudDownload size={24}/></div>
+                                    <span className="text-[12px] font-bold text-indigo-100">✨ Rüya Yorumu</span>
+                                </button>
+
+                                <button onClick={() => setHomePromptConfig({ type: 'sermon', title: 'Hutbe & Sohbet Hazırlayıcı', placeholder: 'Konu ne olsun? Örn: İnfak, Kardeşlik...', prefix: 'Sen etkili bir hatipe metin yazan bir asistansın. Kullanıcının verdiği şu konu hakkında; içinde ayet, hadis ve güncel hayattan çarpıcı bir örnek barındıran, cemaatin kalbine dokunacak edebi ve akıcı bir Cuma hutbesi/sohbet metni hazırla: ' })} className="bg-gradient-to-r from-teal-600/30 to-emerald-600/30 border border-teal-500/50 hover:from-teal-500/50 hover:to-emerald-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <div className="p-2 bg-teal-500/20 text-teal-300 rounded-full group-hover:bg-teal-500 group-hover:text-white transition-colors"><Icons.MessageSquare size={24}/></div>
+                                    <span className="text-[12px] font-bold text-teal-100">✨ Hutbe Yazarı</span>
+                                </button>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-2 mb-2">
                                 <button onClick={() => setHomePromptConfig({ type: 'teacher_assistant', title: 'Öğretmen Asistanı', placeholder: 'Hangi konuyu anlatacaksınız? Örn: Ahiret inancı, Doğruluk...', prefix: 'Sen din kültürü ve ahlak bilgisi veya değerler eğitimi öğretmenleri için bir yapay zeka asistanısın. Kullanıcının verdiği şu konuyu sınıfta çocuklara/gençlere sıkıcı olmadan, interaktif, hikayeleştirerek ve modern eğitim teknikleriyle nasıl anlatabileceğine dair bir ders planı ve materyal önerisi hazırla: ' })} className="bg-gradient-to-r from-sky-600/30 to-blue-600/30 border border-sky-500/50 hover:from-sky-500/50 hover:to-blue-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                     <div className="p-2 bg-sky-500/20 text-sky-300 rounded-full group-hover:bg-sky-500 group-hover:text-white transition-colors"><Icons.GraduationCap size={24}/></div>
                                     <span className="text-[12px] font-bold text-sky-100">Öğretmen Asistanı</span>
                                 </button>
-                                <button onClick={() => setHomePromptConfig({ type: 'youth_defense', title: 'Gençlik & İnanç Savunması', placeholder: 'Gençlerin sorusu nedir? Örn: Neden ibadet ediyoruz? Kötülük problemi...', prefix: 'Sen din felsefesi, kelam ve gençlik psikolojisi uzmanısın. Günümüz gençlerinin aklına takılan modern şüpheler (deizm, ateizm vb.) hakkında kullanıcının sorduğu şu soruya; rasyonel, bilimsel, felsefi, ikna edici ve aynı zamanda son derece şefkatli bir dille, Kuran\'dan argümanlar sunarak cevap ver: ' })} className="bg-gradient-to-r from-indigo-600/30 to-violet-600/30 border border-indigo-500/50 hover:from-indigo-500/50 hover:to-violet-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
-                                    <div className="p-2 bg-indigo-500/20 text-indigo-300 rounded-full group-hover:bg-indigo-500 group-hover:text-white transition-colors"><Icons.ShieldCheck size={24}/></div>
-                                    <span className="text-[12px] font-bold text-indigo-100">Gençlik & İnanç</span>
+                                <button onClick={() => setHomePromptConfig({ type: 'youth_defense', title: 'Gençlik & İnanç Savunması', placeholder: 'Gençlerin sorusu nedir? Örn: Neden ibadet ediyoruz? Kötülük problemi...', prefix: 'Sen din felsefesi, kelam ve gençlik psikolojisi uzmanısın. Günümüz gençlerinin aklına takılan modern şüpheler (deizm, ateizm vb.) hakkında kullanıcının sorduğu şu soruya; rasyonel, bilimsel, felsefi, ikna edici ve aynı zamanda son derece şefkatli bir dille, Kuran\'dan argümanlar sunarak cevap ver: ' })} className="bg-gradient-to-r from-rose-600/30 to-red-600/30 border border-rose-500/50 hover:from-rose-500/50 hover:to-red-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <div className="p-2 bg-rose-500/20 text-rose-300 rounded-full group-hover:bg-rose-500 group-hover:text-white transition-colors"><Icons.ShieldCheck size={24}/></div>
+                                    <span className="text-[12px] font-bold text-rose-100">Gençlik & İnanç</span>
                                 </button>
                             </div>
 
-                            {/* DİĞER KEŞİF ARAÇLARI */}
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                                {/* RİSALE-İ NUR ŞİFASI (ANA EKRAN) */}
                                 <button onClick={() => setHomePromptConfig({ type: 'risale_problem', title: 'Risale-i Nur Şifası', placeholder: 'Dert nedir? Örn: Anksiyete, hastalık, gelecek kaygısı...', prefix: 'Sen Risale-i Nur Külliyatı\'nı çok iyi bilen manevi bir rehbersin. Kullanıcının belirttiği şu manevi/psikolojik probleme karşı (Örn: anksiyete, vesvese, gelecek kaygısı, musibet), Bediüzzaman Said Nursi\'nin eserlerindeki (Vesvese Risalesi, Hastalar Risalesi vb.) manevi şifa reçetelerini sun. Acziyet, fakriyet, tevekkül ve şefkat kavramlarıyla kalbe inşirah veren bir cevap hazırla: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-emerald-500/40 hover:border-emerald-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                     <div className="p-2 bg-emerald-500/20 text-emerald-300 rounded-full group-hover:bg-emerald-500 group-hover:text-white transition-colors"><Icons.Feather size={20}/></div>
-                                    <span className="text-[11px] font-bold text-emerald-100">Risale-i Nur Şifası</span>
+                                    <span className="text-[11px] font-bold text-emerald-100">Risale Şifası</span>
                                 </button>
-                                {/* KISSA VE METAFOR ÜRETİCİ */}
                                 <button onClick={() => setHomePromptConfig({ type: 'metaphor', title: 'Kıssa & Metafor Üretici', placeholder: 'Neyi anlatacaksın? Örn: İhlas, Ahiret, Namaz...', prefix: 'Sen harika bir öğretmensin. Kullanıcının verdiği şu soyut İslami/Ahlaki kavramı çocukların ve gençlerin kolayca anlayıp etkilenebileceği, akılda kalıcı, doğadan veya modern hayattan ilham alan çok çarpıcı bir metafor (benzetme) ve kısa bir hikaye/kıssa ile anlat: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-sky-500/30 hover:border-sky-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                     <div className="p-2 bg-sky-500/10 text-sky-400 rounded-full group-hover:bg-sky-500 group-hover:text-white transition-colors"><Icons.Lightbulb size={20}/></div>
-                                    <span className="text-[11px] font-bold text-sky-100">Kıssa & Metafor</span>
+                                    <span className="text-[11px] font-bold text-sky-100">Kıssa Üretici</span>
                                 </button>
                                 <button onClick={() => setHomePromptConfig({ type: 'mey_siyer', title: 'Sahabe İklimi (M.E. Yıldırım)', placeholder: 'Örn: Mus\'ab Bin Umeyr, Bedir, Uhud...', prefix: 'Sen siyer ve sahabe hayatı konusunda uzman, kıymetli hoca Muhammed Emin Yıldırım\'ın o samimi, heyecanlı, yüreklere dokunan ve günümüze mesajlar çıkaran muhteşem anlatım üslubunu benimsemiş bir yapay zekasın. Kullanıcının sorduğu şu konuyu/sahabeyi bu özel üslupla, sanki bir Siyer Vakfı sohbetindeymişiz gibi anlat: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-amber-500/50 hover:border-amber-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                     <div className="p-2 bg-amber-500/20 text-amber-300 rounded-full group-hover:bg-amber-500 group-hover:text-white transition-colors"><Icons.Users size={20}/></div>
-                                    <span className="text-[11px] font-bold text-amber-100">Sahabe İklimi (M.E.Y)</span>
+                                    <span className="text-[11px] font-bold text-amber-100">Sahabe İklimi</span>
                                 </button>
                                 <button onClick={() => setHomePromptConfig({ type: 'esma', title: 'Esma-ül Hüsna Analizi', placeholder: 'Örn: Er-Rahman, El-Vedud, El-Fettah...', prefix: 'Sen bir İslam teolojisi ve Esma-ül Hüsna uzmanısın. Kullanıcının girdiği Allah\'ın şu isminin (Esma) sözlük anlamını, Kuran\'da geçtiği bağlamları, tecellilerini ve insanın bu isimden nasıl ahlaki bir pay (tahalluk) çıkarabileceğini derinlemesine anlat. İsim: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-yellow-500/20 hover:border-yellow-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                     <div className="p-2 bg-yellow-500/10 text-yellow-400 rounded-full group-hover:bg-yellow-500 group-hover:text-white transition-colors"><Icons.Star size={20}/></div>
@@ -916,21 +1105,9 @@
                                     <div className="p-2 bg-rose-500/10 text-rose-400 rounded-full group-hover:bg-rose-500 group-hover:text-white transition-colors"><Icons.Stethoscope size={20}/></div>
                                     <span className="text-[11px] font-bold text-rose-100">Nebevi Tıp</span>
                                 </button>
-                                <button onClick={() => setHomePromptConfig({ type: 'quran_duas', title: 'Kuran Duaları Rehberi', placeholder: 'Hangi konuda dua arıyorsunuz? Örn: Şifa, Sınav, Evlat...', prefix: 'Kullanıcının belirttiği şu konu/durum ile ilgili Kuran-ı Kerim\'de geçen peygamber dualarını ve mümin dualarını bul. Bu duaların Arapça okunuşunu, mealini ve hangi ruh haliyle okunması gerektiğini, duanın ardındaki hikayeyle (örneğin Hz. Eyyub\'un şifa duası gibi) beraber açıkla: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-pink-500/20 hover:border-pink-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
-                                    <div className="p-2 bg-pink-500/10 text-pink-400 rounded-full group-hover:bg-pink-500 group-hover:text-white transition-colors"><Icons.BookHeart size={20}/></div>
-                                    <span className="text-[11px] font-bold text-pink-100">Kuran Duaları</span>
-                                </button>
                                 <button onClick={() => setHomePromptConfig({ type: 'family', title: 'Aile & Eğitim Rehberi', placeholder: 'Örn: Çocuklarda yalan söyleme...', prefix: 'Sen pedagojik formasyona sahip bir İslam eğitimcisisin. Kullanıcının sorduğu şu eğitim veya ailevi durumu, Kuran ve Siyer ışığında, modern çocuk/insan psikolojisine uygun pratik tavsiyelerle yanıtla: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-purple-500/20 hover:border-purple-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                     <div className="p-2 bg-purple-500/10 text-purple-400 rounded-full group-hover:bg-purple-500 group-hover:text-white transition-colors"><Icons.HeartHandshake size={20}/></div>
                                     <span className="text-[11px] font-bold text-purple-100">Aile Rehberi</span>
-                                </button>
-                                <button onClick={() => setHomePromptConfig({ type: 'theme', title: 'Konulu Kuran Okuması', placeholder: 'Örn: Sabır, Adalet, Aile hayatı...', prefix: 'Sen bir Kuran rehberisin. Kullanıcının verdiği şu konu hakkında Kuran perspektifinden bir okuma rehberi, ilgili ayetler ve felsefi/manevi analiz hazırla. Konu: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-indigo-500/20 hover:border-indigo-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
-                                    <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-full group-hover:bg-indigo-500 group-hover:text-white transition-colors"><Icons.Layers size={20}/></div>
-                                    <span className="text-[11px] font-bold text-indigo-100">Konulu Okuma</span>
-                                </button>
-                                <button onClick={() => setHomePromptConfig({ type: 'event', title: 'Siyer Olay Analizi', placeholder: 'Örn: Uhud Savaşı, Hudeybiye...', prefix: 'Sen bir İslam Tarihi uzmanısın. Kullanıcının verdiği şu olayın arka planını, Kuran ayetleriyle ilişkisini (esbab-ı nüzul), önemini ve çıkarılacak dersleri detaylıca anlat. Olay: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-cyan-500/20 hover:border-cyan-500/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
-                                    <div className="p-2 bg-cyan-500/10 text-cyan-400 rounded-full group-hover:bg-cyan-500 group-hover:text-white transition-colors"><Icons.History size={20}/></div>
-                                    <span className="text-[11px] font-bold text-cyan-100">Olay Analizi</span>
                                 </button>
                             </div>
                         </div>
@@ -949,7 +1126,7 @@
                             <div className="pl-3 text-slate-400"><Icons.Search size={18} /></div>
                             <input 
                                 type="text" 
-                                placeholder="Kuran'da ara (Örn: Miraç, Sabır, Firavun)..." 
+                                placeholder="Kuran'da ara (Örn: Sabır, Firavun)..." 
                                 value={searchQuery} 
                                 onChange={(e) => setSearchQuery(e.target.value)} 
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearchTrigger()}
@@ -969,7 +1146,6 @@
                         <div className="px-4 py-10 text-center opacity-50 flex flex-col items-center"><div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>Aranıyor...</div>
                     ) : searchQuery.length > 0 && searchResults.length > 0 ? (
                         <div className="px-4 space-y-3 pb-10">
-                            {/* KELİME İSTATİSTİĞİ VE KONU/TEMA ANALİZİ BANNER'I */}
                             <div className="bg-gradient-to-r from-emerald-900/40 to-teal-900/40 border border-emerald-500/30 rounded-2xl p-4 flex flex-col gap-4 shadow-lg mb-6">
                                 <div>
                                     <h3 className="text-emerald-400 font-bold text-xs mb-1 flex items-center gap-1"><Icons.Activity size={14}/> Kelime İstatistiği</h3>
@@ -977,7 +1153,7 @@
                                 </div>
                                 <div className="border-t border-emerald-500/20 pt-3">
                                     <button onClick={() => handleAiRequest(`"${searchQuery}" kavramı Kur'an-ı Kerim'de sadece bir kelime olarak değil, *konu ve tema* olarak hangi bağlamlarda, hangi surelerde işlenmektedir? Bu konunun Siyer'deki ve Peygamberimizin hayatındaki pratik karşılığı nedir? Lütfen Muhammed Emin Yıldırım hocanın o samimi, coşkulu, sahabe örnekleriyle dolu ve kalbe dokunan üslubunu kullanarak detaylıca analiz et.`, 'thematic_search')} className="w-full bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/50 text-emerald-100 py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all">
-                                        <Icons.Sparkles size={16}/> KONU OLARAK YAPAY ZEKAYA İNCELET (M. Emin Yıldırım Üslubuyla)
+                                        <Icons.Sparkles size={16}/> KONU OLARAK AI İLE İNCELET (M. Emin Yıldırım Üslubuyla)
                                     </button>
                                 </div>
                             </div>
@@ -1034,12 +1210,22 @@
             const [darkMode, setDarkMode] = React.useState(true);
             const [showSettings, setShowSettings] = React.useState(false);
             
+            // Toast
+            const [toastMsg, setToastMsg] = React.useState('');
+            const [toastVisible, setToastVisible] = React.useState(false);
+
+            const showToast = (msg) => {
+                setToastMsg(msg);
+                setToastVisible(true);
+                setTimeout(() => setToastVisible(false), 3000);
+            };
+
             // Ayarlar State'leri
             const [geminiKey, setGeminiKey] = React.useState('');
             const [geminiModel, setGeminiModel] = React.useState('gemini-1.5-flash');
-            const [fontSize, setFontSize] = React.useState(18);
+            const [fontSize, setFontSize] = React.useState(22); // Biraz büyütüldü varsayılan olarak
             const [mealSource, setMealSource] = React.useState('tr.yazir');
-            const [reciterSource, setReciterSource] = React.useState('ar.abdulbasitmurattal'); // VARSAYILAN: ABDULBASIT
+            const [reciterSource, setReciterSource] = React.useState('ar.abdulbasitmurattal');
             
             const [chatQuery, setChatQuery] = React.useState('');
             const [duaQuery, setDuaQuery] = React.useState('');
@@ -1067,7 +1253,6 @@
                 setSearchResults([]); 
                 setSearchCount(0);
                 try {
-                    // API Araması artık seçilen meale (mealSource) göre yapılır.
                     const res = await fetch(`https://api.alquran.cloud/v1/search/${query}/all/${mealSource}`);
                     const data = await res.json();
                     
@@ -1086,7 +1271,6 @@
                 finally { setIsSearching(false); }
             }, [mealSource]);
 
-            // "Anında Bulma" özelliği (Debounce Effect)
             React.useEffect(() => {
                 const timer = setTimeout(() => {
                     if (searchQuery.length > 2) {
@@ -1095,7 +1279,7 @@
                         setSearchResults([]);
                         setSearchCount(0);
                     }
-                }, 500); // 0.5 saniye debounce bekleme süresi
+                }, 500); 
                 
                 return () => clearTimeout(timer);
             }, [searchQuery, performDeepSearch]);
@@ -1109,11 +1293,9 @@
                 const savedLastRead = localStorage.getItem('lastRead');
                 if(savedLastRead) setLastRead(JSON.parse(savedLastRead));
                 
-                // Load Hatim Progress
                 const savedHatim = localStorage.getItem('hatim_progress');
                 if(savedHatim) setHatimProgress(JSON.parse(savedHatim));
                 
-                // Local Favorites Init
                 const localFavs = localStorage.getItem('favs');
                 if(localFavs) setFavorites(JSON.parse(localFavs));
 
@@ -1166,6 +1348,7 @@
                     const resetArr = Array(30).fill(false);
                     setHatimProgress(resetArr);
                     localStorage.setItem('hatim_progress', JSON.stringify(resetArr));
+                    showToast("Hatim ilerlemesi sıfırlandı.");
                 }
             };
 
@@ -1174,13 +1357,17 @@
                 let newFavs = [...favorites];
                 const isFav = favorites.some(f => f.uid === favItem.uid);
                 
-                // Optimistic UI update for LocalStorage
-                if(isFav) newFavs = newFavs.filter(f => f.uid !== favItem.uid); 
-                else newFavs.push(favItem);
+                if(isFav) {
+                    newFavs = newFavs.filter(f => f.uid !== favItem.uid);
+                    showToast("Favorilerden çıkarıldı");
+                } else {
+                    newFavs.push(favItem);
+                    showToast("Favorilere eklendi");
+                }
+                
                 setFavorites(newFavs); 
                 localStorage.setItem('favs', JSON.stringify(newFavs));
 
-                // Sync with Firebase if available
                 if (isFirebaseAvailable && user) {
                     const docRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('favorites').doc('main');
                     try {
@@ -1227,6 +1414,9 @@
 
             return (
                 <div className="font-sans antialiased">
+                    <Toast message={toastMsg} visible={toastVisible} />
+                    <ScrollToTop />
+
                     {view === 'home' && <Home 
                         surahs={surahs} 
                         searchQuery={searchQuery} 
@@ -1248,6 +1438,7 @@
                         lastRead={lastRead}
                         setJumpModalOpen={setJumpModalOpen}
                         handleRandomAyah={handleRandomAyah}
+                        showToast={showToast}
                     />}
                     
                     {view === 'surah' && currentSurah && <SurahDetail 
@@ -1266,6 +1457,7 @@
                         setJumpModalOpen={setJumpModalOpen}
                         mealSource={mealSource}
                         reciterSource={reciterSource}
+                        showToast={showToast}
                     />}
                     
                     {view === 'favorites' && <Favorites 
@@ -1297,6 +1489,7 @@
                         setMealSource={setMealSource}
                         reciterSource={reciterSource}
                         setReciterSource={setReciterSource}
+                        showToast={showToast}
                     />
                     
                     <JumpToModal 
@@ -1305,6 +1498,7 @@
                         setCurrentSurah={setCurrentSurah}
                         setView={setView}
                         surahs={surahs}
+                        showToast={showToast}
                     />
                     
                     <AiAnalysisModal 
@@ -1316,11 +1510,11 @@
                         type={aiMode} 
                     />
                     
-                    <div className="fixed bottom-0 left-0 right-0 py-3 px-6 flex justify-around items-center border-t border-slate-800 bg-slate-900/95 backdrop-blur-lg z-50">
-                        <button onClick={() => setView('home')} className={`flex flex-col items-center gap-1 ${view === 'home' ? 'text-emerald-500' : 'text-slate-500'}`}><Icons.BookOpen size={24} /><span className="text-[10px]">Kuran</span></button>
-                        <button onClick={() => setView('hatim')} className={`flex flex-col items-center gap-1 ${view === 'hatim' ? 'text-emerald-500' : 'text-slate-500'}`}><Icons.Grid size={24} /><span className="text-[10px]">Hatim</span></button>
-                        <button onClick={() => setView('favorites')} className={`flex flex-col items-center gap-1 ${view === 'favorites' ? 'text-rose-500' : 'text-slate-500'}`}><Icons.Heart size={24} fill={view === 'favorites' ? "currentColor" : "none"} /><span className="text-[10px]">Favoriler</span></button>
-                        <button onClick={() => setDarkMode(!darkMode)} className="flex flex-col items-center gap-1 text-slate-500 hover:text-amber-400">{darkMode ? <Icons.Sun size={24} /> : <Icons.Moon size={24} />}<span className="text-[10px]">Tema</span></button>
+                    <div className="fixed bottom-0 left-0 right-0 py-3 px-6 flex justify-around items-center border-t border-slate-800 bg-slate-900/95 backdrop-blur-lg z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                        <button onClick={() => setView('home')} className={`flex flex-col items-center gap-1 ${view === 'home' ? 'text-emerald-500' : 'text-slate-500'}`}><Icons.BookOpen size={24} /><span className="text-[10px] font-bold">Kuran</span></button>
+                        <button onClick={() => setView('hatim')} className={`flex flex-col items-center gap-1 ${view === 'hatim' ? 'text-emerald-500' : 'text-slate-500'}`}><Icons.Grid size={24} /><span className="text-[10px] font-bold">Hatim</span></button>
+                        <button onClick={() => setView('favorites')} className={`flex flex-col items-center gap-1 ${view === 'favorites' ? 'text-rose-500' : 'text-slate-500'}`}><Icons.Heart size={24} fill={view === 'favorites' ? "currentColor" : "none"} /><span className="text-[10px] font-bold">Favoriler</span></button>
+                        <button onClick={() => setDarkMode(!darkMode)} className="flex flex-col items-center gap-1 text-slate-500 hover:text-amber-400">{darkMode ? <Icons.Sun size={24} /> : <Icons.Moon size={24} />}<span className="text-[10px] font-bold">Tema</span></button>
                     </div>
                 </div>
             );
