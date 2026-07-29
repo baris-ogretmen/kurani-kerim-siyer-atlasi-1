@@ -55,6 +55,208 @@
 
     <div id="root"></div>
 
+    <!-- ===== ZİRVE API KATMANI (Kuran & Siyer) · sayısız anahtar + otomatik model + kota geçişi ===== -->
+<script>
+(function(){
+  "use strict";
+  const LS = { keys:'zirve_keys', model:'geminiModel', legacy:'geminiApiKey', models:'zirve_models' };
+
+  // ---- Anahtar halkası (RING): sayısız anahtar ----
+  const RING = { keys:[], i:0, cool:{} };  // cool[key] = {bitis: ts, gunluk: ts}
+  function ringLoad(){
+    let arr=[];
+    try{ const r=localStorage.getItem(LS.keys); if(r){ const d=JSON.parse(r); if(Array.isArray(d)) arr=d; } }catch(e){}
+    // eski tek-anahtar sistemi varsa RING'e taşı
+    const eski=(localStorage.getItem(LS.legacy)||'').trim();
+    if(eski && arr.indexOf(eski)===-1) arr.unshift(eski);
+    RING.keys = arr.map(k=>String(k||'').trim()).filter(k=>k.length>=8);
+    // uygulamanın okuduğu tek-anahtar alanını da ilk anahtara sabitle (uyumluluk)
+    if(RING.keys.length){ try{ localStorage.setItem(LS.legacy, RING.keys[0]); }catch(e){} }
+  }
+  function ringSave(){
+    try{ localStorage.setItem(LS.keys, JSON.stringify(RING.keys)); }catch(e){}
+    if(RING.keys.length){ try{ localStorage.setItem(LS.legacy, RING.keys[0]); }catch(e){} }
+  }
+  function ringSet(text){
+    const arr=String(text||'').split(/[\s,;\n]+/).map(k=>k.trim()).filter(k=>k.length>=8);
+    RING.keys=[...new Set(arr)]; RING.i=0; RING.cool={}; ringSave();
+  }
+  function simdi(){ return Date.now(); }
+  function keyHazirMi(k){
+    const c=RING.cool[k]; if(!c) return true;
+    const t=simdi();
+    if(c.gunluk && c.gunluk>t) return false;
+    if(c.bitis && c.bitis>t) return false;
+    return true;
+  }
+  function aktifKey(){
+    if(!RING.keys.length) return '';
+    for(let n=0;n<RING.keys.length;n++){
+      const idx=(RING.i+n)%RING.keys.length;
+      if(keyHazirMi(RING.keys[idx])){ RING.i=idx; return RING.keys[idx]; }
+    }
+    // hepsi soğumada → en erken açılacakı seç
+    return RING.keys[RING.i%RING.keys.length];
+  }
+  function keySonraki(k, sebep){
+    if(!RING.cool[k]) RING.cool[k]={};
+    if(sebep==='gunluk') RING.cool[k].gunluk=simdi()+1000*60*60*6;   // 6 saat
+    else RING.cool[k].bitis=simdi()+1000*65;                         // 65 sn
+    RING.i=(RING.i+1)%Math.max(1,RING.keys.length);
+  }
+
+  // ---- Model havuzu + otomatik seçim ----
+  const OLU = ['gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash','gemini-1.5-pro','gemini-pro','gemini-2.5-flash-preview-09-2025'];
+  const MODEL_TERCIH = ['gemini-2.5-flash','gemini-flash-latest','gemini-2.5-flash-lite','gemini-flash-lite-latest','gemini-2.5-pro','gemini-pro-latest'];
+  let MODEL = localStorage.getItem(LS.model) || 'gemini-2.5-flash';
+  if(OLU.indexOf(MODEL)!==-1){ MODEL='gemini-2.5-flash'; try{ localStorage.setItem(LS.model, MODEL); }catch(e){} }
+  let KULLANILABILIR=[];
+  try{ const r=localStorage.getItem(LS.models); if(r) KULLANILABILIR=JSON.parse(r)||[]; }catch(e){}
+  function modelHavuzu(){
+    if(!KULLANILABILIR.length) return MODEL_TERCIH.slice();
+    const h=MODEL_TERCIH.filter(m=>KULLANILABILIR.indexOf(m)!==-1);
+    return h.length?h:MODEL_TERCIH.slice();
+  }
+  function modelSonraki(simdiki, denenen){
+    return modelHavuzu().find(m=>m!==simdiki && denenen.indexOf(m)===-1) || null;
+  }
+  function enIyiModel(list){
+    for(const m of MODEL_TERCIH) if(list.indexOf(m)!==-1) return m;
+    return list[0]||MODEL;
+  }
+  async function listModels(key){
+    try{
+      const r=await _fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+      if(!r.ok) return [];
+      const d=await r.json();
+      return (d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).indexOf('generateContent')!==-1)
+        .map(m=>(m.name||'').replace('models/','')).filter(Boolean);
+    }catch(e){ return []; }
+  }
+
+  function googleHata(msg){
+    const m=(msg||'').toLowerCase();
+    if(/quota|exhausted|per day|perday|günlük|gunluk/i.test(m)) return 'gunluk';
+    if(/rate|429|too many|dakika/i.test(m)) return 'dakika';
+    if(/not found|is not supported|unknown name.*model|models\//i.test(m)) return 'model';
+    return 'diger';
+  }
+
+  // ---- Orijinal fetch ----
+  const _fetch = window.fetch.bind(window);
+
+  function toast(msg,renk){
+    try{
+      let t=document.getElementById('zirve-toast');
+      if(!t){ t=document.createElement('div'); t.id='zirve-toast';
+        t.style.cssText='position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2147483000;background:#0f172a;color:#fff;padding:10px 16px;border-radius:12px;font:600 13px system-ui;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90vw;text-align:center;transition:opacity .3s';
+        document.body.appendChild(t); }
+      t.innerHTML=msg; t.style.background = renk==='red'?'#7f1d1d':renk==='green'?'#14532d':'#0f172a';
+      t.style.opacity='1'; clearTimeout(t._h); t._h=setTimeout(()=>{ t.style.opacity='0'; },3200);
+    }catch(e){}
+  }
+
+  // ---- fetch sarmalayıcı: sadece Gemini isteklerini yönet ----
+  window.fetch = async function(url, opt){
+    try{
+      const u = (typeof url==='string') ? url : (url && url.url) || '';
+      if(u.indexOf('generativelanguage.googleapis.com')===-1 || u.indexOf(':generateContent')===-1 && u.indexOf(':predict')===-1 && u.indexOf(':streamGenerateContent')===-1){
+        return _fetch(url, opt);   // Gemini üretim isteği değil → dokunma
+      }
+      if(!RING.keys.length) return _fetch(url, opt);  // anahtar yoksa eski akış
+
+      // modeli ve keyi URL'den ayıkla
+      const mMatch = u.match(/models\/([^:]+):/);
+      let istekModeli = mMatch ? mMatch[1] : MODEL;
+      const denenenModeller=[];
+      const denenenKeys=[];
+
+      for(let tur=0; tur<Math.max(6, RING.keys.length*2); tur++){
+        const key = aktifKey();
+        if(!key) break;
+        // URL'yi güncel key + güncel model ile yeniden kur
+        let yeniUrl = u.replace(/([?&])key=[^&]*/,'$1key='+encodeURIComponent(key));
+        if(yeniUrl.indexOf('key=')===-1) yeniUrl += (yeniUrl.indexOf('?')===-1?'?':'&')+'key='+encodeURIComponent(key);
+        // görsel/tts modelini değiştirme; sadece generateContent metin modelini oto-seç
+        const gorselMi = /imagen|-image|:predict|tts/i.test(u);
+        if(!gorselMi && istekModeli!==MODEL && denenenModeller.indexOf(MODEL)===-1){
+          yeniUrl = yeniUrl.replace(/models\/[^:]+:/, 'models/'+MODEL+':');
+          istekModeli = MODEL;
+        }
+
+        let r;
+        try{ r = await _fetch(yeniUrl, opt); }
+        catch(agHata){
+          // ağ hatası → kısa bekle, tekrar dene
+          if(tur < 3){ await new Promise(x=>setTimeout(x,800)); continue; }
+          throw agHata;
+        }
+
+        if(r.ok) return r;
+
+        // hata analizi (gövdeyi klonlayıp oku)
+        let hataMsg='';
+        try{ const c=r.clone(); const j=await c.json(); hataMsg=(j.error&&j.error.message)||''; }catch(e){}
+        const tip=googleHata(hataMsg || ('http '+r.status));
+
+        if(r.status===429 || tip==='gunluk' || tip==='dakika'){
+          keySonraki(key, tip==='gunluk'?'gunluk':'dakika');
+          denenenKeys.push(key);
+          toast('🔑 Bir anahtarın kotası doldu → sıradaki anahtara geçiliyor…','green');
+          continue;
+        }
+        if((r.status===404 || r.status===400) && tip==='model' && !/imagen|-image|:predict|tts/i.test(u)){
+          // modeli otomatik düzelt
+          if(!KULLANILABILIR.length){
+            const list=await listModels(key);
+            if(list.length){ KULLANILABILIR=list; try{ localStorage.setItem(LS.models, JSON.stringify(list)); }catch(e){} }
+          }
+          const yeni = modelSonraki(MODEL, denenenModeller) || enIyiModel(KULLANILABILIR);
+          denenenModeller.push(MODEL);
+          if(yeni && yeni!==MODEL){
+            MODEL=yeni; try{ localStorage.setItem(LS.model, yeni); }catch(e){}
+            toast('🔧 Model uyarlandı → <b>'+yeni+'</b>','green');
+            continue;
+          }
+        }
+        if(r.status===503 || r.status===500 || r.status===502 || r.status===504){
+          await new Promise(x=>setTimeout(x, 1200));
+          // birkaç kez modeli de değiştirerek dene
+          const yeni = modelSonraki(MODEL, denenenModeller);
+          if(yeni){ denenenModeller.push(MODEL); MODEL=yeni; try{ localStorage.setItem(LS.model, yeni); }catch(e){}
+            toast('⏳ Yoğunluk var → <b>'+yeni+'</b> deneniyor…','#0f172a'); }
+          continue;
+        }
+        // bilinmeyen hata → olduğu gibi döndür (uygulama kendi mesajını göstersin)
+        return r;
+      }
+      // tüm turlar bitti → son bir kez normal dene
+      return _fetch(url, opt);
+    }catch(e){
+      return _fetch(url, opt);
+    }
+  };
+
+  // ---- Başlat: anahtarları yükle + otomatik model keşfi ----
+  ringLoad();
+  (async function otoKesif(){
+    try{
+      if(RING.keys.length && !KULLANILABILIR.length){
+        const list=await listModels(RING.keys[0]);
+        if(list.length){
+          KULLANILABILIR=list; try{ localStorage.setItem(LS.models, JSON.stringify(list)); }catch(e){}
+          if(list.indexOf(MODEL)===-1){ const iyi=enIyiModel(list); if(iyi){ MODEL=iyi; try{ localStorage.setItem(LS.model, iyi); }catch(e){} } }
+        }
+      }
+    }catch(e){}
+  })();
+
+  // ---- Dışarı aç (panel için) ----
+  window.ZIRVE = { RING, ringSet, ringLoad, ringSave, listModels, get model(){return MODEL;}, set model(v){MODEL=v; try{localStorage.setItem(LS.model,v);}catch(e){}}, KULLANILABILIR:()=>KULLANILABILIR, modelHavuzu, toast };
+})();
+</script>
+
+
     <script type="text/babel">
         // --- ICONLAR ---
         const Icons = {
@@ -139,7 +341,7 @@
             generateText: async (prompt, useSearch = false) => {
                 const apiKey = localStorage.getItem('geminiApiKey') || ""; 
                 if (!apiKey) throw new Error("Lütfen önce Ayarlar menüsünden Google Gemini API Anahtarınızı girip kaydediniz.");
-                const model = localStorage.getItem('geminiModel') || "gemini-2.5-flash-preview-09-2025";
+                const model = localStorage.getItem('geminiModel') || "gemini-2.5-flash";
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
                 
                 const payload = {
@@ -174,26 +376,45 @@
             
             generateImage: async (promptText) => {
                 const apiKey = localStorage.getItem('geminiApiKey') || "";
-                if (!apiKey) throw new Error("API Anahtarı bulunamadı.");
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
-                
-                const payload = {
-                    instances: { prompt: promptText },
-                    parameters: { sampleCount: 1 }
-                };
+                if (!apiKey) throw new Error("API Anahtarı bulunamadı. Ayarlardan Gemini API anahtarı girin.");
 
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (!response.ok) throw new Error("Görsel üretilemedi. API limitini aşmış olabilirsiniz.");
-                const data = await response.json();
-                if(data.predictions && data.predictions[0]) {
-                     return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                // ÖNCE ucretsiz katmanda calisan Gemini gorsel modeli [Nano Banana] denenir.
+                //    imagen modelleri ücretsiz anahtarda çalışmaz; bu yüzden önce bunu deniyoruz.
+                const gorselModelleri = ["gemini-2.5-flash-image", "gemini-2.0-flash-preview-image-generation"];
+                for (const model of gorselModelleri) {
+                    try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                        const payload = {
+                            contents: [{ parts: [{ text: promptText }] }],
+                            generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
+                        };
+                        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                        if (!response.ok) continue;
+                        const data = await response.json();
+                        const parts = data?.candidates?.[0]?.content?.parts || [];
+                        const imgPart = parts.find(p => p.inlineData || p.inline_data);
+                        const inl = imgPart && (imgPart.inlineData || imgPart.inline_data);
+                        if (inl && inl.data) {
+                            const mime = inl.mimeType || inl.mime_type || 'image/png';
+                            return `data:${mime};base64,${inl.data}`;
+                        }
+                    } catch (e) { /* sıradaki modele geç */ }
                 }
-                throw new Error("Görsel verisi alınamadı.");
+
+                // Yedek: imagen [yalnizca faturali/ucretli anahtarlarda calisir].
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+                    const payload = { instances: [{ prompt: promptText }], parameters: { sampleCount: 1 } };
+                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded) {
+                            return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                        }
+                    }
+                } catch (e) { /* düş */ }
+
+                throw new Error("Görsel üretilemedi. Ücretsiz anahtarda görsel üretimi bazen kısıtlı olabilir; birkaç dakika sonra tekrar deneyin ya da farklı bir anahtar kullanın.");
             },
             
             generateTTS: async (textToSpeak) => {
@@ -547,24 +768,38 @@
 
         const SettingsModal = ({ isOpen, onClose, geminiKey, setGeminiKey, geminiModel, setGeminiModel, fontSize, setFontSize, mealSource, setMealSource, reciterSource, setReciterSource, arabicFont, setArabicFont, showToast }) => {
             if (!isOpen) return null;
-            const [tempKey, setTempKey] = React.useState(geminiKey);
+            const [tempKey, setTempKey] = React.useState(() => {
+                try { const arr = JSON.parse(localStorage.getItem('zirve_keys') || '[]'); if (Array.isArray(arr) && arr.length) return arr.join('\n'); } catch(e){}
+                return geminiKey;
+            });
             const [tempModel, setTempModel] = React.useState(geminiModel);
             const [tempMeal, setTempMeal] = React.useState(mealSource);
             const [tempReciter, setTempReciter] = React.useState(reciterSource);
             const [tempFont, setTempFont] = React.useState(arabicFont);
 
             const handleSave = () => {
-                setGeminiKey(tempKey);
+                // Çoklu anahtarları ZİRVE halkasına yaz
+                try { if (window.ZIRVE && window.ZIRVE.ringSet) { window.ZIRVE.ringSet(tempKey); } } catch(e){}
+                const ilkKey = (tempKey || '').split(/[\s,;\n]+/).map(k=>k.trim()).filter(k=>k.length>=8)[0] || tempKey.trim();
+                setGeminiKey(ilkKey);
                 setGeminiModel(tempModel);
                 setMealSource(tempMeal);
                 setReciterSource(tempReciter);
                 setArabicFont(tempFont);
-                localStorage.setItem('geminiApiKey', tempKey);
+                localStorage.setItem('geminiApiKey', ilkKey);
                 localStorage.setItem('geminiModel', tempModel);
                 localStorage.setItem('mealSource', tempMeal);
                 localStorage.setItem('reciterSource', tempReciter);
                 localStorage.setItem('arabicFont', tempFont);
-                showToast("Ayarlar başarıyla kaydedildi!");
+                // ZİRVE yeni anahtarlarla modelleri yeniden keşfetsin
+                try {
+                    if (window.ZIRVE && window.ZIRVE.RING.keys.length && window.ZIRVE.listModels) {
+                        window.ZIRVE.listModels(window.ZIRVE.RING.keys[0]).then(list => {
+                            if (list && list.length) { try { localStorage.setItem('zirve_models', JSON.stringify(list)); } catch(e){} }
+                        });
+                    }
+                } catch(e){}
+                showToast("Ayarlar kaydedildi! " + (window.ZIRVE ? window.ZIRVE.RING.keys.length + " anahtar aktif." : ""));
                 onClose();
             };
 
@@ -575,13 +810,27 @@
                         
                         <div className="mb-4 space-y-4">
                             <div>
-                                <label className="text-xs font-bold text-emerald-400 mb-2 block">Google Gemini API Anahtarı</label>
-                                <input type="password" value={tempKey} onChange={(e) => setTempKey(e.target.value)} className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Anahtarı buraya yapıştırın"/>
+                                <label className="text-xs font-bold text-emerald-400 mb-2 block">Google Gemini API Anahtar(lar)ı — <span className="text-emerald-300">sayısız ekleyebilirsin</span></label>
+                                <textarea value={tempKey} onChange={(e) => setTempKey(e.target.value)} rows="4" className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none font-mono" placeholder="Her satıra bir anahtar yapıştır:&#10;AIza...birinci&#10;AIza...ikinci&#10;AIza...üçüncü"/>
+                                <p className="text-[11px] text-emerald-300/70 mt-1">Her satıra bir anahtar. Biri dolunca sistem otomatik diğerine geçer. (Ayrı projelerde açtıysan her biri kendi kotasını alır.)</p>
+                                <details className="mt-2 bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-3">
+                                    <summary className="cursor-pointer text-xs font-bold text-emerald-300">❓ Ücretsiz API anahtarı nasıl alınır? (tıkla)</summary>
+                                    <ol className="mt-2 pl-4 text-xs text-emerald-100/90 space-y-1 list-decimal">
+                                        <li>Aşağıdaki yeşil düğmeye bas — Google AI Studio açılır.</li>
+                                        <li>Google (Gmail) hesabınla giriş yap. Ücretsizdir.</li>
+                                        <li>"Create API key" / "API anahtarı oluştur"a bas.</li>
+                                        <li>"Create API key in new project"i seç (yeni proje = ayrı kota).</li>
+                                        <li>AIza... ile başlayan anahtarı kopyala.</li>
+                                        <li>Yukarıdaki kutuya yapıştır ve Kaydet'e bas. Bitti!</li>
+                                    </ol>
+                                    <p className="mt-2 text-[11px] font-semibold text-emerald-300/80">💡 Daha fazla kullanım için 2-3 anahtarı AYRI projelerde aç; biri dolunca diğerine geçebilirsin.</p>
+                                    <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" className="inline-block mt-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold px-4 py-2 rounded-lg no-underline">🔗 Ücretsiz Anahtar Al (Google AI Studio)</a>
+                                </details>
                             </div>
                             
                             <div>
                                 <label className="text-xs font-bold text-emerald-400 mb-2 block">Yapay Zeka Modeli</label>
-                                <input type="text" value={tempModel} onChange={(e) => setTempModel(e.target.value)} className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Örn: gemini-1.5-flash"/>
+                                <input type="text" value={tempModel} onChange={(e) => setTempModel(e.target.value)} className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Örn: gemini-2.5-flash"/>
                             </div>
 
                             <div>
@@ -1577,7 +1826,7 @@
             };
 
             const [geminiKey, setGeminiKey] = React.useState('');
-            const [geminiModel, setGeminiModel] = React.useState('gemini-1.5-flash');
+            const [geminiModel, setGeminiModel] = React.useState('gemini-2.5-flash');
             const [fontSize, setFontSize] = React.useState(22); 
             const [mealSource, setMealSource] = React.useState('tr.yazir');
             const [reciterSource, setReciterSource] = React.useState('ar.abdulbasitmurattal');
@@ -1657,7 +1906,7 @@
 
             React.useEffect(() => {
                 setGeminiKey(localStorage.getItem('geminiApiKey') || '');
-                setGeminiModel(localStorage.getItem('geminiModel') || 'gemini-1.5-flash');
+                setGeminiModel(localStorage.getItem('geminiModel') || 'gemini-2.5-flash');
                 setMealSource(localStorage.getItem('mealSource') || 'tr.yazir'); 
                 setReciterSource(localStorage.getItem('reciterSource') || 'ar.abdulbasitmurattal');
                 setArabicFont(localStorage.getItem('arabicFont') || 'font-amiri');
