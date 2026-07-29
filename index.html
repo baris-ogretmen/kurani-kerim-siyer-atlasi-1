@@ -427,7 +427,23 @@ Kullanıcının isteği: `;
                         
                         if (!response.ok) {
                             const errData = await response.json();
-                            throw new Error(errData.error?.message || "API Hatası");
+                            const msg = errData.error?.message || "API Hatası";
+                            // "invalid argument" → model bu parametreleri kabul etmedi; çıkar ve tekrar dene
+                            if (/invalid argument|INVALID_ARGUMENT|Unknown name|not supported/i.test(msg)) {
+                                if (payload.generationConfig && payload.generationConfig.thinkingConfig) {
+                                    delete payload.generationConfig.thinkingConfig;
+                                    continue;
+                                }
+                                if (payload.generationConfig && 'temperature' in payload.generationConfig) {
+                                    delete payload.generationConfig;
+                                    continue;
+                                }
+                                if (payload.tools) {
+                                    delete payload.tools;
+                                    continue;
+                                }
+                            }
+                            throw new Error(msg);
                         }
                         const data = await response.json();
                         return data.candidates?.[0]?.content?.parts?.[0]?.text || "Cevap alınamadı.";
@@ -437,7 +453,8 @@ Kullanıcının isteği: `;
                             let bilgi = "Yapay zeka şu an cevap veremedi.";
                             if (/quota|exhausted|per day|perday|429|rate/i.test(m)) bilgi = "Tüm anahtarların kotası şu an dolu görünüyor. Biraz sonra tekrar dene ya da yeni anahtar ekle (Ayarlar).";
                             else if (/network|failed to fetch|timeout/i.test(m)) bilgi = "İnternet bağlantısı zayıf ya da kesik. Bağlantını kontrol edip tekrar dene.";
-                            else if (/api key|invalid|403|permission/i.test(m)) bilgi = "API anahtarı geçersiz olabilir. Ayarlardan anahtarını kontrol et.";
+                            else if (/api key|API_KEY|403|permission/i.test(m)) bilgi = "API anahtarı geçersiz olabilir. Ayarlardan anahtarını kontrol et.";
+                            else if (/invalid argument/i.test(m)) bilgi = "İstek biçiminde sorun oldu; model bazı ayarları kabul etmedi. Tekrar dene.";
                             throw new Error(bilgi);
                         }
                         await new Promise(r => setTimeout(r, delays[i]));
@@ -904,6 +921,7 @@ Kullanıcının isteği: `;
                                 <label className="text-xs font-bold text-emerald-400 mb-2 block">Google Gemini API Anahtar(lar)ı — <span className="text-emerald-300">sayısız ekleyebilirsin</span></label>
                                 <textarea value={tempKey} onChange={(e) => setTempKey(e.target.value)} rows="4" className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none font-mono" placeholder="Her satıra bir anahtar yapıştır:&#10;AIza...birinci&#10;AIza...ikinci&#10;AIza...üçüncü"/>
                                 <p className="text-[11px] text-emerald-300/70 mt-1">Her satıra bir anahtar. Biri dolunca sistem otomatik diğerine geçer. (Ayrı projelerde açtıysan her biri kendi kotasını alır.)</p>
+                                <p className="text-[11px] text-amber-300/80 mt-1">🖼️ Not: <b>Görsel üretiminde</b> günlük kota çok daha düşüktür (metin bol, görsel günde ~100 civarı). Görsel "kota doldu" derse yarın sıfırlanır ya da başka anahtar dene; metin özellikleri çalışmaya devam eder.</p>
                                 <details className="mt-2 bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-3">
                                     <summary className="cursor-pointer text-xs font-bold text-emerald-300">❓ Ücretsiz API anahtarı nasıl alınır? (tıkla)</summary>
                                     <ol className="mt-2 pl-4 text-xs text-emerald-100/90 space-y-1 list-decimal">
