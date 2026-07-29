@@ -395,7 +395,15 @@
 3) Ayet meali verirken anlamı doğru aktar; hadis naklederken zayıf/uydurma olabileceğini düşünüyorsan bunu belirt, mümkünse kaynağını (ör. Buhârî, Müslim) an.
 4) İçtihadi/mezhepler arası farklı görüş olan konularda tek doğruymuş gibi dayatma; "âlimler arasında farklı görüşler vardır" diyerek dengeli aktar ve kesin fetva vermekten kaçın, gerekirse bir din görevlisine/müftülüğe danışmayı öner.
 5) Gaybî konularda (kader detayı, rüya kesin yorumu vb.) "kesin bilgi Allah katındadır" edebini koru.
-6) Şüpheye düştüğünde, yanlış bilgi vermektense "bu konuda kesin konuşamam, güvenilir bir âlime danışılmalı" de. İnsanların dini hayatı söz konusu olduğu için doğruluk her şeyden önemlidir.
+6) Şüpheye düştüğünde, yanlış bilgi vermektense "bu konuda kesin konuşamam, güvenilir bir âlime danışılmalı" de. İnsanların dini hayatı söz konusu olduğu için doğruluk her şeyden önemlidir.\n\nBİÇİMLENDİRME (cevabı gözü şenlendirecek, akılda kalıcı şekilde yaz — çıktı Markdown+HTML olarak işlenir):
+- Önemli kavramları/anahtar kelimeleri renkli vurgula: <span style="color:#10b981;font-weight:700">önemli kavram</span> (yeşil), çok kritik uyarılar için <span style="color:#f59e0b;font-weight:700">...</span> (turuncu/altın).
+- Duygu, edebi vurgu veya incelik için *italik/eğik yazı* kullan.
+- Ana başlıkları ## ile, alt başlıkları ### ile yaz; maddeleri - ile listele.
+- Uygun olduğunda somut bir METAFOR/benzetme kullan (soyut kavramı günlük hayattan bir örnekle anlat).
+- Karşılaştırma/özet gerektiğinde Markdown tablosu kullan.
+- İki kavramı ilişkilendirirken kısa bir "kavram haritası" mantığı kur: A → B → C oklarıyla akışı göster.
+- Ayet/hadis alıntılarını > blok alıntı ile ayrı ve dikkat çekici göster.
+- Abartıya kaçma; vurgu gerçekten önemli yerlerde olsun, her cümleyi renklendirme.
 
 Kullanıcının isteği: `;
 
@@ -408,7 +416,7 @@ Kullanıcının isteği: `;
                     payload.tools = [{ google_search: {} }];
                 }
 
-                const delays = [1000, 2000, 4000, 8000, 16000];
+                const delays = [500, 1000, 1500, 2500, 4000];
                 for (let i = 0; i < 5; i++) {
                     try {
                         const response = await fetch(url, {
@@ -424,7 +432,14 @@ Kullanıcının isteği: `;
                         const data = await response.json();
                         return data.candidates?.[0]?.content?.parts?.[0]?.text || "Cevap alınamadı.";
                     } catch (error) {
-                        if (i === 4) throw new Error("AI Servisine ulaşılamadı. Hata: " + error.message);
+                        if (i === 4) {
+                            const m = (error && error.message) || String(error);
+                            let bilgi = "Yapay zeka şu an cevap veremedi.";
+                            if (/quota|exhausted|per day|perday|429|rate/i.test(m)) bilgi = "Tüm anahtarların kotası şu an dolu görünüyor. Biraz sonra tekrar dene ya da yeni anahtar ekle (Ayarlar).";
+                            else if (/network|failed to fetch|timeout/i.test(m)) bilgi = "İnternet bağlantısı zayıf ya da kesik. Bağlantını kontrol edip tekrar dene.";
+                            else if (/api key|invalid|403|permission/i.test(m)) bilgi = "API anahtarı geçersiz olabilir. Ayarlardan anahtarını kontrol et.";
+                            throw new Error(bilgi);
+                        }
                         await new Promise(r => setTimeout(r, delays[i]));
                     }
                 }
