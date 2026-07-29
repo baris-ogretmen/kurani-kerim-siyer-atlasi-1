@@ -380,7 +380,8 @@
 
                 // ÖNCE ucretsiz katmanda calisan Gemini gorsel modeli [Nano Banana] denenir.
                 //    imagen modelleri ücretsiz anahtarda çalışmaz; bu yüzden önce bunu deniyoruz.
-                const gorselModelleri = ["gemini-2.5-flash-image", "gemini-2.0-flash-preview-image-generation"];
+                const gorselModelleri = ["gemini-2.5-flash-image", "gemini-3.1-flash-image-preview", "gemini-2.0-flash-preview-image-generation"];
+                let sonHataMesaji = "";
                 for (const model of gorselModelleri) {
                     try {
                         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
@@ -389,7 +390,10 @@
                             generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
                         };
                         const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                        if (!response.ok) continue;
+                        if (!response.ok) {
+                            try { const ej = await response.json(); sonHataMesaji = (ej.error && ej.error.message) || ("HTTP " + response.status); } catch(e){ sonHataMesaji = "HTTP " + response.status; }
+                            continue;
+                        }
                         const data = await response.json();
                         const parts = data?.candidates?.[0]?.content?.parts || [];
                         const imgPart = parts.find(p => p.inlineData || p.inline_data);
@@ -398,7 +402,8 @@
                             const mime = inl.mimeType || inl.mime_type || 'image/png';
                             return `data:${mime};base64,${inl.data}`;
                         }
-                    } catch (e) { /* sıradaki modele geç */ }
+                        sonHataMesaji = "Model görsel yerine metin döndürdü.";
+                    } catch (e) { sonHataMesaji = e.message || String(e); }
                 }
 
                 // Yedek: imagen [yalnizca faturali/ucretli anahtarlarda calisir].
@@ -414,7 +419,13 @@
                     }
                 } catch (e) { /* düş */ }
 
-                throw new Error("Görsel üretilemedi. Ücretsiz anahtarda görsel üretimi bazen kısıtlı olabilir; birkaç dakika sonra tekrar deneyin ya da farklı bir anahtar kullanın.");
+                let ipucu = "Görsel üretilemedi. ";
+                if (/quota|exhausted|per day|perday|429/i.test(sonHataMesaji)) ipucu += "Görsel kotası (günde ~100 görsel) dolmuş olabilir. Yarın sıfırlanır ya da başka bir anahtar dene.";
+                else if (/not found|not supported|404/i.test(sonHataMesaji)) ipucu += "Bu anahtarda görsel modeli erişilebilir değil. Anahtarın Google AI Studio'da 'Imagen/Image' erişimi olmayabilir.";
+                else if (/permission|403|SERVICE_DISABLED|API.*not.*enabled/i.test(sonHataMesaji)) ipucu += "Bu projede görsel API'si kapalı olabilir. Google Cloud'da 'Generative Language API'yi etkinleştir.";
+                else if (/billing|FAILED_PRECONDITION/i.test(sonHataMesaji)) ipucu += "Görsel üretimi bu anahtarda faturalandırma gerektiriyor olabilir.";
+                else ipucu += "Birkaç dakika sonra tekrar deneyin ya da farklı bir anahtar kullanın.";
+                throw new Error(ipucu + " (Teknik: " + (sonHataMesaji || "bilinmiyor").slice(0, 150) + ")");
             },
             
             generateTTS: async (textToSpeak) => {
