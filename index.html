@@ -61,6 +61,15 @@
   "use strict";
   const LS = { keys:'zirve_keys', model:'geminiModel', legacy:'geminiApiKey', models:'zirve_models' };
 
+  // ---- GÖMÜLÜ ANAHTARLAR (opsiyonel) ----
+  // Buraya anahtar yapıştırırsan, dosyayı YENİ bir projeye kopyaladığında anahtarlar da gelir
+  // (cihazda localStorage boşsa bunlar otomatik yüklenir). Her anahtar tırnak içinde, virgülle ayrılır.
+  // Örnek:
+  //   const GOMULU_ANAHTARLAR = [ "AIza...birinci", "AIza...ikinci" ];
+  const GOMULU_ANAHTARLAR = [
+    // "AIza...",
+  ];
+
   // ---- Anahtar halkası (RING): sayısız anahtar ----
   const RING = { keys:[], i:0, cool:{} };  // cool[key] = {bitis: ts, gunluk: ts}
   function ringLoad(){
@@ -70,6 +79,11 @@
     const eski=(localStorage.getItem(LS.legacy)||'').trim();
     if(eski && arr.indexOf(eski)===-1) arr.unshift(eski);
     RING.keys = arr.map(k=>String(k||'').trim()).filter(k=>k.length>=8);
+    // localStorage boşsa gömülü anahtarları kullan (yeni projeye taşındığında da çalışsın)
+    if(!RING.keys.length && GOMULU_ANAHTARLAR && GOMULU_ANAHTARLAR.length){
+      RING.keys = GOMULU_ANAHTARLAR.map(k=>String(k||'').trim()).filter(k=>k.length>=8);
+      if(RING.keys.length){ try{ localStorage.setItem(LS.keys, JSON.stringify(RING.keys)); }catch(e){} }
+    }
     // uygulamanın okuduğu tek-anahtar alanını da ilk anahtara sabitle (uyumluluk)
     if(RING.keys.length){ try{ localStorage.setItem(LS.legacy, RING.keys[0]); }catch(e){} }
   }
@@ -298,6 +312,95 @@
   else setTimeout(yapayZekaUyari,1500);
 })();
 </script>
+
+    <!-- ===== ZİRVE EKRAN / CİHAZ OTO-UYUM MODÜLÜ (çerçeveden bağımsız, saf JS+CSS) ===== -->
+    <style>
+      @media print { html { zoom: 1 !important; } }
+      #zirve-ekran-pill{
+        position:fixed; left:8px; bottom:120px; z-index:2147481500;
+        display:flex; align-items:center; gap:4px;
+        background:rgba(15,23,42,.72); color:#cbd5e1;
+        border:1px solid rgba(148,163,184,.35); border-radius:999px;
+        padding:4px 9px; font:600 11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        opacity:.5; transition:opacity .2s; user-select:none; -webkit-tap-highlight-color:transparent;
+      }
+      #zirve-ekran-pill:hover, #zirve-ekran-pill:active{ opacity:.95; }
+      #zirve-ekran-pill .zx{ background:transparent; border:none; color:#94a3b8; font-weight:900; font-size:14px; line-height:1; cursor:pointer; padding:0 2px; }
+    </style>
+    <script>
+    (function(){
+      "use strict";
+      var LS_MOD='zirve_ekran_mod';        // manuel seçim ('' = otomatik)
+      var LS_PILL='zirve_ekran_pill_gizli';
+      var MODLAR=['auto','tablet','smartboard','largeboard'];
+      var ETIKET={auto:'Otomatik', tablet:'Tablet', smartboard:'Akıllı Tahta', largeboard:'Büyük Ekran'};
+      var CARP={auto:1, tablet:1, smartboard:1.35, largeboard:1.6};
+
+      function otoTespit(){
+        var w=Math.max(window.innerWidth||0, document.documentElement.clientWidth||0);
+        var dpr=window.devicePixelRatio||1;
+        var dokunmatik=('ontouchstart' in window)||(navigator.maxTouchPoints||0)>0;
+        // telefon/tablet/laptop/masaüstü → 1 (dokunma). Büyük+dokunmatik+düşük DPR → akıllı tahta. Çok büyük/4K → büyük ekran.
+        if(w>=2500) return 'largeboard';
+        if(w>=1600 && dokunmatik && dpr<=1.5) return 'smartboard';
+        return 'auto';
+      }
+      function seciliMod(){
+        var m=''; try{ m=localStorage.getItem(LS_MOD)||''; }catch(e){}
+        if(MODLAR.indexOf(m)===-1) m='';
+        return m;
+      }
+      function etkinMod(){ var m=seciliMod(); return (m && m!=='auto') ? m : otoTespit(); }
+      function uygula(){
+        var z=CARP[etkinMod()]||1;
+        try{ document.documentElement.style.zoom = (z===1 ? '' : String(z)); }catch(e){}
+        pillYaziGuncelle();
+      }
+      // PDF/yazdırma için dışa aç
+      window.ZIRVE_ekranReset=function(){ try{ document.documentElement.style.zoom=''; }catch(e){} };
+      window.ZIRVE_ekranGeri=function(){ uygula(); };
+
+      var pill=null, pillYazi=null;
+      function pillYaziGuncelle(){
+        if(!pillYazi) return;
+        var m=seciliMod();
+        pillYazi.textContent='📺 '+(m ? ETIKET[m] : (ETIKET[otoTespit()]+' (oto)'));
+      }
+      function pilYap(){
+        try{ if(localStorage.getItem(LS_PILL)==='1') return; }catch(e){}
+        if(document.getElementById('zirve-ekran-pill')) return;
+        pill=document.createElement('div'); pill.id='zirve-ekran-pill';
+        pillYazi=document.createElement('span'); pillYazi.style.cursor='pointer';
+        var kapat=document.createElement('button'); kapat.className='zx'; kapat.textContent='×'; kapat.title='Gizle';
+        pill.appendChild(pillYazi); pill.appendChild(kapat);
+        document.body.appendChild(pill);
+        pillYaziGuncelle();
+        // dokun → modlar arası geç (Otomatik→Tablet→Akıllı Tahta→Büyük Ekran)
+        pillYazi.addEventListener('click', function(){
+          var idx=MODLAR.indexOf(seciliMod()||'auto');
+          var yeni=MODLAR[(idx+1)%MODLAR.length];
+          try{ localStorage.setItem(LS_MOD, yeni==='auto'?'':yeni); }catch(e){}
+          uygula();
+        });
+        kapat.addEventListener('click', function(e){
+          e.stopPropagation();
+          try{ localStorage.setItem(LS_PILL,'1'); }catch(e){}
+          if(pill){ pill.remove(); pill=null; }
+        });
+      }
+
+      // manuel seçim yoksa ekran boyutu değişince yeniden otomatik uygula
+      var t=null;
+      window.addEventListener('resize', function(){
+        clearTimeout(t); t=setTimeout(function(){ if(!seciliMod()) uygula(); pillYaziGuncelle(); }, 200);
+      });
+      window.addEventListener('orientationchange', function(){ setTimeout(function(){ if(!seciliMod()) uygula(); }, 250); });
+
+      function baslat(){ uygula(); pilYap(); }
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(baslat,400); });
+      else setTimeout(baslat,400);
+    })();
+    </script>
 
 
     <script type="text/babel">
@@ -913,8 +1016,9 @@ Kullanıcının isteği: `;
 
             return (
                 <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in" onClick={onClose}>
-                    <div className="w-full max-w-sm bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between items-center mb-6"><h3 className="font-bold text-lg">Ayarlar</h3><button onClick={onClose}><Icons.X size={20}/></button></div>
+                    <div className="w-full max-w-sm bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl flex flex-col max-h-[88vh]" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center px-6 pt-6 pb-4 border-b border-slate-800 shrink-0"><h3 className="font-bold text-lg">Ayarlar</h3><button onClick={onClose}><Icons.X size={20}/></button></div>
+                        <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
                         
                         <div className="mb-4 space-y-4">
                             <div>
@@ -996,6 +1100,7 @@ Kullanıcının isteği: `;
                             </div>
 
                             <button onClick={handleSave} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold mt-2"><Icons.Check size={20}/> KAYDET</button>
+                        </div>
                         </div>
                     </div>
                 </div>
