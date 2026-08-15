@@ -581,6 +581,147 @@
     </script>
 
 
+    <!-- ===== ZİRVE QR İLE PAYLAŞ MODÜLÜ (çerçeveden bağımsız, saf JS+CSS) ===== -->
+    <style>
+      @keyframes zqFadeIn{ from{opacity:0} to{opacity:1} }
+      @keyframes zqPop{ from{opacity:0; transform:translateY(16px) scale(.965)} to{opacity:1; transform:none} }
+      #zirve-qr-ac{
+        position:fixed; left:8px; bottom:216px; z-index:2147481500;
+        display:flex; align-items:center; gap:5px; padding:6px 11px; border-radius:999px;
+        background:linear-gradient(135deg, rgba(16,185,129,.30), rgba(15,23,42,.85));
+        color:#a7f3d0; border:1px solid rgba(52,211,153,.5);
+        font:800 12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        cursor:pointer; opacity:.62; transition:opacity .2s, transform .2s;
+        -webkit-tap-highlight-color:transparent; box-shadow:0 4px 14px rgba(0,0,0,.35);
+      }
+      #zirve-qr-ac:hover, #zirve-qr-ac:active{ opacity:1; transform:scale(1.05); }
+      #zirve-qr-ort{
+        position:fixed; inset:0; z-index:2147482600; padding:16px;
+        background:rgba(2,6,23,.82); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+        display:flex; align-items:center; justify-content:center; animation:zqFadeIn .28s ease-out;
+      }
+      #zirve-qr-kutu{
+        position:relative; width:100%; max-width:380px; max-height:92vh; overflow-y:auto; text-align:center;
+        border-radius:24px; color:#e2e8f0; padding:24px 22px 22px;
+        background:
+          radial-gradient(120% 70% at 50% -10%, rgba(16,185,129,.22), transparent 58%),
+          linear-gradient(180deg,#0e1a2b,#0b1220 60%,#0a0f1c);
+        border:1px solid rgba(52,211,153,.26);
+        box-shadow:0 26px 74px rgba(0,0,0,.62);
+        font:400 14px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        animation:zqPop .42s cubic-bezier(.2,.7,.2,1);
+      }
+      #zirve-qr-kutu::-webkit-scrollbar{ width:6px; }
+      #zirve-qr-kutu::-webkit-scrollbar-thumb{ background:rgba(16,185,129,.4); border-radius:6px; }
+      .zq-kapat{ position:absolute; top:12px; right:14px; background:transparent; border:none; color:#64748b; font-size:23px; line-height:1; cursor:pointer; }
+      .zq-baslik{ font-size:19px; font-weight:800; letter-spacing:-.2px; margin:2px 0 4px;
+        background:linear-gradient(92deg,#34d399,#a7f3d0 45%,#fbbf24);
+        -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+      .zq-alt1{ color:#9fb3c8; font-size:12.5px; margin-bottom:16px; line-height:1.55; }
+      .zq-kart{ display:inline-block; background:#fff; border-radius:18px; padding:14px;
+        box-shadow:0 10px 30px rgba(0,0,0,.45), 0 0 0 4px rgba(251,191,36,.28); }
+      .zq-kart img{ display:block; width:212px; height:212px; image-rendering:pixelated; border-radius:6px; }
+      .zq-yukleniyor{ width:212px; height:212px; display:flex; align-items:center; justify-content:center; color:#0f172a; font-weight:700; font-size:13px; }
+      .zq-url{ margin:16px auto 0; max-width:100%; word-break:break-all;
+        font:600 11.5px ui-monospace,Menlo,Consolas,monospace; color:#7dd3fc;
+        background:rgba(2,6,23,.5); border:1px solid rgba(148,163,184,.2); border-radius:10px; padding:8px 10px; }
+      .zq-not{ margin-top:12px; font-size:11.5px; color:#fbbf24; text-align:left;
+        background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.32); border-radius:10px; padding:9px 11px; line-height:1.5; }
+      .zq-btns{ display:flex; gap:8px; margin-top:16px; }
+      .zq-btn{ flex:1; border:none; border-radius:13px; padding:12px; font-weight:800; font-size:13px; cursor:pointer; color:#04231a;
+        background:linear-gradient(90deg,#34d399,#10b981 60%,#0d9488); box-shadow:0 8px 20px rgba(16,185,129,.32); transition:transform .12s; }
+      .zq-btn.ikincil{ background:rgba(148,163,184,.15); color:#e2e8f0; border:1px solid rgba(148,163,184,.25); box-shadow:none; }
+      .zq-btn:hover{ transform:translateY(-1px); }
+      .zq-ipucu{ margin-top:13px; font-size:11px; color:#64748b; }
+      @media (prefers-reduced-motion: reduce){ #zirve-qr-ort,#zirve-qr-kutu{ animation:none !important; } }
+    </style>
+    <script>
+    (function(){
+      "use strict";
+      // ---- PAYLAŞIM AYARI (opsiyonel): url boşsa sayfanın kendi adresi kullanılır ----
+      var PAYLAS = { url:'', baslik:'' };
+      var LIB = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+
+      function toast(m,r){ try{ if(window.ZIRVE&&window.ZIRVE.toast) window.ZIRVE.toast(m,r); }catch(e){} }
+      function paylasUrl(){
+        var u=(PAYLAS.url||'').trim(); if(u) return u;
+        try{ return String(window.location.href); }catch(e){ return ''; }
+      }
+      function yerelMi(u){ return /^file:/i.test(u) || /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)/i.test(u); }
+      function libYukle(cb){
+        if(window.qrcode){ cb(null); return; }
+        var s=document.createElement('script'); s.src=LIB;
+        s.onload=function(){ cb(window.qrcode?null:new Error('lib')); };
+        s.onerror=function(){ cb(new Error('lib')); };
+        document.head.appendChild(s);
+      }
+      function qrDataURL(text){ var qr=window.qrcode(0,'M'); qr.addData(text); qr.make(); return qr.createDataURL(6,12); }
+      function kapat(){ var o=document.getElementById('zirve-qr-ort'); if(o) o.remove(); }
+
+      function indir(url){
+        if(!window.qrcode){ toast('QR henüz hazır değil','red'); return; }
+        try{
+          var durl=qrDataURL(url);
+          var img=new Image();
+          img.onload=function(){
+            try{
+              var c=document.createElement('canvas'); c.width=img.width; c.height=img.height;
+              var ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.drawImage(img,0,0);
+              var png=c.toDataURL('image/png');
+              var a=document.createElement('a'); a.href=png; a.download='qr-calisma.png';
+              document.body.appendChild(a); a.click(); a.remove();
+              toast('📥 QR (PNG) indirildi','green');
+            }catch(e){ toast('İndirme yapılamadı','red'); }
+          };
+          img.src=durl;
+        }catch(e){ toast('QR üretilemedi','red'); }
+      }
+
+      function ac(){
+        if(document.getElementById('zirve-qr-ort')) return;
+        var url=paylasUrl();
+        var yerel=yerelMi(url);
+        var html='<div id="zirve-qr-kutu">'
+          +'<button class="zq-kapat" id="zirve-qr-kapat" title="Kapat">×</button>'
+          +'<div class="zq-baslik">📲 Bu çalışmayı paylaş</div>'
+          +'<div class="zq-alt1">Karşındaki kişi telefonunun kamerasıyla okutsun; çalışma anında onun cihazında açılır.</div>'
+          +'<div class="zq-kart"><div class="zq-yukleniyor" id="zirve-qr-gorsel">QR hazırlanıyor…</div></div>'
+          +'<div class="zq-url">'+url.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>'
+          +(yerel?'<div class="zq-not">⚠️ Bu sayfa şu an bilgisayarında/yerelde açık. QR&#39;ın başka cihazda çalışması için çalışmanı önce internete (ör. GitHub Pages) yükle; sonra o adresin QR&#39;ını paylaş.</div>':'')
+          +'<div class="zq-btns"><button class="zq-btn" id="zirve-qr-kopya">🔗 Linki kopyala</button><button class="zq-btn ikincil" id="zirve-qr-indir">⬇ PNG indir</button></div>'
+          +'<div class="zq-ipucu">İpucu: Linki kopyalayıp WhatsApp veya mesaj olarak da gönderebilirsin.</div>'
+          +'</div>';
+        var ort=document.createElement('div'); ort.id='zirve-qr-ort'; ort.innerHTML=html;
+        ort.addEventListener('click', function(e){ if(e.target===ort) kapat(); });
+        document.body.appendChild(ort);
+        var kbtn=document.getElementById('zirve-qr-kapat'); if(kbtn) kbtn.onclick=kapat;
+        var kop=document.getElementById('zirve-qr-kopya'); if(kop) kop.onclick=function(){ try{ navigator.clipboard.writeText(url); toast('🔗 Link kopyalandı','green'); }catch(e){ toast('Kopyalanamadı','red'); } };
+        var ind=document.getElementById('zirve-qr-indir'); if(ind) ind.onclick=function(){ indir(url); };
+        // QR görselini üret
+        libYukle(function(err){
+          var hedef=document.getElementById('zirve-qr-gorsel'); if(!hedef) return;
+          if(err){ hedef.textContent='QR yüklenemedi (internet?)'; return; }
+          try{ var durl=qrDataURL(url); var img=document.createElement('img'); img.id='zirve-qr-gorsel'; img.alt='QR kodu'; img.src=durl; hedef.parentNode.replaceChild(img, hedef); }
+          catch(e){ hedef.textContent='QR üretilemedi'; }
+        });
+      }
+      // dışarıdan çağrı + url ayarı
+      window.ZIRVE_paylasAc = ac;
+      window.ZIRVE_paylasUrl = function(u){ PAYLAS.url = String(u||''); };
+
+      function dugmeYap(){
+        if(document.getElementById('zirve-qr-ac')) return;
+        var b=document.createElement('div'); b.id='zirve-qr-ac'; b.title='QR ile paylaş';
+        b.innerHTML='<span style="font-size:14px">📲</span><span>QR</span>';
+        b.addEventListener('click', ac);
+        document.body.appendChild(b);
+      }
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(dugmeYap,600); });
+      else setTimeout(dugmeYap,600);
+    })();
+    </script>
+
+
     <script type="text/babel">
         // --- ICONLAR ---
         const Icons = {
