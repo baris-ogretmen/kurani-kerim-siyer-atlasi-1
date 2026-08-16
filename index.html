@@ -330,9 +330,28 @@
     try{
       if(localStorage.getItem('zirve_uyari_gizli')==='1') return;
       if(document.getElementById('zirve-ai-uyari')) return;
+      if(!document.getElementById('zirve-ai-uyari-css')){
+        var st=document.createElement('style'); st.id='zirve-ai-uyari-css';
+        st.textContent='@keyframes zaiIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}'
+          +'#zirve-ai-uyari{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:2147482000;width:calc(100% - 16px);max-width:600px;'
+          +'display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:16px;color:#e2e8f0;'
+          +'background:linear-gradient(135deg,rgba(16,185,129,.14),rgba(15,23,42,.96) 46%);'
+          +'-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);'
+          +'border:1px solid rgba(52,211,153,.32);box-shadow:0 12px 34px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.04);'
+          +'font:600 11.5px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;animation:zaiIn .5s cubic-bezier(.2,.8,.2,1) both}'
+          +'#zirve-ai-uyari .zai-ikon{flex:0 0 30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;'
+          +'background:radial-gradient(circle at 32% 26%,rgba(251,191,36,.5),rgba(245,158,11,.15));box-shadow:0 4px 12px rgba(251,191,36,.28)}'
+          +'#zirve-ai-uyari .zai-tx{flex:1}#zirve-ai-uyari .zai-tx b{color:#a7f3d0}'
+          +'#zirve-ai-uyari .zai-ok{flex:0 0 auto;background:linear-gradient(90deg,#34d399,#10b981 60%,#0d9488);color:#04231a;border:none;'
+          +'border-radius:10px;padding:7px 13px;font-weight:800;cursor:pointer;font-size:11.5px;box-shadow:0 5px 14px rgba(16,185,129,.32);transition:transform .12s,box-shadow .2s;-webkit-tap-highlight-color:transparent}'
+          +'#zirve-ai-uyari .zai-ok:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,185,129,.45)}'
+          +'@media (prefers-reduced-motion:reduce){#zirve-ai-uyari{animation:none}}';
+        document.head.appendChild(st);
+      }
       const b=document.createElement('div'); b.id='zirve-ai-uyari';
-      b.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:2147482000;background:rgba(15,23,42,.94);color:#e2e8f0;border:1px solid #334155;border-radius:12px;padding:9px 12px;font:600 11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;display:flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);max-width:640px;margin:0 auto';
-      b.innerHTML='<span style="font-size:15px">⚠️</span><span style="flex:1;line-height:1.4">Bu içerikler <b>yapay zeka</b> ile üretilmiştir; nadiren hatalı bilgi olabilir. Önemli/dini konularda güvenilir bir kaynağa danışın.</span><button id="zirve-uyari-kapat" style="background:#334155;color:#fff;border:none;border-radius:8px;padding:5px 9px;font-weight:800;cursor:pointer;font-size:11px">Anladım</button>';
+      b.innerHTML='<span class="zai-ikon">✨</span>'
+        +'<span class="zai-tx">Bu içerikler <b>yapay zekâ</b> ile üretilir; nadiren hata olabilir. Önemli/dinî konularda güvenilir bir kaynağa danışın.</span>'
+        +'<button class="zai-ok" id="zirve-uyari-kapat">Anladım</button>';
       document.body.appendChild(b);
       document.getElementById('zirve-uyari-kapat').onclick=function(){ try{localStorage.setItem('zirve_uyari_gizli','1');}catch(e){} b.remove(); };
     }catch(e){}
@@ -417,6 +436,12 @@
           if(pill){ pill.remove(); pill=null; }
         });
       }
+
+      // ---- canlı göster/gizle + merkezi kontrol kaydı ----
+      function ekranPillGoster(){ try{ localStorage.removeItem(LS_PILL); }catch(e){} pilYap(); }
+      function ekranPillGizle(){ try{ localStorage.setItem(LS_PILL,'1'); }catch(e){} if(pill){ pill.remove(); pill=null; } }
+      function ekranPillAcik(){ try{ return localStorage.getItem(LS_PILL)!=='1'; }catch(e){ return true; } }
+      try{ (window.ZIRVE_kontroller=window.ZIRVE_kontroller||[]).push({ id:'ekran', etiket:'Ekran / Cihaz Modu', ikon:'📺', goster:ekranPillGoster, gizle:ekranPillGizle, acikMi:ekranPillAcik }); }catch(e){}
 
       // manuel seçim yoksa ekran boyutu değişince yeniden otomatik uygula
       var t=null;
@@ -602,6 +627,12 @@
         sar.appendChild(b); sar.appendChild(x);
         document.body.appendChild(sar);
       }
+      // ---- canlı göster/gizle + merkezi kontrol kaydı ----
+      function yardimGoster(){ try{ localStorage.removeItem(LS_GIZLI); }catch(e){} dugmeYap(); }
+      function yardimGizle(){ try{ localStorage.setItem(LS_GIZLI,'1'); }catch(e){} var s=document.getElementById('zirve-karsilama-sar'); if(s) s.remove(); }
+      function yardimAcik(){ try{ return localStorage.getItem(LS_GIZLI)!=='1'; }catch(e){ return true; } }
+      try{ (window.ZIRVE_kontroller=window.ZIRVE_kontroller||[]).push({ id:'yardim', etiket:'Yardım / Nasıl Kullanılır', ikon:'❓', goster:yardimGoster, gizle:yardimGizle, acikMi:yardimAcik }); }catch(e){}
+
       function baslat(){
         dugmeYap();
         var goruldu=false; try{ goruldu=localStorage.getItem(LS)==='1'; }catch(e){}
@@ -771,6 +802,12 @@
         b.appendChild(ic); b.appendChild(x);
         document.body.appendChild(b);
       }
+      // ---- canlı göster/gizle + merkezi kontrol kaydı ----
+      function qrGoster(){ try{ localStorage.removeItem(LS_GIZLI); }catch(e){} dugmeYap(); }
+      function qrGizle(){ try{ localStorage.setItem(LS_GIZLI,'1'); }catch(e){} var q=document.getElementById('zirve-qr-ac'); if(q) q.remove(); }
+      function qrAcik(){ try{ return localStorage.getItem(LS_GIZLI)!=='1'; }catch(e){ return true; } }
+      try{ (window.ZIRVE_kontroller=window.ZIRVE_kontroller||[]).push({ id:'qr', etiket:'QR ile Paylaş', ikon:'📲', goster:qrGoster, gizle:qrGizle, acikMi:qrAcik }); }catch(e){}
+
       if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(dugmeYap,600); });
       else setTimeout(dugmeYap,600);
     })();
@@ -780,11 +817,17 @@
     <script>
       window.ZIRVE_kontrolleriGeriGetir=function(){
         try{
+          if(window.ZIRVE_kontroller && window.ZIRVE_kontroller.length){
+            window.ZIRVE_kontroller.forEach(function(k){ try{ k.goster(); }catch(e){} });
+            return true;
+          }
+        }catch(e){}
+        try{
           localStorage.removeItem('zirve_ekran_pill_gizli');
           localStorage.removeItem('zirve_karsilama_gizli');
           localStorage.removeItem('zirve_qr_gizli');
+          location.reload();
         }catch(e){}
-        try{ location.reload(); }catch(e){}
       };
     </script>
 
@@ -823,6 +866,7 @@
             Activity: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
             Check: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"/></svg>,
             Copy: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>,
+            Trash: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>,
             Share2: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>,
             Compass: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>,
             Grid: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>,
@@ -1363,6 +1407,43 @@ Kullanıcının isteği: `;
             )
         };
 
+        const FloatingControlsSettings = () => {
+            const [, setTik] = React.useState(0);
+            const bump = () => setTik(t => t + 1);
+            const kontroller = (typeof window !== 'undefined' && window.ZIRVE_kontroller) ? window.ZIRVE_kontroller : [];
+            if (!kontroller.length) return null;
+            const acikSayisi = kontroller.filter(k => { try { return k.acikMi(); } catch(e){ return true; } }).length;
+            return (
+                <div className="pt-4 mt-2 border-t border-slate-800">
+                    <label className="text-xs font-bold text-emerald-400 mb-1.5 block flex items-center gap-1.5"><Icons.Layers size={14}/> Yüzen Yardımcı Düğmeler</label>
+                    <p className="text-[11px] text-slate-400 leading-relaxed mb-3">Ekranın kenarında duran yardımcı düğmeler. Okurken rahatsız etmesin diye tek tek kapatabilir, buradan istediğinde geri getirebilirsin.</p>
+                    <div className="space-y-2">
+                        {kontroller.map((k, i) => {
+                            let acik = true; try { acik = k.acikMi(); } catch(e){}
+                            return (
+                                <div key={i} className="flex items-center justify-between bg-black/25 border border-slate-700/70 rounded-xl px-3 py-2.5">
+                                    <span className="text-sm text-slate-200 flex items-center gap-2.5"><span className="text-base">{k.ikon}</span>{k.etiket}</span>
+                                    <button
+                                        onClick={() => { try { acik ? k.gizle() : k.goster(); } catch(e){} bump(); }}
+                                        className={`relative w-11 h-6 rounded-full transition-colors duration-300 shrink-0 ${acik ? 'bg-emerald-500' : 'bg-slate-600'}`}
+                                        title={acik ? 'Görünüyor — gizlemek için dokun' : 'Gizli — göstermek için dokun'}
+                                        aria-pressed={acik}
+                                    >
+                                        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-300 ${acik ? 'left-[22px]' : 'left-0.5'}`}></span>
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                        <button onClick={() => { kontroller.forEach(k => { try { k.goster(); } catch(e){} }); bump(); }} className="flex-1 text-[11px] font-bold bg-emerald-900/40 border border-emerald-700/50 text-emerald-200 rounded-lg py-2 hover:bg-emerald-900/60 transition-colors">✨ Hepsini Göster</button>
+                        <button onClick={() => { kontroller.forEach(k => { try { k.gizle(); } catch(e){} }); bump(); }} className="flex-1 text-[11px] font-bold bg-slate-800 border border-slate-700 text-slate-300 rounded-lg py-2 hover:bg-slate-700 transition-colors">🌙 Hepsini Gizle</button>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-2 text-center">{acikSayisi}/{kontroller.length} düğme görünür</p>
+                </div>
+            );
+        };
+
         const SettingsModal = ({ isOpen, onClose, geminiKey, setGeminiKey, geminiModel, setGeminiModel, fontSize, setFontSize, mealSource, setMealSource, reciterSource, setReciterSource, arabicFont, setArabicFont, showToast }) => {
             if (!isOpen) return null;
             const [tempKey, setTempKey] = React.useState(() => {
@@ -1484,6 +1565,8 @@ Kullanıcının isteği: `;
                                 <label className="text-xs opacity-50 mb-2 block">Arapça Metin Yazı Boyutu</label>
                                 <input type="range" min="14" max="40" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full accent-emerald-500" />
                             </div>
+
+                            <FloatingControlsSettings />
 
                             <button onClick={handleSave} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-colors flex items-center justify-center gap-2 font-bold mt-2"><Icons.Check size={20}/> KAYDET</button>
                         </div>
@@ -1884,32 +1967,96 @@ Kullanıcının isteği: `;
             );
         };
 
-        const Favorites = ({ favorites, toggleFavorite, surahs, setCurrentSurah, setView }) => {
+        const Favorites = ({ favorites, toggleFavorite, clearAllFavorites, surahs, setCurrentSurah, setView, showToast }) => {
             React.useEffect(() => { window.scrollTo(0, 0); }, []);
+            const [ara, setAra] = React.useState('');
+            const [temizleOnay, setTemizleOnay] = React.useState(false);
+
+            const duz = (t) => { try { return (window.ZIRVE && window.ZIRVE.duzMetin) ? window.ZIRVE.duzMetin(t) : t; } catch(e){ return t; } };
+            const metinYap = (fav) => `"${duz(fav.text)}"\n— ${fav.surahName}, ${fav.ayahNo}. Ayet`;
+
+            const kopyala = (fav) => {
+                const m = metinYap(fav);
+                try { navigator.clipboard.writeText(m); showToast && showToast("📋 Ayet kopyalandı"); }
+                catch(e){ showToast && showToast("Kopyalanamadı"); }
+            };
+            const paylas = async (fav) => {
+                const m = metinYap(fav);
+                try { if (navigator.share) { await navigator.share({ title: `${fav.surahName}, ${fav.ayahNo}. Ayet`, text: m }); } else { navigator.clipboard.writeText(m); showToast && showToast("📋 Paylaşım metni kopyalandı"); } }
+                catch(e){}
+            };
+            const git = (fav) => {
+                const s = surahs.find(x => x.number === fav.surahNo);
+                if (s) { setCurrentSurah(s); setView('surah'); sessionStorage.setItem('jumpToAyah', fav.ayahNo); }
+            };
+
+            const q = ara.trim().toLocaleLowerCase('tr');
+            const liste = q
+                ? favorites.filter(f => (f.surahName + ' ' + f.text + ' ' + f.ayahNo).toLocaleLowerCase('tr').includes(q))
+                : favorites;
+
             return (
-                <div className="min-h-screen pb-20 p-6 pt-10">
-                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-white"><Icons.Heart className="text-rose-500"/> Favorilerim</h2>
-                    {favorites.length === 0 ? <p className="opacity-50 text-center mt-10 text-white">Henüz favori yok.</p> : (
-                        <div className="space-y-3">
-                            {favorites.map((fav, i) => (
-                                <div key={i} className="p-4 rounded-xl bg-slate-900 border-l-4 border-rose-500 flex justify-between items-start cursor-pointer hover:bg-slate-800 transition-colors shadow-lg" onClick={() => {
-                                    const s = surahs.find(x => x.number === fav.surahNo);
-                                    if(s) { 
-                                        setCurrentSurah(s); 
-                                        setView('surah'); 
-                                        sessionStorage.setItem('jumpToAyah', fav.ayahNo);
-                                    }
-                                }}>
-                                    <div className="w-full">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <p className="text-xs font-bold text-rose-400">{fav.surahName}, {fav.ayahNo}. Ayet</p>
-                                            <button onClick={(e) => { e.stopPropagation(); toggleFavorite({ numberInSurah: fav.ayahNo, text: fav.text }, { number: fav.surahNo }); }} className="text-slate-500 hover:text-rose-500"><Icons.X size={16}/></button>
-                                        </div>
-                                        <p className="text-sm opacity-80 line-clamp-3 leading-relaxed text-white">"{fav.text}"</p>
-                                    </div>
-                                </div>
-                            ))}
+                <div className="min-h-screen pb-24 p-5 pt-10 max-w-2xl mx-auto">
+                    <div className="flex items-center justify-between mb-1">
+                        <h2 className="text-2xl font-bold flex items-center gap-2.5 text-white">
+                            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/25"><Icons.Heart size={18} className="text-white" fill="currentColor"/></span>
+                            Favorilerim
+                        </h2>
+                        {favorites.length > 0 && <span className="text-xs font-bold text-rose-300 bg-rose-500/10 border border-rose-500/25 rounded-full px-3 py-1">{favorites.length} ayet</span>}
+                    </div>
+                    <p className="text-xs text-slate-400 mb-5">Kalbine dokunan ayetleri burada topla; dokununca ayete git, kopyala, paylaş ya da kaldır.</p>
+
+                    {favorites.length === 0 ? (
+                        <div className="mt-16 text-center animate-fade-in">
+                            <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center">
+                                <Icons.Heart size={34} className="text-rose-500/70"/>
+                            </div>
+                            <p className="text-slate-300 font-semibold">Henüz favori ayetin yok</p>
+                            <p className="text-slate-500 text-sm mt-1.5 max-w-xs mx-auto leading-relaxed">Bir sure okurken ayetin yanındaki <Icons.Heart size={13} className="inline text-rose-500 -mt-0.5" /> simgesine dokunarak favorilerine ekleyebilirsin.</p>
+                            <button onClick={() => setView('home')} className="mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/20 hover:brightness-110 transition-all">Kur'an'ı Aç</button>
                         </div>
+                    ) : (
+                        <>
+                            {favorites.length > 4 && (
+                                <div className="relative mb-4">
+                                    <Icons.Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <input value={ara} onChange={(e) => setAra(e.target.value)} placeholder="Favorilerde ara (sure adı veya metin)…" className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-black/30 border border-slate-700 text-sm text-white focus:border-rose-500/60 outline-none" />
+                                </div>
+                            )}
+
+                            <div className="space-y-3">
+                                {liste.map((fav, i) => (
+                                    <div key={fav.uid || i} className="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 hover:border-rose-500/40 transition-all shadow-lg overflow-hidden animate-fade-in">
+                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-rose-500 to-pink-600"></div>
+                                        <div className="p-4 pl-5 cursor-pointer" onClick={() => git(fav)}>
+                                            <div className="flex justify-between items-start gap-3 mb-2">
+                                                <p className="text-xs font-bold text-rose-400 flex items-center gap-1.5"><Icons.BookOpen size={13}/> {fav.surahName} · {fav.ayahNo}. Ayet</p>
+                                                <button onClick={(e) => { e.stopPropagation(); toggleFavorite({ numberInSurah: fav.ayahNo, text: fav.text }, { number: fav.surahNo }); }} className="text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg p-1 -mt-1 -mr-1 transition-colors shrink-0" title="Favorilerden kaldır"><Icons.X size={16}/></button>
+                                            </div>
+                                            <p className="text-[15px] opacity-90 leading-relaxed text-white">"{fav.text}"</p>
+                                        </div>
+                                        <div className="flex items-center gap-1 px-3 pb-2.5 pl-5">
+                                            <button onClick={(e) => { e.stopPropagation(); git(fav); }} className="text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/10 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors"><Icons.BookOpen size={13}/> Ayete Git</button>
+                                            <button onClick={(e) => { e.stopPropagation(); kopyala(fav); }} className="text-[11px] font-semibold text-slate-300 hover:bg-slate-700/50 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors"><Icons.Copy size={13}/> Kopyala</button>
+                                            <button onClick={(e) => { e.stopPropagation(); paylas(fav); }} className="text-[11px] font-semibold text-slate-300 hover:bg-slate-700/50 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors"><Icons.Share2 size={13}/> Paylaş</button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {q && liste.length === 0 && <p className="text-center text-slate-500 text-sm py-8">"{ara}" için favori bulunamadı.</p>}
+                            </div>
+
+                            <div className="mt-6 flex justify-center">
+                                {!temizleOnay ? (
+                                    <button onClick={() => setTemizleOnay(true)} className="text-xs font-semibold text-slate-500 hover:text-rose-400 flex items-center gap-1.5 px-4 py-2 rounded-lg hover:bg-rose-500/5 transition-colors"><Icons.Trash size={14}/> Tümünü Temizle</button>
+                                ) : (
+                                    <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 animate-fade-in">
+                                        <span className="text-xs text-rose-200 font-semibold">Tüm favoriler silinsin mi?</span>
+                                        <button onClick={() => { clearAllFavorites && clearAllFavorites(); setTemizleOnay(false); }} className="text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white rounded-lg px-3 py-1.5 transition-colors">Evet, sil</button>
+                                        <button onClick={() => setTemizleOnay(false)} className="text-xs font-bold bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-1.5 transition-colors">Vazgeç</button>
+                                    </div>
+                                )}
+                            </div>
+                        </>
                     )}
                 </div>
             );
@@ -2639,6 +2786,16 @@ Kullanıcının isteği: `;
                 }
             };
 
+            const clearAllFavorites = async () => {
+                setFavorites([]);
+                try { localStorage.setItem('favs', JSON.stringify([])); } catch(e){}
+                if (isFirebaseAvailable && user) {
+                    const docRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('favorites').doc('main');
+                    try { await docRef.set({ list: [] }); } catch(e) { console.warn("Firebase sync failed, using local"); }
+                }
+                showToast("Tüm favoriler temizlendi");
+            };
+
             const handleAiRequest = async (prompt, mode, useSearch = false) => {
                 setAiMode(mode); setAiModalOpen(true); setAiLoading(true); setAiError(null);
                 
@@ -2755,9 +2912,11 @@ Kullanıcının isteği: `;
                     {view === 'favorites' && <Favorites 
                         favorites={favorites} 
                         toggleFavorite={toggleFavorite} 
+                        clearAllFavorites={clearAllFavorites}
                         surahs={surahs} 
                         setCurrentSurah={setCurrentSurah} 
                         setView={setView} 
+                        showToast={showToast}
                     />}
 
                     {view === 'hatim' && <HatimView
