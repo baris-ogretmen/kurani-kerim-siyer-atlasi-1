@@ -434,17 +434,43 @@
 
     <!-- ===== ZİRVE İLK AÇILIŞ KARŞILAMA / NASIL KULLANILIR MODÜLÜ (çerçeveden bağımsız, saf JS+CSS) ===== -->
     <style>
-      #zirve-karsilama-ac{
+      @keyframes zkDockIn{ from{opacity:0; transform:translateY(10px) scale(.8)} to{opacity:1; transform:none} }
+      @keyframes zkHalka{ 0%,100%{opacity:.35; transform:scale(1)} 50%{opacity:.75; transform:scale(1.12)} }
+      #zirve-karsilama-sar{
         position:fixed; left:8px; bottom:168px; z-index:2147481500;
-        width:36px; height:36px; border-radius:999px;
-        display:flex; align-items:center; justify-content:center;
-        background:radial-gradient(circle at 30% 25%, rgba(52,211,153,.35), rgba(15,23,42,.85));
-        color:#a7f3d0; border:1px solid rgba(52,211,153,.45);
-        font:800 18px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-        cursor:pointer; opacity:.5; transition:opacity .2s, transform .2s; -webkit-tap-highlight-color:transparent;
-        box-shadow:0 4px 14px rgba(0,0,0,.35);
+        width:40px; height:40px; animation:zkDockIn .5s cubic-bezier(.2,.8,.2,1) both;
       }
-      #zirve-karsilama-ac:hover, #zirve-karsilama-ac:active{ opacity:.95; transform:scale(1.06); }
+      #zirve-karsilama-ac{
+        position:absolute; inset:0; width:40px; height:40px; border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        background:radial-gradient(circle at 32% 26%, rgba(52,211,153,.42), rgba(11,18,32,.9));
+        -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px);
+        color:#a7f3d0; border:1px solid rgba(52,211,153,.5);
+        font:800 19px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        cursor:pointer; opacity:.62; transition:opacity .25s, transform .25s, box-shadow .25s;
+        -webkit-tap-highlight-color:transparent;
+        box-shadow:0 6px 18px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.05);
+      }
+      #zirve-karsilama-ac::before{
+        content:''; position:absolute; inset:-3px; border-radius:50%; pointer-events:none;
+        background:radial-gradient(circle, rgba(52,211,153,.5), transparent 68%);
+        animation:zkHalka 3.6s ease-in-out infinite; z-index:-1;
+      }
+      #zirve-karsilama-ac:hover, #zirve-karsilama-ac:active{
+        opacity:1; transform:scale(1.09);
+        box-shadow:0 8px 26px rgba(16,185,129,.45), inset 0 0 0 1px rgba(255,255,255,.08);
+      }
+      #zirve-karsilama-x{
+        position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%;
+        display:flex; align-items:center; justify-content:center; padding:0;
+        background:rgba(15,23,42,.95); color:#94a3b8; border:1px solid rgba(148,163,184,.4);
+        font:900 12px/1 system-ui,sans-serif; cursor:pointer; z-index:2;
+        opacity:.55; transition:opacity .2s, transform .2s, background .2s, color .2s;
+        box-shadow:0 2px 6px rgba(0,0,0,.4); -webkit-tap-highlight-color:transparent;
+      }
+      #zirve-karsilama-x:hover, #zirve-karsilama-x:active{
+        opacity:1; transform:scale(1.15); background:#e11d48; color:#fff; border-color:#e11d48;
+      }
 
       @keyframes zkFadeIn{ from{opacity:0} to{opacity:1} }
       @keyframes zkPop{ from{opacity:0; transform:translateY(16px) scale(.965)} to{opacity:1; transform:none} }
@@ -528,6 +554,7 @@
         ]
       };
       var LS='zirve_karsilama_goruldu';
+      var LS_GIZLI='zirve_karsilama_gizli';
       var RENKLER=[
         'linear-gradient(135deg,#34d399,#059669)',
         'linear-gradient(135deg,#38bdf8,#0284c7)',
@@ -565,10 +592,15 @@
         var btn=document.getElementById('zirve-karsilama-kapat'); if(btn) btn.onclick=kapat;
       }
       function dugmeYap(){
-        if(document.getElementById('zirve-karsilama-ac')) return;
+        if(document.getElementById('zirve-karsilama-sar')) return;
+        try{ if(localStorage.getItem(LS_GIZLI)==='1') return; }catch(e){}
+        var sar=document.createElement('div'); sar.id='zirve-karsilama-sar';
         var b=document.createElement('button'); b.id='zirve-karsilama-ac'; b.textContent='?'; b.title='Bu uygulama nedir / nasıl kullanılır?';
         b.addEventListener('click', ac);
-        document.body.appendChild(b);
+        var x=document.createElement('button'); x.id='zirve-karsilama-x'; x.textContent='×'; x.title='Bu düğmeyi gizle';
+        x.addEventListener('click', function(e){ e.stopPropagation(); try{ localStorage.setItem(LS_GIZLI,'1'); }catch(e){} sar.remove(); });
+        sar.appendChild(b); sar.appendChild(x);
+        document.body.appendChild(sar);
       }
       function baslat(){
         dugmeYap();
@@ -585,16 +617,33 @@
     <style>
       @keyframes zqFadeIn{ from{opacity:0} to{opacity:1} }
       @keyframes zqPop{ from{opacity:0; transform:translateY(16px) scale(.965)} to{opacity:1; transform:none} }
+      @keyframes zqDockIn{ from{opacity:0; transform:translateY(10px) scale(.85)} to{opacity:1; transform:none} }
       #zirve-qr-ac{
         position:fixed; left:8px; bottom:216px; z-index:2147481500;
-        display:flex; align-items:center; gap:5px; padding:6px 11px; border-radius:999px;
-        background:linear-gradient(135deg, rgba(16,185,129,.30), rgba(15,23,42,.85));
+        display:flex; align-items:center; gap:2px; padding:5px 6px 5px 11px; border-radius:999px;
+        background:linear-gradient(135deg, rgba(16,185,129,.32), rgba(11,18,32,.9));
+        -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px);
         color:#a7f3d0; border:1px solid rgba(52,211,153,.5);
         font:800 12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-        cursor:pointer; opacity:.62; transition:opacity .2s, transform .2s;
-        -webkit-tap-highlight-color:transparent; box-shadow:0 4px 14px rgba(0,0,0,.35);
+        opacity:.62; transition:opacity .25s, transform .25s, box-shadow .25s;
+        -webkit-tap-highlight-color:transparent;
+        box-shadow:0 6px 18px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.05);
+        animation:zqDockIn .5s cubic-bezier(.2,.8,.2,1) both;
       }
-      #zirve-qr-ac:hover, #zirve-qr-ac:active{ opacity:1; transform:scale(1.05); }
+      #zirve-qr-ac:hover, #zirve-qr-ac:active{
+        opacity:1; transform:scale(1.05);
+        box-shadow:0 8px 26px rgba(16,185,129,.45), inset 0 0 0 1px rgba(255,255,255,.08);
+      }
+      #zirve-qr-ac .zqx-ic{ display:flex; align-items:center; gap:5px; cursor:pointer; }
+      #zirve-qr-ac .zqx-kapat{
+        display:flex; align-items:center; justify-content:center;
+        width:18px; height:18px; margin-left:1px; padding:0; border-radius:50%;
+        background:transparent; border:none; border-left:1px solid rgba(148,163,184,.25);
+        color:#7dd3b5; font:900 14px/1 system-ui,sans-serif; cursor:pointer;
+        opacity:.7; transition:opacity .2s, transform .2s, color .2s;
+        -webkit-tap-highlight-color:transparent;
+      }
+      #zirve-qr-ac .zqx-kapat:hover, #zirve-qr-ac .zqx-kapat:active{ opacity:1; transform:scale(1.2); color:#fb7185; }
       #zirve-qr-ort{
         position:fixed; inset:0; z-index:2147482600; padding:16px;
         background:rgba(2,6,23,.82); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
@@ -641,6 +690,7 @@
       // ---- PAYLAŞIM AYARI (opsiyonel): url boşsa sayfanın kendi adresi kullanılır ----
       var PAYLAS = { url:'', baslik:'' };
       var LIB = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+      var LS_GIZLI='zirve_qr_gizli';
 
       function toast(m,r){ try{ if(window.ZIRVE&&window.ZIRVE.toast) window.ZIRVE.toast(m,r); }catch(e){} }
       function paylasUrl(){
@@ -711,14 +761,31 @@
 
       function dugmeYap(){
         if(document.getElementById('zirve-qr-ac')) return;
+        try{ if(localStorage.getItem(LS_GIZLI)==='1') return; }catch(e){}
         var b=document.createElement('div'); b.id='zirve-qr-ac'; b.title='QR ile paylaş';
-        b.innerHTML='<span style="font-size:14px">📲</span><span>QR</span>';
-        b.addEventListener('click', ac);
+        var ic=document.createElement('span'); ic.className='zqx-ic';
+        ic.innerHTML='<span style="font-size:14px">📲</span><span>QR</span>';
+        ic.addEventListener('click', ac);
+        var x=document.createElement('button'); x.className='zqx-kapat'; x.textContent='×'; x.title='Bu düğmeyi gizle';
+        x.addEventListener('click', function(e){ e.stopPropagation(); try{ localStorage.setItem(LS_GIZLI,'1'); }catch(e){} b.remove(); });
+        b.appendChild(ic); b.appendChild(x);
         document.body.appendChild(b);
       }
       if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(dugmeYap,600); });
       else setTimeout(dugmeYap,600);
     })();
+    </script>
+
+    <!-- ===== ZİRVE KONTROLLERİ GERİ GETİR (gizlenen ×'li düğmeleri sıfırlar) ===== -->
+    <script>
+      window.ZIRVE_kontrolleriGeriGetir=function(){
+        try{
+          localStorage.removeItem('zirve_ekran_pill_gizli');
+          localStorage.removeItem('zirve_karsilama_gizli');
+          localStorage.removeItem('zirve_qr_gizli');
+        }catch(e){}
+        try{ location.reload(); }catch(e){}
+      };
     </script>
 
 
