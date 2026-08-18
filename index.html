@@ -1038,6 +1038,9 @@
             Underline: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/></svg>,
             Strikethrough: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" x2="20" y1="12" y2="12"/></svg>,
             StickyNote: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5z"/><path d="M15 3v6h6"/></svg>,
+            Pencil: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21.174 6.812a1 1 0 0 0-3.986-3.986L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>,
+            Eraser: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>,
+            Undo2: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>,
             FileText: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>,
             Globe: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>,
             Brain: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5A3 3 0 0 0 13.6 4"/><path d="M6.401 6.5A3 3 0 0 1 10.4 4"/></svg>
@@ -1854,6 +1857,111 @@ Kullanıcının isteği: `;
             );
         };
 
+        // Kayıtlı el çizimini ayet kartı üzerinde gösteren (etkileşimsiz) katman
+        const AyahDrawOverlay = ({ cizim }) => {
+            if (!cizim || !cizim.strokes || !cizim.strokes.length) return null;
+            const oran = cizim.oran || 0.5;
+            return (
+                <svg viewBox={`0 0 1 ${oran}`} preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none z-20" style={{ overflow: 'visible' }}>
+                    {cizim.strokes.map((s, i) => (s.p && s.p.length) ? (
+                        <polyline key={i} points={s.p.map(([x, y]) => `${x},${y}`).join(' ')} fill="none" stroke={s.renk} strokeWidth={s.kalinlik} strokeLinecap="round" strokeLinejoin="round" opacity={s.mod === 'hi' ? 0.4 : 1} vectorEffect="non-scaling-stroke" />
+                    ) : null)}
+                </svg>
+            );
+        };
+
+        // Ayet kartı üzerinde elle serbest çizim/yazı modu
+        const AyahDrawCanvas = ({ baslangic, onKaydet, onKapat }) => {
+            const canvasRef = React.useRef(null);
+            const wrapRef = React.useRef(null);
+            const strokesRef = React.useRef((baslangic && baslangic.strokes) ? baslangic.strokes.map(s => ({ ...s, p: s.p.map(pt => [...pt]) })) : []);
+            const cizimRef = React.useRef(false);
+            const aktifRef = React.useRef(null);
+            const [renk, setRenk] = React.useState('#f43f5e');
+            const [mod, setMod] = React.useState('pen'); // pen | hi | eraser
+            const [, force] = React.useState(0);
+            const RENKLER = ['#f43f5e', '#fbbf24', '#34d399', '#60a5fa', '#c084fc', '#ffffff'];
+            const KAL = 3;
+
+            const ciz = () => {
+                const c = canvasRef.current; if (!c) return;
+                const ctx = c.getContext('2d');
+                const W = c.clientWidth, H = c.clientHeight;
+                ctx.clearRect(0, 0, W, H);
+                strokesRef.current.forEach(s => {
+                    if (!s.p.length) return;
+                    ctx.beginPath(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+                    ctx.strokeStyle = s.renk; ctx.lineWidth = s.kalinlik; ctx.globalAlpha = s.mod === 'hi' ? 0.35 : 1;
+                    s.p.forEach(([nx, ny], i) => { const x = nx * W, y = ny * W; if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+                    ctx.stroke();
+                });
+                ctx.globalAlpha = 1;
+            };
+            const boyutla = () => {
+                const c = canvasRef.current, wrap = wrapRef.current; if (!c || !wrap) return;
+                const r = wrap.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                c.width = Math.max(1, r.width * dpr); c.height = Math.max(1, r.height * dpr);
+                c.style.width = r.width + 'px'; c.style.height = r.height + 'px';
+                c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+                ciz();
+            };
+            React.useEffect(() => { boyutla(); const on = () => boyutla(); window.addEventListener('resize', on); return () => window.removeEventListener('resize', on); }, []);
+
+            const noktaAl = (e) => {
+                const c = canvasRef.current; const r = c.getBoundingClientRect();
+                const src = e.touches && e.touches[0] ? e.touches[0] : e;
+                const W = c.clientWidth || 1;
+                return [(src.clientX - r.left) / W, (src.clientY - r.top) / W];
+            };
+            const silNokta = (e) => {
+                const [nx, ny] = noktaAl(e); const esik = 0.035;
+                strokesRef.current = strokesRef.current.filter(s => !s.p.some(([x, y]) => Math.hypot(x - nx, y - ny) < esik));
+                ciz();
+            };
+            const bas = (e) => {
+                e.preventDefault(); cizimRef.current = true;
+                if (mod === 'eraser') { aktifRef.current = null; silNokta(e); return; }
+                aktifRef.current = { renk, kalinlik: mod === 'hi' ? KAL * 4 : KAL, mod, p: [noktaAl(e)] };
+                strokesRef.current.push(aktifRef.current); ciz();
+            };
+            const hareket = (e) => {
+                if (!cizimRef.current) return; e.preventDefault();
+                if (mod === 'eraser') { silNokta(e); return; }
+                if (aktifRef.current) { aktifRef.current.p.push(noktaAl(e)); ciz(); }
+            };
+            const bitir = () => { cizimRef.current = false; aktifRef.current = null; };
+            const geriAl = () => { strokesRef.current.pop(); ciz(); force(v => v + 1); };
+            const temizle = () => { strokesRef.current = []; ciz(); force(v => v + 1); };
+            const kaydet = () => {
+                const c = canvasRef.current;
+                const oran = (c.clientHeight || 1) / (c.clientWidth || 1);
+                onKaydet({ oran, strokes: strokesRef.current.filter(s => s.p.length).map(s => ({ renk: s.renk, kalinlik: s.kalinlik, mod: s.mod, p: s.p.map(pt => [Math.round(pt[0] * 1000) / 1000, Math.round(pt[1] * 1000) / 1000]) })) });
+            };
+
+            return (
+                <div ref={wrapRef} className="absolute inset-0 z-30 rounded-2xl overflow-hidden" style={{ touchAction: 'none' }}>
+                    <div className="absolute inset-0 bg-slate-950/40 pointer-events-none"></div>
+                    <canvas ref={canvasRef}
+                        onMouseDown={bas} onMouseMove={hareket} onMouseUp={bitir} onMouseLeave={bitir}
+                        onTouchStart={bas} onTouchMove={hareket} onTouchEnd={bitir}
+                        className="absolute inset-0" style={{ touchAction: 'none', cursor: 'crosshair' }} />
+                    <div className="absolute top-2 left-2 right-2 flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-slate-900/95 border border-slate-700 shadow-xl z-40" style={{ touchAction: 'auto' }}>
+                        {RENKLER.map(r => <button key={r} onClick={() => { setRenk(r); if (mod === 'eraser') setMod('pen'); }} className={`w-6 h-6 rounded-full transition-transform ${renk === r && mod !== 'eraser' ? 'ring-2 ring-white scale-110' : 'ring-1 ring-white/25'}`} style={{ background: r }} />)}
+                        <span className="w-px h-5 bg-slate-700 mx-0.5"></span>
+                        <button onClick={() => setMod('pen')} className={`p-1.5 rounded-lg ${mod === 'pen' ? 'bg-emerald-500/25 text-emerald-300' : 'text-slate-300 hover:bg-slate-700'}`} title="Kalem"><Icons.Pencil size={15} /></button>
+                        <button onClick={() => setMod('hi')} className={`p-1.5 rounded-lg ${mod === 'hi' ? 'bg-amber-500/25 text-amber-300' : 'text-slate-300 hover:bg-slate-700'}`} title="Fosforlu"><Icons.Highlighter size={15} /></button>
+                        <button onClick={() => setMod('eraser')} className={`p-1.5 rounded-lg ${mod === 'eraser' ? 'bg-rose-500/25 text-rose-300' : 'text-slate-300 hover:bg-slate-700'}`} title="Silgi"><Icons.Eraser size={15} /></button>
+                        <button onClick={geriAl} className="p-1.5 rounded-lg text-slate-300 hover:bg-slate-700" title="Geri Al"><Icons.Undo2 size={15} /></button>
+                        <button onClick={temizle} className="p-1.5 rounded-lg text-slate-300 hover:bg-slate-700" title="Hepsini Temizle"><Icons.Trash size={15} /></button>
+                        <span className="flex-1 min-w-[8px]"></span>
+                        <button onClick={onKapat} className="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:bg-slate-700">Vazgeç</button>
+                        <button onClick={kaydet} className="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white">Kaydet</button>
+                    </div>
+                </div>
+            );
+        };
+
         const SurahDetail = ({ surah, setView, handleAiRequest, handleImageRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, annotations, setAnnotation, fontSize, arabicFont, lastRead, setLastRead, highlightedSearch, setJumpModalOpen, mealSource, reciterSource, showToast }) => {
             const [ayahs, setAyahs] = React.useState([]);
             const [translation, setTranslation] = React.useState([]);
@@ -1863,6 +1971,7 @@ Kullanıcının isteği: `;
             
             const [focusMode, setFocusMode] = React.useState(false);
             const [markMenu, setMarkMenu] = React.useState(null); // açık palet: ayahNo
+            const [drawAyah, setDrawAyah] = React.useState(null); // elle çizim modundaki ayahNo
 
             // --- işaretleme (fosforlu/altını çiz/üstünü çiz) + not ---
             const KALEM_RENKLERI = [
@@ -2049,6 +2158,14 @@ Kullanıcının isteği: `;
                                 <div key={ayah.number} id={`ayah-${ayah.numberInSurah}`}>
                                     {(!focusMode && contextData) && <NuzulTimelineCard data={contextData} isRemote={!!remoteContexts[String(ayah.numberInSurah)]} />}
                                     <div className={`relative p-4 md:p-6 rounded-2xl transition-all mt-2 ${ayahBgClass} ${isLastRead ? 'ring-2 ring-emerald-500/50' : ''}`}>
+                                        {ann && ann.cizim && drawAyah !== ayah.numberInSurah && <AyahDrawOverlay cizim={ann.cizim} />}
+                                        {drawAyah === ayah.numberInSurah && (
+                                            <AyahDrawCanvas
+                                                baslangic={ann && ann.cizim}
+                                                onKaydet={(cizim) => { isaretGuncelle(ayah, trText, { cizim }); setDrawAyah(null); showToast && showToast("✏️ El çizimi kaydedildi"); }}
+                                                onKapat={() => setDrawAyah(null)}
+                                            />
+                                        )}
                                         {specialBadge}
                                         
                                         <div className="flex justify-between items-center mb-5 border-b border-slate-700/50 pb-3">
@@ -2093,6 +2210,8 @@ Kullanıcının isteği: `;
                                                     <button onClick={() => isaretGuncelle(ayah, trText, { stil: 'underline', renk: (ann && ann.renk) || '#34d399' })} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${ann && ann.stil === 'underline' ? 'bg-emerald-500/25 text-emerald-200 border-emerald-500/50' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`}><Icons.Underline size={13}/> Altını Çiz</button>
                                                     <button onClick={() => isaretGuncelle(ayah, trText, { stil: 'strike', renk: (ann && ann.renk) || '#f472b6' })} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${ann && ann.stil === 'strike' ? 'bg-rose-500/25 text-rose-200 border-rose-500/50' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`}><Icons.Strikethrough size={13}/> Üstünü Çiz</button>
                                                     {ann && ann.stil && <button onClick={() => isaretGuncelle(ayah, trText, { stil: null })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700 hover:text-rose-400 transition-colors"><Icons.X size={13}/> İşareti Sil</button>}
+                                                    <button onClick={() => { setMarkMenu(null); setDrawAyah(ayah.numberInSurah); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border bg-sky-900/30 text-sky-300 border-sky-500/40 hover:bg-sky-900/50 transition-colors" title="Ayetin üzerine elle çiz / yaz"><Icons.Pencil size={13}/> Elle Çiz</button>
+                                                    {ann && ann.cizim && ann.cizim.strokes && ann.cizim.strokes.length > 0 && <button onClick={() => isaretGuncelle(ayah, trText, { cizim: null })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700 hover:text-rose-400 transition-colors"><Icons.X size={13}/> Çizimi Sil</button>}
                                                 </div>
                                                 <textarea defaultValue={(ann && ann.not) || ''} onBlur={(e) => isaretGuncelle(ayah, trText, { not: e.target.value })} placeholder="Bu ayet hakkında kişisel notun… (Örn: bunu ezberle, tefsirine bak)" rows={2} className="w-full p-2.5 rounded-xl bg-black/40 border border-slate-700 text-sm text-white focus:border-amber-500/60 outline-none resize-y placeholder:text-slate-500"></textarea>
                                                 <div className="flex justify-end mt-2">
@@ -2259,6 +2378,104 @@ Kullanıcının isteği: `;
                                     <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 animate-fade-in">
                                         <span className="text-xs text-rose-200 font-semibold">Tüm favoriler silinsin mi?</span>
                                         <button onClick={() => { clearAllFavorites && clearAllFavorites(); setTemizleOnay(false); }} className="text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white rounded-lg px-3 py-1.5 transition-colors">Evet, sil</button>
+                                        <button onClick={() => setTemizleOnay(false)} className="text-xs font-bold bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-1.5 transition-colors">Vazgeç</button>
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            );
+        };
+
+        const NotesView = ({ annotations, setAnnotation, surahs, setCurrentSurah, setView, showToast }) => {
+            React.useEffect(() => { window.scrollTo(0, 0); }, []);
+            const [ara, setAra] = React.useState('');
+            const [temizleOnay, setTemizleOnay] = React.useState(false);
+
+            const liste = React.useMemo(() => {
+                const arr = Object.keys(annotations || {}).map(uid => ({ uid, ...annotations[uid] }));
+                arr.sort((a, b) => (a.surahNo - b.surahNo) || (a.ayahNo - b.ayahNo));
+                return arr;
+            }, [annotations]);
+
+            const q = ara.trim().toLocaleLowerCase('tr');
+            const gosterilen = q ? liste.filter(a => ((a.surahName || '') + ' ' + (a.ayet || '') + ' ' + (a.not || '')).toLocaleLowerCase('tr').includes(q)) : liste;
+
+            const git = (a) => {
+                const s = surahs.find(x => x.number === a.surahNo);
+                if (s) { setCurrentSurah(s); setView('surah'); sessionStorage.setItem('jumpToAyah', a.ayahNo); }
+            };
+            const sil = (a) => setAnnotation(a.uid, null);
+            const hepsiniSil = () => {
+                Object.keys(annotations || {}).forEach(uid => setAnnotation(uid, null));
+                setTemizleOnay(false);
+                showToast && showToast("Tüm işaretler ve notlar silindi");
+            };
+            const stilAdi = (s) => s === 'highlight' ? 'Fosforlu' : s === 'underline' ? 'Altı çizili' : s === 'strike' ? 'Üstü çizili' : '';
+
+            return (
+                <div className="min-h-screen pb-24 p-5 pt-10 max-w-2xl mx-auto">
+                    <div className="flex items-center justify-between mb-1">
+                        <h2 className="text-2xl font-bold flex items-center gap-2.5 text-white">
+                            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25"><Icons.StickyNote size={18} className="text-white"/></span>
+                            Notlarım
+                        </h2>
+                        {liste.length > 0 && <span className="text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-full px-3 py-1">{liste.length} ayet</span>}
+                    </div>
+                    <p className="text-xs text-slate-400 mb-5">İşaretlediğin ve not aldığın ayetler burada. Dokununca ayete gidersin.</p>
+
+                    {liste.length === 0 ? (
+                        <div className="mt-16 text-center animate-fade-in">
+                            <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center">
+                                <Icons.Highlighter size={32} className="text-amber-500/70"/>
+                            </div>
+                            <p className="text-slate-300 font-semibold">Henüz işaret veya notun yok</p>
+                            <p className="text-slate-500 text-sm mt-1.5 max-w-xs mx-auto leading-relaxed">Bir ayeti okurken üstteki <Icons.Highlighter size={13} className="inline text-amber-400 -mt-0.5"/> kalem simgesine dokunarak fosforlu işaretle, altını çiz, elle çiz veya not al.</p>
+                            <button onClick={() => setView('home')} className="mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/20 hover:brightness-110 transition-all">Kur'an'ı Aç</button>
+                        </div>
+                    ) : (
+                        <>
+                            {liste.length > 4 && (
+                                <div className="relative mb-4">
+                                    <Icons.Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <input value={ara} onChange={(e) => setAra(e.target.value)} placeholder="Notlarda ara (sure, metin, not)…" className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-black/30 border border-slate-700 text-sm text-white focus:border-amber-500/60 outline-none" />
+                                </div>
+                            )}
+
+                            <div className="space-y-3">
+                                {gosterilen.map((a) => (
+                                    <div key={a.uid} className="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 hover:border-amber-500/40 transition-all shadow-lg overflow-hidden animate-fade-in">
+                                        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: a.renk || '#fbbf24' }}></div>
+                                        <div className="p-4 pl-5 cursor-pointer" onClick={() => git(a)}>
+                                            <div className="flex justify-between items-start gap-3 mb-2">
+                                                <p className="text-xs font-bold text-amber-400 flex items-center gap-1.5"><Icons.BookOpen size={13}/> {a.surahName || ('Sure ' + a.surahNo)} · {a.ayahNo}. Ayet</p>
+                                                <button onClick={(e) => { e.stopPropagation(); sil(a); }} className="text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg p-1 -mt-1 -mr-1 transition-colors shrink-0" title="Sil"><Icons.X size={16}/></button>
+                                            </div>
+                                            {a.ayet && <p className="text-[14px] opacity-80 leading-relaxed text-slate-200 mb-2">"{a.ayet}{a.ayet.length >= 120 ? '…' : ''}"</p>}
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                {a.stil && <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border" style={{ color: a.renk || '#fbbf24', borderColor: (a.renk || '#fbbf24') + '66', background: (a.renk || '#fbbf24') + '18' }}><span className="w-2 h-2 rounded-full" style={{ background: a.renk || '#fbbf24' }}></span>{stilAdi(a.stil)}</span>}
+                                                {a.cizim && a.cizim.strokes && a.cizim.strokes.length > 0 && <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/10"><Icons.Pencil size={10}/> El çizimi</span>}
+                                            </div>
+                                            {a.not && a.not.trim() && (
+                                                <div className="mt-2.5 flex items-start gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25">
+                                                    <Icons.StickyNote size={14} className="text-amber-400 mt-0.5 shrink-0"/>
+                                                    <p className="text-sm text-amber-100/90 leading-relaxed whitespace-pre-wrap flex-1">{a.not}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                                {q && gosterilen.length === 0 && <p className="text-center text-slate-500 text-sm py-8">"{ara}" için sonuç bulunamadı.</p>}
+                            </div>
+
+                            <div className="mt-6 flex justify-center">
+                                {!temizleOnay ? (
+                                    <button onClick={() => setTemizleOnay(true)} className="text-xs font-semibold text-slate-500 hover:text-rose-400 flex items-center gap-1.5 px-4 py-2 rounded-lg hover:bg-rose-500/5 transition-colors"><Icons.Trash size={14}/> Tümünü Temizle</button>
+                                ) : (
+                                    <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 animate-fade-in">
+                                        <span className="text-xs text-rose-200 font-semibold">Tüm işaret ve notlar silinsin mi?</span>
+                                        <button onClick={hepsiniSil} className="text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white rounded-lg px-3 py-1.5 transition-colors">Evet, sil</button>
                                         <button onClick={() => setTemizleOnay(false)} className="text-xs font-bold bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-1.5 transition-colors">Vazgeç</button>
                                     </div>
                                 )}
@@ -3003,7 +3220,8 @@ Kullanıcının isteği: `;
                 const next = { ...annotations };
                 const bosNot = !(meta && meta.not && meta.not.trim());
                 const bosStil = !(meta && meta.stil);
-                if (!meta || (bosNot && bosStil)) { delete next[uid]; }
+                const bosCizim = !(meta && meta.cizim && meta.cizim.strokes && meta.cizim.strokes.length);
+                if (!meta || (bosNot && bosStil && bosCizim)) { delete next[uid]; }
                 else { next[uid] = meta; }
                 setAnnotations(next);
                 try { localStorage.setItem('zirve_notlar', JSON.stringify(next)); } catch(e){}
@@ -3148,6 +3366,15 @@ Kullanıcının isteği: `;
                         showToast={showToast}
                     />}
 
+                    {view === 'notes' && <NotesView
+                        annotations={annotations}
+                        setAnnotation={setAnnotation}
+                        surahs={surahs}
+                        setCurrentSurah={setCurrentSurah}
+                        setView={setView}
+                        showToast={showToast}
+                    />}
+
                     {view === 'hatim' && <HatimView
                         hatimProgress={hatimProgress}
                         toggleCuz={toggleHatimCuz}
@@ -3210,6 +3437,7 @@ Kullanıcının isteği: `;
                         <button onClick={() => setView('home')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'home' ? 'text-emerald-500' : 'text-slate-500 hover:text-emerald-400'}`}><Icons.BookOpen size={24} /><span className="text-[10px] font-bold">Kuran</span></button>
                         <button onClick={() => setView('hatim')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'hatim' ? 'text-emerald-500' : 'text-slate-500 hover:text-emerald-400'}`}><Icons.Grid size={24} /><span className="text-[10px] font-bold">Hatim</span></button>
                         <button onClick={() => setView('favorites')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'favorites' ? 'text-rose-500' : 'text-slate-500 hover:text-rose-400'}`}><Icons.Heart size={24} fill={view === 'favorites' ? "currentColor" : "none"} /><span className="text-[10px] font-bold">Favoriler</span></button>
+                        <button onClick={() => setView('notes')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'notes' ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'}`}><Icons.StickyNote size={24} fill={view === 'notes' ? "currentColor" : "none"} /><span className="text-[10px] font-bold">Notlarım</span></button>
                         <button onClick={() => { setDarkMode(!darkMode); showToast(darkMode ? "OLED Siyah Modu Aktif" : "Varsayılan Tema Aktif"); }} className="flex flex-col items-center gap-1 text-slate-500 hover:text-amber-400 transition-colors">{darkMode ? <Icons.Sun size={24} /> : <Icons.Moon size={24} />}<span className="text-[10px] font-bold">Tema</span></button>
                     </div>
                 </div>
