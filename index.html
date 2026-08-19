@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kuran & Siyer Atlası - Ultimate</title>
+    <meta name="description" content="Kur'an & Siyer Atlası — yapay zekâ destekli Kur'an okuma, tefekkür, işaretleme ve paylaşım uygulaması.">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kur'an Atlası">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' rx='40' fill='%230b1220'/%3E%3Ctext x='90' y='118' font-size='96' text-anchor='middle'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E">
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -987,6 +994,36 @@
     })();
     </script>
 
+
+    <!-- ===== ZİRVE OKUMA İLERLEME ÇUBUĞU (üstte, kaydırma yüzdesi) ===== -->
+    <script>
+    (function(){
+      var bar;
+      function ekle(){
+        if(document.getElementById('zirve-okuma-bar')) return;
+        bar=document.createElement('div'); bar.id='zirve-okuma-bar';
+        bar.style.cssText='position:fixed;top:0;left:0;height:3px;width:0%;z-index:2147483000;'
+          +'background:linear-gradient(90deg,#34d399,#10b981 60%,#0d9488);'
+          +'box-shadow:0 0 8px rgba(16,185,129,.6);transition:width .1s ease-out,opacity .3s;pointer-events:none;opacity:0';
+        document.body.appendChild(bar);
+      }
+      function guncelle(){
+        if(!bar) return;
+        var h=document.documentElement;
+        var sT=h.scrollTop||document.body.scrollTop||0;
+        var sH=(h.scrollHeight||document.body.scrollHeight)-h.clientHeight;
+        var p=sH>0?(sT/sH)*100:0;
+        bar.style.width=Math.min(100,Math.max(0,p))+'%';
+        bar.style.opacity=sH>60?'1':'0';
+      }
+      function baslat(){ ekle(); guncelle(); }
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', baslat);
+      else baslat();
+      window.addEventListener('scroll', guncelle, {passive:true});
+      window.addEventListener('resize', guncelle);
+      setInterval(guncelle, 800); // içerik/görünüm değişince de güncel kalsın
+    })();
+    </script>
 
     <script type="text/babel">
         // --- ICONLAR ---
