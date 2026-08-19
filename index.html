@@ -2373,16 +2373,53 @@ Kullanıcının isteği: `;
             );
         };
 
-        const Favorites = ({ favorites, toggleFavorite, clearAllFavorites, surahs, setCurrentSurah, setView, showToast }) => {
+        const Favorites = ({ favorites, toggleFavorite, clearAllFavorites, surahs, setCurrentSurah, setView, showToast, mealSource }) => {
             React.useEffect(() => { window.scrollTo(0, 0); }, []);
             const [ara, setAra] = React.useState('');
             const [temizleOnay, setTemizleOnay] = React.useState(false);
+            const [ayetler, setAyetler] = React.useState({}); // uid -> {ar, tr}
 
             const duz = (t) => { try { return (window.ZIRVE && window.ZIRVE.duzMetin) ? window.ZIRVE.duzMetin(t) : t; } catch(e){ return t; } };
-            const metinYap = (fav) => `${fav.arabic ? fav.arabic + '\n\n' : ''}"${duz(fav.text)}"\n— ${fav.surahName}, ${fav.ayahNo}. Ayet`;
+            // Arapça tespiti (fav.text yanlış slotta olabilir)
+            const arapcaMi = (s) => /[\u0600-\u06FF]/.test(s || '');
+            const veri = (fav) => {
+                const c = ayetler[fav.uid];
+                if (c && (c.ar || c.tr)) return c;
+                // önbellek yoksa: kayıttan mantıklı tahmin
+                let ar = fav.arabic || (arapcaMi(fav.text) ? fav.text : '');
+                let tr = arapcaMi(fav.text) ? '' : (fav.text || '');
+                return { ar, tr };
+            };
+
+            // Mount'ta her favorinin Arapça + Türkçesini taze çek (eski favoriler de tam olsun)
+            React.useEffect(() => {
+                let iptal = false;
+                (async () => {
+                    const yeni = {};
+                    await Promise.all(favorites.map(async (fav) => {
+                        try {
+                            const [arR, trR] = await Promise.all([
+                                fetch(`https://api.alquran.cloud/v1/ayah/${fav.surahNo}:${fav.ayahNo}/quran-uthmani`),
+                                fetch(`https://api.alquran.cloud/v1/ayah/${fav.surahNo}:${fav.ayahNo}/${mealSource || 'tr.diyanet'}`)
+                            ]);
+                            const arJ = await arR.json(); const trJ = await trR.json();
+                            const ar = (arJ && arJ.data && arJ.data.text) ? arJ.data.text : (fav.arabic || (arapcaMi(fav.text) ? fav.text : ''));
+                            const tr = (trJ && trJ.data && trJ.data.text) ? trJ.data.text : (arapcaMi(fav.text) ? '' : (fav.text || ''));
+                            yeni[fav.uid] = { ar, tr };
+                        } catch(e) {
+                            yeni[fav.uid] = { ar: fav.arabic || (arapcaMi(fav.text) ? fav.text : ''), tr: arapcaMi(fav.text) ? '' : (fav.text || '') };
+                        }
+                    }));
+                    if (!iptal) setAyetler(yeni);
+                })();
+                return () => { iptal = true; };
+            }, [favorites, mealSource]);
+
+            const metinYap = (fav) => { const d = veri(fav); return `${d.ar ? d.ar + '\n\n' : ''}${d.tr ? '"' + duz(d.tr) + '"\n' : ''}— ${fav.surahName}, ${fav.ayahNo}. Ayet`; };
             const favHtml = (fav) => {
-                const ar = fav.arabic ? `<div style="direction:rtl;text-align:right;font-family:'Amiri','Traditional Arabic',serif;font-size:1.7em;line-height:2.2;color:#34d399;margin-bottom:16px">${fav.arabic}</div>` : '';
-                const tr = `<div style="font-size:1.05em;line-height:1.75;color:#e7ecf3">"${duz(fav.text)}"</div>`;
+                const d = veri(fav);
+                const ar = d.ar ? `<div style="direction:rtl;text-align:right;font-family:'Amiri','Traditional Arabic',serif;font-size:1.75em;line-height:2.2;color:#34d399;margin-bottom:16px">${d.ar}</div>` : '';
+                const tr = d.tr ? `<div style="font-size:1.05em;line-height:1.75;color:#e7ecf3">"${duz(d.tr)}"</div>` : '';
                 const ref = `<div style="margin-top:14px;color:#a7f3d0;font-weight:800;font-size:.95em">— ${fav.surahName}, ${fav.ayahNo}. Ayet</div>`;
                 return ar + tr + ref;
             };
@@ -2399,6 +2436,19 @@ Kullanıcının isteği: `;
             };
             const gorselFav = (fav) => { try { if (window.ZIRVE_gorselPaylas) window.ZIRVE_gorselPaylas({ html: favHtml(fav), baslik: `${fav.surahName}, ${fav.ayahNo}. Ayet` }); else showToast && showToast("Görsel modülü yüklenemedi"); } catch(e){} };
             const pdfFav = (fav) => { try { if (window.ZIRVE_pdfPaylas) window.ZIRVE_pdfPaylas({ html: favHtml(fav), baslik: `${fav.surahName}, ${fav.ayahNo}. Ayet` }); else showToast && showToast("PDF modülü yüklenemedi"); } catch(e){} };
+            const tumunuPdf = () => {
+                try {
+                    if (!window.ZIRVE_pdfPaylas) { showToast && showToast("PDF modülü yüklenemedi"); return; }
+                    const govde = favorites.map(fav => {
+                        const d = veri(fav);
+                        const ar = d.ar ? `<div style="direction:rtl;text-align:right;font-family:'Amiri','Traditional Arabic',serif;font-size:1.6em;line-height:2.1;color:#34d399;margin-bottom:10px">${d.ar}</div>` : '';
+                        const tr = d.tr ? `<div style="font-size:1.02em;line-height:1.7;color:#e7ecf3">"${duz(d.tr)}"</div>` : '';
+                        const ref = `<div style="margin-top:8px;color:#a7f3d0;font-weight:800;font-size:.9em">— ${fav.surahName}, ${fav.ayahNo}. Ayet</div>`;
+                        return `<div style="padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08)">${ar}${tr}${ref}</div>`;
+                    }).join('');
+                    window.ZIRVE_pdfPaylas({ html: govde, baslik: `Favori Ayetlerim (${favorites.length})`, dosyaAdi: 'favori-ayetlerim' });
+                } catch(e){}
+            };
             const git = (fav) => {
                 const s = surahs.find(x => x.number === fav.surahNo);
                 if (s) { setCurrentSurah(s); setView('surah'); sessionStorage.setItem('jumpToAyah', fav.ayahNo); }
@@ -2418,7 +2468,13 @@ Kullanıcının isteği: `;
                         </h2>
                         {favorites.length > 0 && <span className="text-xs font-bold text-rose-300 bg-rose-500/10 border border-rose-500/25 rounded-full px-3 py-1">{favorites.length} ayet</span>}
                     </div>
-                    <p className="text-xs text-slate-400 mb-5">Kalbine dokunan ayetleri burada topla; dokununca ayete git, kopyala, paylaş ya da kaldır.</p>
+                    <p className="text-xs text-slate-400 mb-5">Kalbine dokunan ayetleri burada topla; dokununca ayete git, kopyala, paylaş ya da kaldır. Kopyala/Görsel/PDF <b className="text-emerald-300/90">Arapça + Türkçe</b> birlikte verir.</p>
+
+                    {favorites.length > 1 && (
+                        <button onClick={tumunuPdf} className="mb-4 w-full flex items-center justify-center gap-2 text-xs font-bold text-rose-100 bg-gradient-to-r from-rose-600/80 to-pink-600/80 hover:brightness-110 rounded-xl py-2.5 transition-all shadow-lg shadow-rose-500/20" title="Tüm favori ayetleri tek renkli PDF olarak indir">
+                            <Icons.FileText size={15}/> Tümünü Renkli PDF Yap ({favorites.length} ayet)
+                        </button>
+                    )}
 
                     {favorites.length === 0 ? (
                         <div className="mt-16 text-center animate-fade-in">
@@ -3488,6 +3544,7 @@ Kullanıcının isteği: `;
                         setCurrentSurah={setCurrentSurah} 
                         setView={setView} 
                         showToast={showToast}
+                        mealSource={mealSource}
                     />}
 
                     {view === 'notes' && <NotesView
