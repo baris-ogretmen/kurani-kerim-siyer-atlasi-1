@@ -1509,7 +1509,8 @@ Kullanıcının isteği: `;
                 quiz: 'İnteraktif Sure Testi', dream: 'Rüya ve Sembol Yorumu', mirror: 'Kur\'an\'da Ben (Manevi Ayna)',
                 siyer_tour: 'Siyer Zaman Yolculuğu', grounded_search: 'Güncel Meseleler & Fetva',
                 science_psychology: 'Kur\'an, Bilim & Psikoloji', kids_questions: 'Çocukların Zor Soruları',
-                business_fiqh: 'İş Hayatı & Ticaret Fıkhı'
+                business_fiqh: 'İş Hayatı & Ticaret Fıkhı',
+                sifa: 'Ruha Şifa · Bu Ayet Bana Ne Katar?'
             };
             const displayTitle = titles[type] || 'AI Analizi';
             return (
@@ -2319,6 +2320,9 @@ Kullanıcının isteği: `;
                                                 <button onClick={() => handleAiRequest(`Aşağıdaki ayetin nüzul sebebini ve siyer bağlamını anlat: ${ayah.text}`, 'verse')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Siyer Analizi ve Nüzul Sebebi">
                                                     <Icons.Sparkles size={14}/><span className="text-[10px] font-bold tracking-wider">NÜZUL SEBEBİ</span>
                                                 </button>
+                                                <button onClick={() => handleAiRequest(`Sen şefkatli, sıcak ve umut veren bir manevi rehber ve insan psikolojisini iyi bilen bir danışmansın. Aşağıdaki ayeti, ŞU AN hayatı zor olan, bunalmış, kaygılı, üzgün, tükenmiş ya da yalnız hisseden bir insanın gözünden ele al: "${trText}"\n\nSıcak, yargılamayan, umut dolu bir dille şunları yaz:\n- Bu ayet insanın iç dünyasına ne söyler; hangi duyguya şifa olur (kaygı, korku, yalnızlık, ümitsizlik, öfke, tükenmişlik gibi).\n- Ayetin hayata somut, pratik katkısı ne olabilir; bugün zorlanan biri bundan nasıl güç ve teselli alabilir.\n- Kısa, uygulanabilir 2-3 nazik manevi/psikolojik öneri (şükür, dua, sabır, tevekkül, küçük bir adım gibi).\n- Sonunda kısa ve içten bir teselli cümlesi.\n\nÖNEMLİ: Tıbbi teşhis/tanı koyma. Kişi ağır ve süregelen bir sıkıntı yaşıyorsa (derin çökkünlük, kendine zarar verme düşüncesi vb.), yazının uygun bir yerinde nazikçe; bu duyguların ciddiye alınması gerektiğini, güvendiği birine açılmanın ve bir uzmandan (psikolog/hekim) destek almanın çok değerli olduğunu, bu uygulamanın profesyonel yardımın yerini tutmadığını hatırlat. Umut kırıcı olma, kimseyi suçlama.`, 'sifa')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-green-400 hover:bg-slate-700 border border-green-500/40 shrink-0 transition-colors shadow-[0_0_10px_rgba(34,197,94,0.15)]" title="Bu ayet bunalımdaki insana ne katar? (psikolojik/manevi fayda)">
+                                                    <Icons.Heart size={14}/><span className="text-[10px] font-bold tracking-wider">RUHA ŞİFA</span>
+                                                </button>
                                                 <button onClick={() => handleAiRequest(`Bediüzzaman Said Nursi'nin Risale-i Nur Külliyatı perspektifinden şu ayetin ("${trText}") derin manevi izahını yap.`, 'risale_ayah')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Risale-i Nur İzahı">
                                                     <Icons.Feather size={14}/><span className="text-[10px] font-bold tracking-wider">RİSALE-İ NUR</span>
                                                 </button>
@@ -2455,9 +2459,10 @@ Kullanıcının isteği: `;
             };
 
             const q = ara.trim().toLocaleLowerCase('tr');
+            const kaynak = [...favorites].reverse(); // en son eklenen en üstte
             const liste = q
-                ? favorites.filter(f => (f.surahName + ' ' + f.text + ' ' + f.ayahNo).toLocaleLowerCase('tr').includes(q))
-                : favorites;
+                ? kaynak.filter(f => (f.surahName + ' ' + f.text + ' ' + f.ayahNo).toLocaleLowerCase('tr').includes(q))
+                : kaynak;
 
             return (
                 <div className="min-h-screen pb-24 p-5 pt-10 max-w-2xl mx-auto">
@@ -2503,7 +2508,8 @@ Kullanıcının isteği: `;
                                                 <p className="text-xs font-bold text-rose-400 flex items-center gap-1.5"><Icons.BookOpen size={13}/> {fav.surahName} · {fav.ayahNo}. Ayet</p>
                                                 <button onClick={(e) => { e.stopPropagation(); toggleFavorite({ numberInSurah: fav.ayahNo, text: fav.text }, { number: fav.surahNo }); }} className="text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg p-1 -mt-1 -mr-1 transition-colors shrink-0" title="Favorilerden kaldır"><Icons.X size={16}/></button>
                                             </div>
-                                            <p className="text-[15px] opacity-90 leading-relaxed text-white">"{fav.text}"</p>
+                                            {veri(fav).ar && <p className="text-right text-emerald-400 leading-loose mb-2" dir="rtl" style={{ fontSize: '1.3rem', fontFamily: "'Amiri','Traditional Arabic',serif" }}>{veri(fav).ar}</p>}
+                                            <p className="text-[15px] opacity-90 leading-relaxed text-white">"{veri(fav).tr || fav.text}"</p>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-1 px-3 pb-2.5 pl-5">
                                             <button onClick={(e) => { e.stopPropagation(); git(fav); }} className="text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/10 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors"><Icons.BookOpen size={13}/> Ayete Git</button>
