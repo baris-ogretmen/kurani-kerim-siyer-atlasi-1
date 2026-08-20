@@ -978,7 +978,20 @@
         var t=String(md).replace(/\r\n/g,'\n');
         var kodlar=[];
         t=t.replace(/```[\s\S]*?```/g,function(m){ kodlar.push(m); return '\u0000K'+(kodlar.length-1)+'\u0000'; });
-        t=t.replace(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/gm,function(_,x){ return '*'+x.trim()+'*'; });
+        // --- HTML → düz metin + vurgu (renkli span'ler WhatsApp'ta kalın olur; ham etiket kalmaz) ---
+        t=t.replace(/<span[^>]*font-weight[^>]*>([\s\S]*?)<\/span>/gi,'**$1**'); // renkli/kalın vurgu → kalın
+        t=t.replace(/<span[^>]*>([\s\S]*?)<\/span>/gi,'$1');                    // düz renkli span → içerik
+        t=t.replace(/<(?:b|strong)>([\s\S]*?)<\/(?:b|strong)>/gi,'**$1**');
+        t=t.replace(/<(?:i|em)>([\s\S]*?)<\/(?:i|em)>/gi,'_$1_');
+        t=t.replace(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/gi,'\n**$1**\n');
+        t=t.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi,'• $1\n');
+        t=t.replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi,'$1\n');
+        t=t.replace(/<br\s*\/?>/gi,'\n');
+        t=t.replace(/<\/(?:p|div|tr|h[1-6]|ul|ol)>/gi,'\n');
+        t=t.replace(/<[^>]+>/g,'');                                            // kalan tüm etiketleri at
+        t=t.replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&rsquo;/g,'\u2019').replace(/&hellip;/g,'\u2026');
+        // --- Markdown → WhatsApp ---
+        t=t.replace(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/gm,function(_,x){ return '**'+x.trim()+'**'; });
         t=t.replace(/\*\*([^\n*]+?)\*\*/g,'\u0001$1\u0001').replace(/__([^\n_]+?)__/g,'\u0001$1\u0001');
         t=t.replace(/(^|[^\w*])\*([^\n*]+?)\*(?=[^\w*]|$)/g,'$1_$2_');
         t=t.replace(/(^|[^\w_])_([^\n_]+?)_(?=[^\w_]|$)/g,'$1_$2_');
@@ -988,7 +1001,7 @@
         t=t.replace(/^\s*>\s?/gm,'');
         t=t.replace(/^\s{0,3}#{1,6}\s+/gm,'');
         t=t.replace(/\u0000K(\d+)\u0000/g,function(_,i){ return kodlar[+i]||''; });
-        t=t.replace(/\n{3,}/g,'\n\n').trim();
+        t=t.replace(/[ \t]{2,}/g,' ').replace(/\n{3,}/g,'\n\n').trim();
         return t;
       };
     })();
@@ -1229,7 +1242,7 @@
 - İki kavramı ilişkilendirirken kısa bir "kavram haritası" mantığı kur: A → B → C oklarıyla akışı göster.
 - Ayet/hadis alıntılarını > blok alıntı ile ayrı ve dikkat çekici göster.
 - Abartıya kaçma; vurgu gerçekten önemli yerlerde olsun, her cümleyi renklendirme.
-- HIZ İÇİN: Cevabı ÖZ ve NET tut; gereksiz giriş/tekrar yapma, lafı uzatma. Doğruluktan ASLA ödün vermeden mümkün olduğunca yalın ve anlaşılır yaz.
+- HIZ + KALİTE (ikisi birden): Gereksiz dolgu, klişe giriş ve tekrarlardan kaçın; ama açıklamayı zenginleştiren HAYATTAN SOMUT ÖRNEKLER, çarpıcı METAFORLAR/benzetmeler ve akılda kalıcı, akıcı, gönle dokunan anlatımdan ASLA vazgeçme — bunlar bu uygulamanın en sevilen yanı. Yani "öz ama DOLU" yaz: kısa tut ama derinliği, örneği ve metaforu koru. Doğruluktan asla ödün verme.
 
 Kullanıcının isteği: `;
 
@@ -3669,7 +3682,7 @@ Kullanıcının isteği: `;
                 if (isTtsPlaying) return; 
                 setIsTtsPlaying(true);
                 try {
-                    const cleanText = text.replace(/[*#_`~]/g, '');
+                    const cleanText = ((window.ZIRVE && window.ZIRVE.duzMetin) ? window.ZIRVE.duzMetin(text) : text.replace(/<[^>]+>/g,'').replace(/[*#_`~]/g, ''));
                     const audioUrl = await GeminiAPI.generateTTS(cleanText);
                     ttsAudioRef.current.src = audioUrl;
                     await ttsAudioRef.current.play();
