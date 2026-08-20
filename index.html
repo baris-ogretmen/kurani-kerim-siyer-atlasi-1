@@ -1025,6 +1025,54 @@
     })();
     </script>
 
+    <!-- ===== ZİRVE OKUMA KONFORU (otomatik kaydırma + göz konforu/gece ışığı) ===== -->
+    <script>
+    (function(){
+      var LS_GOZ='zirve_goz_konfor';
+      var timer=null, hiz=0; // 0 kapalı, 1 yavaş, 2 hızlı
+      function overlayEkle(){
+        if(document.getElementById('zirve-goz-overlay')) return;
+        var o=document.createElement('div'); o.id='zirve-goz-overlay';
+        o.style.cssText='position:fixed;inset:0;z-index:2147482400;pointer-events:none;background:rgba(255,168,74,.13);opacity:0;transition:opacity .35s';
+        document.body.appendChild(o);
+      }
+      function gozUygula(acik){
+        overlayEkle();
+        var o=document.getElementById('zirve-goz-overlay'); if(o) o.style.opacity=acik?'1':'0';
+        var b=document.getElementById('zirve-goz-btn'); if(b){ b.style.color=acik?'#fbbf24':'#94a3b8'; b.style.borderColor=acik?'rgba(251,191,36,.5)':'rgba(148,163,184,.3)'; }
+        try{ localStorage.setItem(LS_GOZ, acik?'1':'0'); }catch(e){}
+      }
+      function kaydirUygula(){
+        if(timer){ clearInterval(timer); timer=null; }
+        var b=document.getElementById('zirve-kaydir-btn');
+        if(hiz===0){ if(b){ b.textContent='▶'; b.title='Otomatik kaydırma (yavaş)'; b.style.color='#94a3b8'; b.style.borderColor='rgba(148,163,184,.3)'; } return; }
+        var px = hiz===1 ? 1 : 2;
+        timer=setInterval(function(){
+          window.scrollBy(0, px);
+          if((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 2)){ hiz=0; kaydirUygula(); }
+        }, 40);
+        if(b){ b.textContent = hiz===1 ? '❙❙' : '»'; b.title = hiz===1 ? 'Yavaş — hızlandır' : 'Hızlı — durdur'; b.style.color='#34d399'; b.style.borderColor='rgba(52,211,153,.5)'; }
+      }
+      function dockEkle(){
+        if(document.getElementById('zirve-oku-dock')) return;
+        var d=document.createElement('div'); d.id='zirve-oku-dock';
+        d.style.cssText='position:fixed;right:10px;bottom:150px;z-index:2147482600;display:flex;flex-direction:column;gap:8px';
+        var kaydir=document.createElement('button'); kaydir.id='zirve-kaydir-btn'; kaydir.textContent='▶'; kaydir.title='Otomatik kaydırma';
+        var goz=document.createElement('button'); goz.id='zirve-goz-btn'; goz.textContent='🌙'; goz.title='Göz konforu (gece ışığı)';
+        [kaydir,goz].forEach(function(b){
+          b.style.cssText='width:42px;height:42px;border-radius:50%;border:1px solid rgba(148,163,184,.3);background:rgba(15,23,42,.9);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#94a3b8;font:700 15px system-ui;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4);opacity:.5;transition:opacity .2s,transform .2s,color .2s,border-color .2s;-webkit-tap-highlight-color:transparent';
+        });
+        kaydir.addEventListener('click', function(){ hiz=(hiz+1)%3; kaydirUygula(); kaydir.style.opacity='1'; });
+        goz.addEventListener('click', function(){ var acik; try{ acik=!(localStorage.getItem(LS_GOZ)==='1'); }catch(e){ acik=true; } gozUygula(acik); goz.style.opacity='1'; });
+        d.appendChild(kaydir); d.appendChild(goz);
+        document.body.appendChild(d);
+      }
+      function baslat(){ dockEkle(); try{ if(localStorage.getItem(LS_GOZ)==='1') gozUygula(true); }catch(e){} }
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', baslat);
+      else baslat();
+    })();
+    </script>
+
     <script type="text/babel">
         // --- ICONLAR ---
         const Icons = {
@@ -1116,7 +1164,7 @@
 
         // --- GEMINI API YARDIMCISI (KAPSAMLI GÜNCELLEME) ---
         const GeminiAPI = {
-            generateText: async (prompt, useSearch = false) => {
+            generateText: async (prompt, useSearch = false, onChunk = null) => {
                 const apiKey = localStorage.getItem('geminiApiKey') || ""; 
                 if (!apiKey) throw new Error("Lütfen önce Ayarlar menüsünden Google Gemini API Anahtarınızı girip kaydediniz.");
                 const model = localStorage.getItem('geminiModel') || "gemini-2.5-flash";
@@ -1148,6 +1196,35 @@ Kullanıcının isteği: `;
                 
                 if (useSearch) {
                     payload.tools = [{ google_search: {} }];
+                }
+
+                // --- AKIŞ (STREAMING): cevabı parça parça anında göster; herhangi bir sorunda normal yola düşer ---
+                if (onChunk && !useSearch) {
+                    try {
+                        const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+                        const resp = await fetch(streamUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                        if (resp.ok && resp.body && resp.body.getReader) {
+                            const reader = resp.body.getReader();
+                            const dec = new TextDecoder();
+                            let buf = '', full = '';
+                            while (true) {
+                                const { done, value } = await reader.read();
+                                if (done) break;
+                                buf += dec.decode(value, { stream: true });
+                                let idx;
+                                while ((idx = buf.indexOf('\n')) >= 0) {
+                                    const line = buf.slice(0, idx).trim(); buf = buf.slice(idx + 1);
+                                    if (line.indexOf('data:') === 0) {
+                                        const js = line.slice(5).trim();
+                                        if (js && js !== '[DONE]') {
+                                            try { const obj = JSON.parse(js); const t = obj.candidates?.[0]?.content?.parts?.[0]?.text; if (t) { full += t; onChunk(full); } } catch (e) {}
+                                        }
+                                    }
+                                }
+                            }
+                            if (full && full.trim()) return full;
+                        }
+                    } catch (e) { /* akış başarısız → normal (non-stream) yola düş */ }
                 }
 
                 const delays = [500, 1000, 1500, 2500, 4000];
@@ -1521,6 +1598,35 @@ Kullanıcının isteği: `;
             );
         };
 
+        const AI_YUKLEME_MESAJLARI = {
+            _genel: ["Ayet ve meal inceleniyor…", "Güvenilir kaynaklarla tutarlılık kontrol ediliyor…", "Bilgiler doğrulanıyor…", "Cevap özenle hazırlanıyor…", "Önemli yerler vurgulanıyor…", "Neredeyse hazır…"],
+            sifa: ["Ayetin ruha şifası aranıyor…", "Gönlüne dokunacak sözler seçiliyor…", "Şefkatli bir dille hazırlanıyor…", "Neredeyse hazır…"],
+            dua: ["Ayete uygun dua hazırlanıyor…", "Kaynaklar kontrol ediliyor…", "Neredeyse hazır…"],
+            history: ["Nüzul dönemi araştırılıyor…", "Tarihî bağlam derleniyor…", "Neredeyse hazır…"],
+            comparison: ["Farklı mealler karşılaştırılıyor…", "Tefsirler taranıyor…", "Neredeyse hazır…"],
+            meal: ["Farklı mealler getiriliyor…", "Anlam bütünlüğü kontrol ediliyor…", "Neredeyse hazır…"],
+            verse: ["Ayetin nüzul bağlamı inceleniyor…", "Siyer kaynakları derleniyor…", "Neredeyse hazır…"],
+        };
+        const AiYuklemeBilgi = ({ type }) => {
+            const mesajlar = AI_YUKLEME_MESAJLARI[type] || AI_YUKLEME_MESAJLARI._genel;
+            const [i, setI] = React.useState(0);
+            React.useEffect(() => {
+                setI(0);
+                const t = setInterval(() => setI(x => (x + 1) % mesajlar.length), 1500);
+                return () => clearInterval(t);
+            }, [type]);
+            return (
+                <div className="text-center py-12 flex flex-col items-center">
+                    <div className="relative mb-4 w-14 h-14 flex items-center justify-center">
+                        <div className="absolute inset-0 border-4 border-emerald-500/25 border-t-emerald-400 rounded-full animate-spin"></div>
+                        <Icons.Sparkles size={20} className="text-emerald-400 animate-pulse"/>
+                    </div>
+                    <p key={i} className="text-emerald-300 font-semibold text-sm animate-fade-in px-6">{mesajlar[i]}</p>
+                    <p className="text-slate-500 text-xs mt-2">Yapay zekâ yanıtı hazırlıyor…</p>
+                </div>
+            );
+        };
+
         const AiAnalysisModal = ({ isOpen, onClose, content, isLoading, error, type, handleTTSPlay, isTtsPlaying }) => {
             if (!isOpen) return null;
             const titles = { 
@@ -1580,7 +1686,7 @@ Kullanıcının isteği: `;
                         )}
 
                         <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
-                            {isLoading ? <div className="text-center py-10"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>Hazırlanıyor...</div> : 
+                            {isLoading ? <AiYuklemeBilgi type={type} /> : 
                              error ? <div className="text-red-400 text-center p-4">{error}</div> : 
                              <div className="prose prose-invert prose-sm max-w-none pb-6"><div dangerouslySetInnerHTML={{ __html: marked.parse(content || "") }} /></div>}
                         </div>
@@ -3462,13 +3568,17 @@ Kullanıcının isteği: `;
             };
 
             const handleAiRequest = async (prompt, mode, useSearch = false) => {
-                setAiMode(mode); setAiModalOpen(true); setAiLoading(true); setAiError(null);
+                setAiMode(mode); setAiModalOpen(true); setAiLoading(true); setAiError(null); setAiContent('');
                 
                 setIsTtsPlaying(false);
                 ttsAudioRef.current.pause();
 
                 try {
-                    const result = await GeminiAPI.generateText(prompt, useSearch);
+                    let ilk = true;
+                    const result = await GeminiAPI.generateText(prompt, useSearch, (kismi) => {
+                        if (ilk) { ilk = false; setAiLoading(false); }
+                        setAiContent(kismi);
+                    });
                     setAiContent(result);
                 } catch (err) { setAiError(err.message); } finally { setAiLoading(false); }
             };
