@@ -1172,6 +1172,7 @@
             Activity: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
             Check: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"/></svg>,
             Copy: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>,
+            Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
             Trash: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>,
             Share2: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>,
             Compass: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>,
@@ -1960,6 +1961,30 @@ Kullanıcının isteği: `;
                             <div>
                                 <label className="text-xs font-bold text-emerald-400 mb-2 block">Google Gemini API Anahtar(lar)ı — <span className="text-emerald-300">sayısız ekleyebilirsin</span></label>
                                 <textarea value={tempKey} onChange={(e) => setTempKey(e.target.value)} rows="4" className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none font-mono" placeholder="Her satıra bir anahtar yapıştır:&#10;AIza...birinci&#10;AIza...ikinci&#10;AIza...üçüncü"/>
+                                <div className="flex gap-2 mt-2">
+                                    <button onClick={() => {
+                                        const anahtarlar = (tempKey || '').split(/[\s,;\n]+/).map(k => k.trim()).filter(k => k.length >= 8);
+                                        if (!anahtarlar.length) { showToast('Kopyalanacak anahtar yok'); return; }
+                                        const metin = anahtarlar.join('\n');
+                                        try { navigator.clipboard.writeText(metin); showToast(`📋 ${anahtarlar.length} anahtar kopyalandı — başka bir uygulamaya yapıştırabilirsin`); }
+                                        catch(e){ showToast('Kopyalanamadı'); }
+                                    }} className="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-bold bg-emerald-900/40 border border-emerald-700/50 text-emerald-200 rounded-lg py-2 hover:bg-emerald-900/60 transition-colors" title="Tüm anahtarları panoya kopyala">
+                                        <Icons.Copy size={13}/> Tüm Anahtarları Kopyala
+                                    </button>
+                                    <button onClick={async () => {
+                                        try {
+                                            const pano = await navigator.clipboard.readText();
+                                            const gelen = (pano || '').split(/[\s,;\n]+/).map(k => k.trim()).filter(k => k.length >= 8);
+                                            if (!gelen.length) { showToast('Panoda anahtar bulunamadı'); return; }
+                                            const mevcut = (tempKey || '').split(/[\s,;\n]+/).map(k => k.trim()).filter(k => k.length >= 8);
+                                            const birlesik = Array.from(new Set([...mevcut, ...gelen]));
+                                            setTempKey(birlesik.join('\n'));
+                                            showToast(`📥 ${gelen.length} anahtar yapıştırıldı — KAYDET'e basmayı unutma`);
+                                        } catch(e){ showToast('Pano okunamadı — anahtarları kutuya elle yapıştır'); }
+                                    }} className="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-bold bg-slate-800 border border-slate-700 text-slate-300 rounded-lg py-2 hover:bg-slate-700 transition-colors" title="Panodaki anahtarları kutuya ekle">
+                                        <Icons.Download size={13}/> Panodan Yapıştır
+                                    </button>
+                                </div>
                                 <p className="text-[11px] text-emerald-300/70 mt-1">Her satıra bir anahtar. Biri dolunca sistem otomatik diğerine geçer. (Ayrı projelerde açtıysan her biri kendi kotasını alır.)</p>
                                 <p className="text-[11px] text-amber-300/80 mt-1">🖼️ Not: <b>Görsel üretiminde</b> günlük kota çok daha düşüktür (metin bol, görsel günde ~100 civarı). Görsel "kota doldu" derse yarın sıfırlanır ya da başka anahtar dene; metin özellikleri çalışmaya devam eder.</p>
                                 <details className="mt-2 bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-3">
