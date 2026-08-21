@@ -33,6 +33,15 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .dir-rtl { direction: rtl; }
+
+        /* --- AI cevabı: okunaklı tablolar (iç içe geçmeyi önler) --- */
+        .prose table, .zgp-govde table { display:block; width:100%; overflow-x:auto; border-collapse:collapse; margin:0.8em 0; font-size:0.9em; -webkit-overflow-scrolling:touch; }
+        .prose thead, .zgp-govde thead { background:rgba(16,185,129,0.14); }
+        .prose th, .prose td, .zgp-govde th, .zgp-govde td { border:1px solid rgba(148,163,184,0.28); padding:8px 11px; text-align:left; vertical-align:top; min-width:96px; line-height:1.5; }
+        .prose th, .zgp-govde th { color:#6ee7b7; font-weight:800; }
+        .prose tr:nth-child(even) td, .zgp-govde tr:nth-child(even) td { background:rgba(255,255,255,0.03); }
+        /* kavram haritası oku (→) belirginleşsin */
+        .prose .zk-ok, .zgp-govde .zk-ok { color:#34d399; font-weight:800; padding:0 4px; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -1242,6 +1251,7 @@
 - İki kavramı ilişkilendirirken kısa bir "kavram haritası" mantığı kur: A → B → C oklarıyla akışı göster.
 - Ayet/hadis alıntılarını > blok alıntı ile ayrı ve dikkat çekici göster.
 - Abartıya kaçma; vurgu gerçekten önemli yerlerde olsun, her cümleyi renklendirme.
+- BİÇİM/OKUNAKLIK: LaTeX veya matematik yazımı ($...$, \\rightarrow, \\frac vb.) ASLA kullanma — ok gerekiyorsa düz "→" yaz. Tablo kullanacaksan EN FAZLA 2-3 sütun, kısa hücreler; mobilde sığsın. Uzun akış/aşama anlatımını tablo yerine "A → B → C" biçiminde veya kısa maddelerle ver (mobilde iç içe geçmesin).
 - HIZ + KALİTE (ikisi birden): Gereksiz dolgu, klişe giriş ve tekrarlardan kaçın; ama açıklamayı zenginleştiren HAYATTAN SOMUT ÖRNEKLER, çarpıcı METAFORLAR/benzetmeler ve akılda kalıcı, akıcı, gönle dokunan anlatımdan ASLA vazgeçme — bunlar bu uygulamanın en sevilen yanı. Yani "öz ama DOLU" yaz: kısa tut ama derinliği, örneği ve metaforu koru. Doğruluktan asla ödün verme.
 
 Kullanıcının isteği: `;
@@ -1684,7 +1694,23 @@ Kullanıcının isteği: `;
             );
         };
 
-        const AiAnalysisModal = ({ isOpen, onClose, content, isLoading, error, type, handleTTSPlay, isTtsPlaying }) => {
+        const temizleLatex = (s) => {
+            if (!s) return '';
+            let t = String(s);
+            t = t.replace(/\$\s*\\?(?:rightarrow|to|longrightarrow|Rightarrow|implies)\s*\$/gi, ' <span class="zk-ok">→</span> ');
+            t = t.replace(/\$\s*\\?(?:leftarrow|gets|longleftarrow|Leftarrow)\s*\$/gi, ' <span class="zk-ok">←</span> ');
+            t = t.replace(/\$\s*\\?(?:leftrightarrow|Leftrightarrow)\s*\$/gi, ' <span class="zk-ok">↔</span> ');
+            t = t.replace(/\\(?:longrightarrow|rightarrow|Rightarrow|implies|to)\b/gi, '→');
+            t = t.replace(/\\(?:longleftarrow|leftarrow|Leftarrow|gets)\b/gi, '←');
+            t = t.replace(/\\(?:leftrightarrow|Leftrightarrow)\b/gi, '↔');
+            t = t.replace(/\\times\b/gi, '×').replace(/\\approx\b/gi, '≈').replace(/\\leq\b/gi, '≤').replace(/\\geq\b/gi, '≥').replace(/\\neq\b/gi, '≠').replace(/\\cdot\b/gi, '·');
+            t = t.replace(/\\(?:left|right|quad|qquad|,|;|!)\b/g, ' ');
+            t = t.replace(/\$([^$\n]{1,80})\$/g, '$1');
+            t = t.replace(/\\[()\[\]]/g, '');
+            return t;
+        };
+
+        const AiAnalysisModal = ({ isOpen, onClose, content, conversation, onFollowup, onClear, isLoading, error, type, handleTTSPlay, isTtsPlaying }) => {
             if (!isOpen) return null;
             const titles = { 
                 verse: 'Siyer Analizi & Nüzul', summary: 'Sure Özeti', chat: 'Siyer Asistanı', 
@@ -1713,21 +1739,27 @@ Kullanıcının isteği: `;
                 sifa: 'Ruha Şifa · Bu Ayet Bana Ne Katar?'
             };
             const displayTitle = titles[type] || 'AI Analizi';
+            const [followText, setFollowText] = React.useState('');
+            const sonYukleniyor = conversation && conversation.length > 0 && conversation[conversation.length - 1].role === 'ai' && !conversation[conversation.length - 1].text;
+            const gonder = () => { const q = followText.trim(); if (!q || sonYukleniyor) return; setFollowText(''); onFollowup && onFollowup(q); };
             return (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
-                    <div className="w-full max-w-lg bg-slate-900 border border-emerald-500/30 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+                    <div className="w-full max-w-lg bg-slate-900 border border-emerald-500/30 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col max-h-[88vh]" onClick={e => e.stopPropagation()}>
                         <div className="p-5 bg-gradient-to-r from-emerald-900 to-slate-900 border-b border-white/10 flex justify-between items-center shrink-0">
                             <h3 className="font-bold text-lg text-white flex items-center gap-2"><Icons.Sparkles size={20} className="text-emerald-400"/> AI: {displayTitle}</h3>
-                            <button onClick={onClose}><Icons.X size={20}/></button>
+                            <div className="flex items-center gap-1">
+                                {conversation && conversation.some(m => m.text) && <button onClick={() => onClear && onClear()} title="Sohbeti sil / kapat" className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"><Icons.Trash size={18}/></button>}
+                                <button onClick={onClose} title="Kapat"><Icons.X size={20}/></button>
+                            </div>
                         </div>
                         
                         {/* PAYLAŞIM ARAÇLARI: Görsel (PNG) + renkli PDF + WhatsApp-uyumlu metin + Sesli */}
                         {!isLoading && !error && content && (
                             <div className="bg-slate-800 border-b border-white/5 p-3 flex flex-wrap justify-end gap-2">
-                                <button onClick={() => { try { const _html = marked.parse(content || ''); if (window.ZIRVE_gorselPaylas) { window.ZIRVE_gorselPaylas({ html: _html, baslik: 'AI: ' + displayTitle }); } else if (window.ZIRVE) { window.ZIRVE.toast('Görsel modülü yüklenemedi','red'); } } catch(e){} }} className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white transition-all shadow-lg shadow-emerald-500/25" title="Tüm cevabı renkleriyle birlikte tek resim (PNG) olarak kaydet — WhatsApp'ta renkler korunur">
+                                <button onClick={() => { try { const _html = marked.parse(temizleLatex(content || '')); if (window.ZIRVE_gorselPaylas) { window.ZIRVE_gorselPaylas({ html: _html, baslik: 'AI: ' + displayTitle }); } else if (window.ZIRVE) { window.ZIRVE.toast('Görsel modülü yüklenemedi','red'); } } catch(e){} }} className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white transition-all shadow-lg shadow-emerald-500/25" title="Tüm cevabı renkleriyle birlikte tek resim (PNG) olarak kaydet — WhatsApp'ta renkler korunur">
                                     <Icons.Image size={16}/> Görsel Kaydet
                                 </button>
-                                <button onClick={() => { try { const _html = marked.parse(content || ''); if (window.ZIRVE_pdfPaylas) { window.ZIRVE_pdfPaylas({ html: _html, baslik: 'AI: ' + displayTitle }); } else if (window.ZIRVE) { window.ZIRVE.toast('PDF modülü yüklenemedi','red'); } } catch(e){} }} className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-rose-600/90 hover:bg-rose-600 text-white transition-all shadow-lg shadow-rose-500/20" title="Tüm cevabı renkleriyle birlikte PDF olarak kaydet">
+                                <button onClick={() => { try { const _html = marked.parse(temizleLatex(content || '')); if (window.ZIRVE_pdfPaylas) { window.ZIRVE_pdfPaylas({ html: _html, baslik: 'AI: ' + displayTitle }); } else if (window.ZIRVE) { window.ZIRVE.toast('PDF modülü yüklenemedi','red'); } } catch(e){} }} className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-rose-600/90 hover:bg-rose-600 text-white transition-all shadow-lg shadow-rose-500/20" title="Tüm cevabı renkleriyle birlikte PDF olarak kaydet">
                                     <Icons.FileText size={16}/> PDF
                                 </button>
                                 <button onClick={() => { try { const _t=(window.ZIRVE_whatsappMetin)?window.ZIRVE_whatsappMetin(content):((window.ZIRVE&&window.ZIRVE.duzMetin)?window.ZIRVE.duzMetin(content):content); navigator.clipboard.writeText(_t); if(window.ZIRVE) window.ZIRVE.toast('📋 Vurgular korunarak kopyalandı','green'); } catch(e){} }} className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-slate-700 hover:bg-slate-600 text-white transition-all" title="WhatsApp'ta kalın yazı korunur">
@@ -1742,11 +1774,27 @@ Kullanıcının isteği: `;
                             </div>
                         )}
 
-                        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
-                            {isLoading ? <AiYuklemeBilgi type={type} /> : 
-                             error ? <div className="text-red-400 text-center p-4">{error}</div> : 
-                             <div className="prose prose-invert prose-sm max-w-none pb-6"><div dangerouslySetInnerHTML={{ __html: marked.parse(content || "") }} /></div>}
+                        <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-1 relative flex flex-col gap-4">
+                            {isLoading && (!conversation || conversation.length === 0) ? <AiYuklemeBilgi type={type} /> :
+                             error ? <div className="text-red-400 text-center p-4">{error}</div> :
+                             (conversation || []).map((m, idx) => (
+                                m.role === 'user'
+                                  ? <div key={idx} className="self-end max-w-[85%] bg-emerald-600/25 border border-emerald-500/30 rounded-2xl rounded-br-md px-4 py-2.5 text-sm text-emerald-50 whitespace-pre-wrap">{m.text}</div>
+                                  : <div key={idx} className="prose prose-invert prose-sm max-w-none">
+                                      {m.text ? <div dangerouslySetInnerHTML={{ __html: marked.parse(temizleLatex(m.text)) }} />
+                                              : <div className="flex items-center gap-2 text-slate-400 text-sm py-2"><div className="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div> Yazıyor…</div>}
+                                    </div>
+                             ))}
                         </div>
+
+                        {!error && !(isLoading && (!conversation || conversation.length === 0)) && (
+                            <div className="border-t border-white/10 p-3 bg-slate-900/90 shrink-0 flex items-end gap-2">
+                                <textarea value={followText} onChange={(e) => setFollowText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); gonder(); } }} placeholder="Bu cevaba soru sor, katılmadığın yeri yaz…" rows={1} className="flex-1 resize-none bg-black/30 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500 max-h-28 leading-relaxed" />
+                                <button onClick={gonder} disabled={!followText.trim() || sonYukleniyor} className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all ${(!followText.trim() || sonYukleniyor) ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white hover:brightness-110 shadow-lg'}`} title="Gönder">
+                                    {sonYukleniyor ? <div className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin"></div> : <Icons.Send size={18}/>}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             );
@@ -3432,6 +3480,7 @@ Kullanıcının isteği: `;
             
             const [aiModalOpen, setAiModalOpen] = React.useState(false);
             const [aiContent, setAiContent] = React.useState('');
+            const [aiConv, setAiConv] = React.useState([]);
             const [aiLoading, setAiLoading] = React.useState(false);
             const [aiError, setAiError] = React.useState(null);
             const [aiMode, setAiMode] = React.useState('verse');
@@ -3650,7 +3699,7 @@ Kullanıcının isteği: `;
             };
 
             const handleAiRequest = async (prompt, mode, useSearch = false) => {
-                setAiMode(mode); setAiModalOpen(true); setAiLoading(true); setAiError(null); setAiContent('');
+                setAiMode(mode); setAiModalOpen(true); setAiLoading(true); setAiError(null); setAiContent(''); setAiConv([]);
                 
                 setIsTtsPlaying(false);
                 ttsAudioRef.current.pause();
@@ -3660,10 +3709,32 @@ Kullanıcının isteği: `;
                     const result = await GeminiAPI.generateText(prompt, useSearch, (kismi) => {
                         if (ilk) { ilk = false; setAiLoading(false); }
                         setAiContent(kismi);
+                        setAiConv([{ role: 'ai', text: kismi }]);
                     });
                     setAiContent(result);
+                    setAiConv([{ role: 'ai', text: result }]);
                 } catch (err) { setAiError(err.message); } finally { setAiLoading(false); }
             };
+
+            const handleAiFollowup = async (soru) => {
+                const q = (soru || '').trim();
+                if (!q) return;
+                const oncekiCevap = (() => { for (let i = aiConv.length - 1; i >= 0; i--) { if (aiConv[i].role === 'ai') return aiConv[i].text; } return aiContent || ''; })();
+                setAiConv(prev => [...prev, { role: 'user', text: q }, { role: 'ai', text: '' }]);
+                const fprompt = `Sen bu "Kur'an & Siyer Atlası" uygulamasının şefkatli, bilgili AI rehberisin. Az önce şu cevabı verdin:\n"""\n${String(oncekiCevap).slice(0, 4500)}\n"""\n\nKullanıcı bu cevaba dair şunu soruyor / şu noktaya değiniyor: "${q}"\n\nAYNI üslupla cevap ver: önemli yerleri <span style="color:#10b981;font-weight:700">...</span> ile renkli-kalın vurgula; hayattan somut örnek ve metafor kullan; Ehl-i Sünnet çizgisinde DOĞRU bilgi ver, uydurma. KISA ve NET ol. Kullanıcı bir görüşe katılmıyorsa saygıyla, delille ve yumuşak dille açıkla; asla dayatma, kimseyi küçümseme. LaTeX/matematik yazımı KULLANMA (ok gerekiyorsa → yaz).`;
+                try {
+                    const sonuc = await GeminiAPI.generateText(fprompt, false, (kismi) => {
+                        setAiConv(prev => { const k = [...prev]; for (let i = k.length - 1; i >= 0; i--) { if (k[i].role === 'ai') { k[i] = { role: 'ai', text: kismi }; break; } } return k; });
+                        setAiContent(kismi);
+                    });
+                    setAiConv(prev => { const k = [...prev]; for (let i = k.length - 1; i >= 0; i--) { if (k[i].role === 'ai') { k[i] = { role: 'ai', text: sonuc }; break; } } return k; });
+                    setAiContent(sonuc);
+                } catch (err) {
+                    setAiConv(prev => { const k = [...prev]; for (let i = k.length - 1; i >= 0; i--) { if (k[i].role === 'ai') { k[i] = { role: 'ai', text: '⚠️ Cevap alınamadı: ' + err.message }; break; } } return k; });
+                }
+            };
+
+            const handleAiClear = () => { setAiConv([]); setAiContent(''); setAiModalOpen(false); };
             
             const handleImageRequest = async (ayahText) => {
                 setAiImageModalOpen(true); setAiImageLoading(true); setAiImageError(null); setAiImageUrl('');
@@ -3840,6 +3911,9 @@ Kullanıcının isteği: `;
                             ttsAudioRef.current.pause();
                         }} 
                         content={aiContent} 
+                        conversation={aiConv}
+                        onFollowup={handleAiFollowup}
+                        onClear={handleAiClear}
                         isLoading={aiLoading} 
                         error={aiError} 
                         type={aiMode} 
