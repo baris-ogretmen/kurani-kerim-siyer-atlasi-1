@@ -2342,6 +2342,8 @@ Kullanıcının isteği: `;
             const [customPromptAyah, setCustomPromptAyah] = React.useState(null);
             
             const [focusMode, setFocusMode] = React.useState(false);
+            const [ezberMode, setEzberMode] = React.useState(false);
+            const [acikAyetler, setAcikAyetler] = React.useState({}); // ezberde açılan ayetler {ayahNo:true}
             const [markMenu, setMarkMenu] = React.useState(null); // açık palet: ayahNo
             const [drawAyah, setDrawAyah] = React.useState(null); // elle çizim modundaki ayahNo
 
@@ -2473,6 +2475,9 @@ Kullanıcının isteği: `;
                             <p className="text-[10px] opacity-60 uppercase tracking-widest">{surah.revelationType === 'Meccan' ? 'Mekke' : 'Medine'} • {surah.numberOfAyahs} Ayet</p>
                         </div>
                         <div className="flex gap-1">
+                            <button onClick={() => { setEzberMode(!ezberMode); setAcikAyetler({}); }} className={`p-2 rounded-full transition-colors ${ezberMode ? 'bg-amber-500/20 text-amber-400' : 'hover:bg-slate-800 text-slate-300'}`} title="Ezber Modu (Arapçayı gizle, kendini sına)">
+                                <Icons.Brain size={20}/>
+                            </button>
                             <button onClick={() => setFocusMode(!focusMode)} className={`p-2 rounded-full transition-colors ${focusMode ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-slate-800 text-slate-300'}`} title="Odaklanma Modu">
                                 {focusMode ? <Icons.EyeOff size={20}/> : <Icons.Eye size={20}/>}
                             </button>
@@ -2567,7 +2572,17 @@ Kullanıcının isteği: `;
                                             </div>
                                         </div>
                                         
-                                        <p className={`text-right ${arabicFont} leading-[2.6] mb-6 text-emerald-400 dir-rtl`} style={{fontSize: `${fontSize + 6}px`}}>{ayah.text}</p>
+                                        <div className="relative mb-6">
+                                            <p className={`text-right ${arabicFont} leading-[2.6] text-emerald-400 dir-rtl transition-all duration-300 ${ezberMode && !acikAyetler[ayah.numberInSurah] ? 'blur-md select-none' : ''}`} style={{fontSize: `${fontSize + 6}px`}}>{ayah.text}</p>
+                                            {ezberMode && !acikAyetler[ayah.numberInSurah] && (
+                                                <button onClick={() => setAcikAyetler(p => ({ ...p, [ayah.numberInSurah]: true }))} className="absolute inset-0 flex items-center justify-center gap-2 text-amber-300 font-bold text-sm rounded-xl active:scale-95 transition-transform" title="Ayeti göster">
+                                                    <Icons.Eye size={16}/> Ezberden oku, sonra göster
+                                                </button>
+                                            )}
+                                            {ezberMode && acikAyetler[ayah.numberInSurah] && (
+                                                <button onClick={() => setAcikAyetler(p => { const n = { ...p }; delete n[ayah.numberInSurah]; return n; })} className="absolute top-0 left-0 text-[10px] text-slate-400 hover:text-amber-400 bg-slate-800/80 rounded-md px-1.5 py-0.5 flex items-center gap-1" title="Tekrar gizle"><Icons.EyeOff size={11}/> gizle</button>
+                                            )}
+                                        </div>
                                         <div className="leading-relaxed font-serif text-slate-300 mb-6" style={{fontSize: `${fontSize}px`, fontFamily: mealFont || undefined, color: mealColor || undefined}}>
                                             <span style={isaretStili(ann)}><HighlightedText text={trText} highlight={highlightedSearch} /></span>
                                         </div>
@@ -3750,7 +3765,7 @@ Kullanıcının isteği: `;
                 if (!q) return;
                 const oncekiCevap = (() => { for (let i = aiConv.length - 1; i >= 0; i--) { if (aiConv[i].role === 'ai') return aiConv[i].text; } return aiContent || ''; })();
                 setAiConv(prev => [...prev, { role: 'user', text: q }, { role: 'ai', text: '' }]);
-                const fprompt = `Sen bu "Kur'an & Siyer Atlası" uygulamasının şefkatli, bilgili AI rehberisin. Az önce şu cevabı verdin:\n"""\n${String(oncekiCevap).slice(0, 4500)}\n"""\n\nKullanıcı bu cevaba dair şunu soruyor / şu noktaya değiniyor: "${q}"\n\nAYNI üslupla cevap ver: önemli yerleri <span style="color:#10b981;font-weight:700">...</span> ile renkli-kalın vurgula; hayattan somut örnek ve metafor kullan; Ehl-i Sünnet çizgisinde DOĞRU bilgi ver, uydurma. KISA ve NET ol. Kullanıcı bir görüşe katılmıyorsa saygıyla, delille ve yumuşak dille açıkla; asla dayatma, kimseyi küçümseme. LaTeX/matematik yazımı KULLANMA (ok gerekiyorsa → yaz). ÇOK ÖNEMLİ — BİÇİM/RENK İSTEKLERİNE BİREBİR UY: Kullanıcı "şu kısmı şu renge boya", "X kelimesini kırmızı yap", "başlıkları mavi yaz", "kalınlaştır", "büyüt" gibi bir düzenleme isterse, cevabını TAM istediği gibi ver — ilgili yeri <span style="color:İSTENEN_RENK;font-weight:700">...</span> (veya font-size ile) sararak istenen renkte/biçimde döndür (kırmızı=#ef4444, mavi=#3b82f6, yeşil=#22c55e, sarı=#eab308, mor=#a855f7, turuncu=#f97316; kullanıcı farklı bir renk söylerse onu kullan). İstediği kadar tekrar/farklı istekte de her seferinde tam uy.`;
+                const fprompt = `Sen bu "Kur'an & Siyer Atlası" uygulamasının şefkatli, bilgili AI rehberisin. Az önce şu BELGEYİ ürettin:\n"""\n${String(oncekiCevap).slice(0, 6000)}\n"""\n\nKullanıcının yeni mesajı: "${q}"\n\nKURALLAR:\n1) Eğer bu mesaj bir DÜZENLEME / BİÇİM / RENK isteğiyse (ör. "duaları altın yap", "açıklamaları kırmızı boya", "X'i kalınlaştır", "şu bölümü çıkar/ekle/değiştir", "başlıkları büyüt"): Yukarıdaki belgenin TAM METNİNİ ve ilk açıklamalarını AYNEN KORU, YALNIZCA istenen değişikliği uygula ve GÜNCELLENMİŞ TAM BELGEYİ baştan sona döndür. HİÇBİR sohbet/önsöz/yorum EKLEME — "Haklısınız", "İşte güncellenmiş hali", "Tabii", "Elbette" gibi ifadeler KESİNLİKLE YASAK. İçeriği yeniden AÇIKLAMA, yeni bölüm/başlık EKLEME; sadece istenen renk/biçim değişikliğini yap. Renk için ilgili yeri <span style="color:RENK;font-weight:700">...</span> ile sar (kırmızı=#ef4444, mavi=#3b82f6, yeşil=#22c55e, sarı/altın=#d4af37, mor=#a855f7, turuncu=#f97316; kullanıcı farklı renk derse onu kullan). Önceki değişikliklerini de KORU (üst üste biriksin). Doğrudan belgenin kendisiyle başla.\n2) Eğer bu gerçek bir SORU / itiraz / açıklama talebiyse: kısa, net, DOĞRU (Ehl-i Sünnet) ve aynı sıcak üslupla cevap ver; gerekiyorsa hayattan örnek/metafor kullan, önemli yerleri <span style="color:#10b981;font-weight:700">...</span> ile vurgula. Katılmadığı yeri saygıyla, delille açıkla; dayatma. LaTeX/matematik KULLANMA (ok için →).`;
                 try {
                     const sonuc = await GeminiAPI.generateText(fprompt, false, (kismi) => {
                         setAiConv(prev => { const k = [...prev]; for (let i = k.length - 1; i >= 0; i--) { if (k[i].role === 'ai') { k[i] = { role: 'ai', text: kismi }; break; } } return k; });
