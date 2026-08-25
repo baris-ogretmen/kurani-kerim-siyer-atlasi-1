@@ -1000,11 +1000,14 @@
         t=t.replace(/<[^>]+>/g,'');                                            // kalan tüm etiketleri at
         t=t.replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&rsquo;/g,'\u2019').replace(/&hellip;/g,'\u2026');
         // --- Markdown → WhatsApp ---
-        t=t.replace(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/gm,function(_,x){ return '**'+x.trim()+'**'; });
+        t=t.replace(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/gm,function(_,x){ return '\u0001'+x.trim()+'\u0001'; });
+        t=t.replace(/\*\*\*([^\n*]+?)\*\*\*/g,'\u0001$1\u0001'); // ***X*** → kalın
         t=t.replace(/\*\*([^\n*]+?)\*\*/g,'\u0001$1\u0001').replace(/__([^\n_]+?)__/g,'\u0001$1\u0001');
-        t=t.replace(/(^|[^\w*])\*([^\n*]+?)\*(?=[^\w*]|$)/g,'$1_$2_');
-        t=t.replace(/(^|[^\w_])_([^\n_]+?)_(?=[^\w_]|$)/g,'$1_$2_');
+        t=t.replace(/(^|[^\w*\u0001])\*([^\n*]+?)\*(?=[^\w*\u0001]|$)/g,'$1\u0002$2\u0002');
+        t=t.replace(/(^|[^\w_\u0002])_([^\n_]+?)_(?=[^\w_\u0002]|$)/g,'$1\u0002$2\u0002');
         t=t.replace(/\u0001([^\u0001]+)\u0001/g,'*$1*');
+        t=t.replace(/\u0002([^\u0002]+)\u0002/g,'_$1_');
+        t=t.replace(/[*_]{2,}/g,''); // artakalan çift işaretleri temizle
         t=t.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,'$1 ($2)');
         t=t.replace(/^\s*[-*+]\s+/gm,'• ');
         t=t.replace(/^\s*>\s?/gm,'');
@@ -1778,14 +1781,26 @@ Kullanıcının isteği: `;
                         <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-1 relative flex flex-col gap-4">
                             {isLoading && (!conversation || conversation.length === 0) ? <AiYuklemeBilgi type={type} /> :
                              error ? <div className="text-red-400 text-center p-4">{error}</div> :
-                             (conversation || []).map((m, idx) => (
-                                m.role === 'user'
-                                  ? <div key={idx} className="self-end max-w-[85%] bg-emerald-600/25 border border-emerald-500/30 rounded-2xl rounded-br-md px-4 py-2.5 text-sm text-emerald-50 whitespace-pre-wrap">{m.text}</div>
-                                  : <div key={idx} className="prose prose-invert prose-sm max-w-none">
+                             (() => { let aiSay = 0; const aiTop = (conversation || []).filter(x => x.role === 'ai').length; return (conversation || []).map((m, idx) => {
+                                if (m.role === 'user') return <div key={idx} className="self-end max-w-[85%] bg-emerald-600/25 border border-emerald-500/30 rounded-2xl rounded-br-md px-4 py-2.5 text-sm text-emerald-50 whitespace-pre-wrap">{m.text}</div>;
+                                aiSay++; const vNo = aiSay; const cokVersiyon = aiTop > 1;
+                                return (
+                                  <div key={idx} className="rounded-2xl border border-white/5 bg-white/[0.02] p-1">
+                                    {cokVersiyon && m.text && <div className="text-[10px] font-bold text-emerald-400/80 px-2 pt-1 pb-0.5">{vNo === aiTop ? '✅ Güncel Versiyon' : `Versiyon ${vNo}`}</div>}
+                                    <div className="prose prose-invert prose-sm max-w-none px-2 pb-1">
                                       {m.text ? <div dangerouslySetInnerHTML={{ __html: marked.parse(temizleLatex(m.text)) }} />
-                                              : <div className="flex items-center gap-2 text-slate-400 text-sm py-2"><div className="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div> Yazıyor…</div>}
+                                              : <div className="flex items-center gap-2 text-emerald-300 text-sm py-2 font-semibold"><div className="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div> {conversation.length > 1 ? 'Son versiyon oluşturuluyor…' : 'Yazıyor…'}</div>}
                                     </div>
-                             ))}
+                                    {m.text && (
+                                      <div className="flex flex-wrap gap-1.5 px-2 pb-1.5">
+                                        <button onClick={() => { try { window.ZIRVE_gorselPaylas && window.ZIRVE_gorselPaylas({ html: marked.parse(temizleLatex(m.text)), baslik: 'AI: ' + displayTitle }); } catch(e){} }} className="flex items-center gap-1 text-[10px] font-bold text-emerald-200 bg-emerald-600/20 hover:bg-emerald-600/30 rounded-lg px-2 py-1 transition-colors" title="Bu versiyonu renkli görsel yap"><Icons.Image size={11}/> Görsel</button>
+                                        <button onClick={() => { try { window.ZIRVE_pdfPaylas && window.ZIRVE_pdfPaylas({ html: marked.parse(temizleLatex(m.text)), baslik: 'AI: ' + displayTitle }); } catch(e){} }} className="flex items-center gap-1 text-[10px] font-bold text-rose-200 bg-rose-600/20 hover:bg-rose-600/30 rounded-lg px-2 py-1 transition-colors" title="Bu versiyonu renkli PDF yap"><Icons.FileText size={11}/> PDF</button>
+                                        <button onClick={() => { try { const _t = window.ZIRVE_whatsappMetin ? window.ZIRVE_whatsappMetin(m.text) : m.text; navigator.clipboard.writeText(_t); window.ZIRVE && window.ZIRVE.toast('📋 Bu versiyon kopyalandı','green'); } catch(e){} }} className="flex items-center gap-1 text-[10px] font-bold text-slate-300 bg-slate-700/50 hover:bg-slate-700 rounded-lg px-2 py-1 transition-colors" title="Bu versiyonu kopyala"><Icons.Copy size={11}/> Kopyala</button>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                             }); })()}
                         </div>
 
                         {!error && !(isLoading && (!conversation || conversation.length === 0)) && (
@@ -3253,7 +3268,7 @@ Kullanıcının isteği: `;
                             <div className="absolute top-0 right-0 p-4 opacity-10"><Icons.Hands size={64}/></div>
                             <h3 className="font-bold text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wide relative z-10"><Icons.Hands size={16} /> Manevi Reçete & Dua</h3>
                             <div className="flex gap-2 mb-3 overflow-x-auto pb-2 custom-scrollbar relative z-10">
-                                {['Hüzünlüyüm', 'Stresliyim', 'Şükür Doluyum', 'Rızık İstiyorum', 'Hasta Hissediyorum'].map((m, i) => (
+                                {['Hüzünlüyüm', 'Stresliyim', 'Şükür Doluyum', 'Rızık İstiyorum', 'Hasta Hissediyorum', 'Mutsuzum', 'Huzursuzum', 'Vesveseliyim', 'Kaygılıyım', 'Yalnız Hissediyorum', 'Sabırsızım', 'Öfkeliyim', 'Borç Yüküm Var', 'Tövbe Etmek İstiyorum', 'Kötü Alışkanlığım Var', 'İmanım Zayıfladı', 'Korku İçindeyim', 'Pişmanım', 'Tükenmişim', 'Şefkate Muhtacım'].map((m, i) => (
                                     <button key={i} onClick={() => handleDuaRequest(m)} className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors border border-white/10 text-white">{m}</button>
                                 ))}
                             </div>
