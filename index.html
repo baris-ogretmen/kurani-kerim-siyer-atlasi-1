@@ -283,6 +283,17 @@
         if(r.status===429 || tip==='gunluk' || tip==='dakika'){
           keySonraki(key, tip==='gunluk'?'gunluk':'dakika');
           denenenKeys.push(key);
+          // Bu turda tüm anahtarlar kota yediyse → daha yüksek limitli modele geç (çok cihaz senaryosu)
+          var benzersiz = denenenKeys.filter(function(v,i,a){return a.indexOf(v)===i;});
+          if(!gorselMi && benzersiz.length >= RING.keys.length){
+            var yedekM = modelSonraki(MODEL, denenenModeller);
+            if(yedekM){
+              denenenModeller.push(MODEL); MODEL=yedekM; try{ localStorage.setItem(LS.model, yedekM); }catch(e){}
+              denenenKeys.length=0; // yeni modelde anahtarları baştan dene
+              toast('🔧 Kota yoğun → <b>'+yedekM+'</b> modeline geçildi','green');
+              continue;
+            }
+          }
           toast('🔑 Bir anahtarın kotası doldu → sıradaki anahtara geçiliyor…','green');
           continue;
         }
@@ -1740,7 +1751,9 @@ Kullanıcının isteği: `;
                 siyer_tour: 'Siyer Zaman Yolculuğu', grounded_search: 'Güncel Meseleler & Fetva',
                 science_psychology: 'Kur\'an, Bilim & Psikoloji', kids_questions: 'Çocukların Zor Soruları',
                 business_fiqh: 'İş Hayatı & Ticaret Fıkhı',
-                sifa: 'Ruha Şifa · Bu Ayet Bana Ne Katar?'
+                sifa: 'Ruha Şifa · Bu Ayet Bana Ne Katar?',
+                modern_illness: 'Çağın Dertleri & Şifa',
+                willpower: 'Sağlam İrade Eğitimi'
             };
             const displayTitle = titles[type] || 'AI Analizi';
             const [followText, setFollowText] = React.useState('');
@@ -3315,6 +3328,16 @@ Kullanıcının isteği: `;
                                     <button onClick={() => setHomePromptConfig({ type: 'science_psychology', title: 'Kur\'an, Bilim & Psikoloji', placeholder: 'Örn: Sabır, Evrenin yaratılışı...', prefix: 'Sen hem İslami ilimlere hem de modern bilime ve psikolojiye hakim bir uzmansın. Kullanıcının verdiği şu konuyu/ayeti, modern bilimsel bulgular, psikolojik tahliller ve Kur\'an\'ın mucizevi boyutuyla harmanlayarak, ufuk açıcı bir şekilde analiz et: ' })} className="bg-gradient-to-r from-teal-600/30 to-cyan-600/30 border border-teal-500/50 hover:from-teal-500/50 hover:to-cyan-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                         <div className="p-2 bg-teal-500/20 text-teal-300 rounded-full group-hover:bg-teal-500 group-hover:text-white transition-colors"><Icons.Brain size={24}/></div>
                                         <span className="text-[12px] font-bold text-teal-100">Kur'an & Bilim</span>
+                                    </button>
+
+                                    <button onClick={() => setHomePromptConfig({ type: 'modern_illness', title: 'Çağımızın Hastalıkları & Tedavisi', placeholder: 'Örn: Kaygı, depresyon, uykusuzluk, bağımlılık, stres, öfke...', prefix: 'Sen hem tıp/psikoloji bilgisine hem de Kur\'an, sünnet ve İslami şifa geleneğine vakıf, şefkatli bir manevi rehbersin. Kullanıcının belirttiği çağımıza ait hastalığı/rahatsızlığı (bedensel veya ruhsal: kaygı, depresyon, stres, uykusuzluk, bağımlılık, öfke, vesvese, kalp katılığı, tükenmişlik vb.) ele al. Şu başlıklarla ver: (1) bu derdin manevi ve psikolojik kök analizi; (2) Kur\'an-ı Kerim\'den ilgili ayet(ler) — Arapça + Türkçe meal, önemli yerler renkli-kalın; (3) konuyla ilgili SAHİH hadis(ler) (uydurma/zayıf rivayet KULLANMA; emin değilsen bunu belirt); (4) peygamber tıbbı ve sünnetten pratik tavsiyeler; (5) okunabilecek dua ve Esmâ-i Hüsnâ; (6) hayattan somut, akılda kalıcı bir metafor. ÇOK ÖNEMLİ: Bu içerik tıbbi teşhis/tedavinin yerine geçmez; ciddi/süregelen durumlarda mutlaka bir hekime veya uzmana başvurmayı nazikçe hatırlat. Konu: ' })} className="bg-gradient-to-r from-rose-600/30 to-red-600/30 border border-rose-500/50 hover:from-rose-500/50 hover:to-red-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                        <div className="p-2 bg-rose-500/20 text-rose-300 rounded-full group-hover:bg-rose-500 group-hover:text-white transition-colors"><Icons.Heart size={24}/></div>
+                                        <span className="text-[12px] font-bold text-rose-100">Çağın Dertleri & Şifa</span>
+                                    </button>
+
+                                    <button onClick={() => setHomePromptConfig({ type: 'willpower', title: 'Sağlam İrade Eğitimi', placeholder: 'Örn: Erteleme, tembellik, öfke, bir alışkanlıktan kurtulma, süreklilik...', prefix: 'Sen irade eğitimi, nefis terbiyesi ve modern alışkanlık psikolojisi (istikamet, öz-denetim, azim) konusunda uzman; şefkatli bir mürşit ve koçsun. Kullanıcının belirttiği irade/nefis konusunu (erteleme, bağımlılık, tembellik, öfke kontrolü, sabır, süreklilik, kötü alışkanlıktan kurtulma vb.) ele al ve SAĞLAM İRADE için uygulanabilir bir program sun: (1) sorunun nefis ve psikoloji açısından kök analizi; (2) Kur\'an ve sünnetten irade/sabır/istikamet ile ilgili ayet ve SAHİH hadisler (Arapça + meal, önemli yerler renkli-kalın; uydurma KULLANMA); (3) bugünden başlanabilecek 3-5 SOMUT, küçük ve ölçülebilir adım/alışkanlık; (4) düşünce ve dua desteği (zikir, Esmâ); (5) motive eden, hayattan bir metafor. Kısa, net, samimi ve uygulanabilir ol. Konu: ' })} className="bg-gradient-to-r from-emerald-600/30 to-green-600/30 border border-emerald-500/50 hover:from-emerald-500/50 hover:to-green-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                        <div className="p-2 bg-emerald-500/20 text-emerald-300 rounded-full group-hover:bg-emerald-500 group-hover:text-white transition-colors"><Icons.Compass size={24}/></div>
+                                        <span className="text-[12px] font-bold text-emerald-100">Sağlam İrade Eğitimi</span>
                                     </button>
                                 </div>
                             </div>
