@@ -1314,8 +1314,8 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v2.5', tarih:'18.10.2026', satir:5964, kb:617,
-        onceki:{ surum:'v2.4', satir:5789, kb:599 },
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v2.6', tarih:'18.10.2026', satir:5972, kb:617,
+        onceki:{ surum:'v2.5', satir:5964, kb:617 },
         yenilikler:['📬 Herkes hangi bildirimlerin geleceğini kendi seçer: sabah ayeti, saat başı ayet, saat başı hadis, Esmâ, Cuma, akşam, hatim','Dini içerik baştan sona denetlendi: besmele, nüzul sırası, hadis künyeleri, sünnetler','Sure adlarının anlamları ve ayet sayısı denetimi','Bildirim: adım adım tanılama + önerilen hatırlatmaları tek dokunuşla kur','Ayet sorularında yapay zekâya sure ve ayet numarası gönderiliyor'] };
       function goster(){
         try{
@@ -1376,9 +1376,9 @@
         if(!('serviceWorker' in navigator)) return Promise.resolve(null);
         return navigator.serviceWorker.getRegistration().then(function(r){ return (r && r.pushManager) ? r.pushManager.getSubscription() : null; }).catch(function(){ return null; });
       }
-      function aboneGovde(sub, uyg, rol){
+      function aboneGovde(sub, uyg, rol, sube){
         var j = sub && sub.toJSON ? sub.toJSON() : (sub || {}); var k = j.keys || {};
-        return { s:{ endpoint:j.endpoint, keys:{ p256dh:k.p256dh, auth:k.auth } }, rol:rol||'kullanici', ogrId:cihazId(), sinif:'', sube:'', ad:'', uyg:uyg||UYG };
+        return { s:{ endpoint:j.endpoint, keys:{ p256dh:k.p256dh, auth:k.auth } }, rol:rol||'kullanici', ogrId:cihazId(), sinif:'', sube:sube||'', ad:'', uyg:uyg||UYG };
       }
       function aboneOl(){
         if(!destek()) return Promise.reject(new Error(destekYok()));
@@ -1457,30 +1457,33 @@
         return ham()('sw.js?v='+Date.now(), { cache:'no-store' }).then(function(r){ return r.text().then(function(t){ return { var:r.ok, push:/addEventListener\(\s*['"]push['"]/.test(t), durum:r.status }; }); }).catch(function(){ return { var:false, push:false, durum:0 }; });
       }
       // ===== 📬 KONU KANALLARI: her hazır bildirim kasada ayrı bir uyg kanalıdır; kullanıcı ŞİFRESİZ abone olur/çıkar =====
-      // Açık: rol 'kullanici' · Kapalı: rol 'kapali' (sahibin kurduğu kanal hatırlatmaları hedef {rol:['kullanici']} ile gider)
+      // Rol her zaman 'kullanici' (kasa yalnız bilinen rolleri kabul edebilir). Açık/kapalı 'sube' alanıyla: 'acik' / 'kapali'
+      // (sahibin kurduğu kanal hatırlatmaları hedef {sube:'acik'} ile yalnız açanlara gider)
+      try{ if(!oku('zks_kanal_destek_t') && oku('zks_kanal_destek')==='0') localStorage.removeItem('zks_kanal_destek'); }catch(e){}
       function konular(){ try{ return JSON.parse(oku('zks_konular')||'{}')||{}; }catch(e){ return {}; } }
       function konuYaz(m){ yaz('zks_konular', JSON.stringify(m)); }
       function konuAyarla(uyg, acik){
         if(izin()!=='granted') return Promise.reject(new Error('Önce yukarıdan "🔔 Bildirimleri aç"a dokun.'));
         return hazir().then(function(reg){ return reg.pushManager.getSubscription().then(function(s){ return s || reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:u8(VAPID) }); }); })
-          .then(function(sub){ return post('/abone', aboneGovde(sub, uyg, acik?'kullanici':'kapali')).then(function(){ var m=konular(); m[uyg]=!!acik; konuYaz(m); return sub; }); });
+          .then(function(sub){ return post('/abone', aboneGovde(sub, uyg, 'kullanici', acik?'acik':'kapali')).then(function(){ var m=konular(); m[uyg]=!!acik; konuYaz(m); return sub; }); });
       }
       function uygKayitli(endpoint, uyg){
         return post('/abone/durum', { endpoint:endpoint, uyg:uyg }).then(function(r){ return !!(r && Array.isArray(r.ben) && r.ben.length); }, function(){ return null; });
       }
       // Kasa bir cihazı birden çok kanala aynı anda kaydedebiliyor mu? (ana kayıt silinmemeli)
       function kanalDestek(){
-        var d=oku('zks_kanal_destek'); if(d==='1') return Promise.resolve(true); if(d==='0') return Promise.resolve(false);
+        var d=oku('zks_kanal_destek'); if(d==='1') return Promise.resolve(true);
+        if(d==='0' && Date.now()-(+(oku('zks_kanal_destek_t')||0)) < 6*3600e3) return Promise.resolve(false); // olumsuz sonuç 6 saatte bir yeniden denenir
         return abonelik().then(function(s){
           if(!s) throw new Error('Önce bildirimleri aç.');
           var ep=s.endpoint;
           return post('/abone', aboneGovde(s, UYG, 'kullanici'))
-            .then(function(){ return post('/abone', aboneGovde(s, 'kskanaltest', 'kapali')); })
+            .then(function(){ return post('/abone', aboneGovde(s, 'kskanaltest', 'kullanici', 'kapali')); })
             .then(function(){ return Promise.all([uygKayitli(ep, UYG), uygKayitli(ep, 'kskanaltest')]); })
             .then(function(r){
               var ok = r[0]===true && r[1]===true;
               if(r[0]===null || r[1]===null) throw new Error('Kasaya ulaşılamadı, biraz sonra tekrar dene.');
-              yaz('zks_kanal_destek', ok?'1':'0');
+              yaz('zks_kanal_destek', ok?'1':'0'); yaz('zks_kanal_destek_t', String(Date.now()));
               if(!ok) return post('/abone', aboneGovde(s, UYG, 'kullanici')).then(function(){ return false; });
               return true;
             });
@@ -1488,7 +1491,7 @@
       }
       function konulariTazele(){
         var m=konular(); var u=Object.keys(m); if(!u.length || izin()!=='granted' || oku('zks_kanal_destek')!=='1') return Promise.resolve();
-        return abonelik().then(function(s){ if(!s) return; return Promise.all(u.map(function(k){ return post('/abone', aboneGovde(s, k, m[k]?'kullanici':'kapali')).catch(function(){}); })); }).catch(function(){});
+        return abonelik().then(function(s){ if(!s) return; return Promise.all(u.map(function(k){ return post('/abone', aboneGovde(s, k, 'kullanici', m[k]?'acik':'kapali')).catch(function(){}); })); }).catch(function(){});
       }
       function swAktif(){ if(!('serviceWorker' in navigator)) return Promise.resolve(false); return navigator.serviceWorker.getRegistration().then(function(r){ return !!(r && (r.active||r.waiting||r.installing)); }).catch(function(){ return false; }); }
 
@@ -1508,7 +1511,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='2.5';
+    const SURUM='2.6';
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -2911,7 +2914,7 @@ Kullanıcının isteği: `;
             { uyg: 'kshatim', ikon: '📿', ad: 'Haftalık hatim', zaman: 'Pazar 10:00',
               liste: () => [{ id: 'hatim', saat: '10:00', gunler: [0], baslik: BAS('Haftalık hatim'), govde: 'Hatim planına göz at: bu hafta hangi cüzdesin?', bolum: 'hatim' }] }
         ];
-        const konuGirdileri = (k) => k.liste().map(x => ({ id: x.id, saat: x.saat, gunler: x.gunler, baslik: x.baslik, govde: x.govde, url: (window.ZBILDIRIM ? window.ZBILDIRIM.taban() : '') + '#' + x.bolum, hedef: { rol: ['kullanici'] }, aktif: true }));
+        const konuGirdileri = (k) => k.liste().map(x => ({ id: x.id, saat: x.saat, gunler: x.gunler, baslik: x.baslik, govde: x.govde, url: (window.ZBILDIRIM ? window.ZBILDIRIM.taban() : '') + '#' + x.bolum, hedef: { sube: 'acik' }, aktif: true }));
 
         // Kullanıcı: hangi bildirimler gelsin? (şifresiz)
         const BildirimKonulari = ({ showToast }) => {
@@ -2930,7 +2933,7 @@ Kullanıcının isteği: `;
                 try {
                     const d = await ZB.kanalDestek();
                     setDestek(d ? '1' : '0');
-                    if (!d) { setMesaj({ tip: 'hata', metin: '⛔ Kasa şu an bir cihazı yalnız tek kanala kaydedebiliyor; seçmeli bildirim için kasada küçük bir ekleme gerekiyor. Uygulamanın sahibine haber ver. Sahibin kurduğu genel hatırlatmalar yine gelir.' }); setMesgul(''); return; }
+                    if (!d) { setMesgul(''); return; }
                     await ZB.konuAyarla(k.uyg, acik);
                     setM(ZB.konular());
                     showToast && showToast(acik ? `${k.ikon} ${k.ad} açıldı` : `${k.ad} kapatıldı`);
@@ -2940,7 +2943,12 @@ Kullanıcının isteği: `;
             return (
                 <AyarKart ikon="📬" baslik="Hangi bildirimler gelsin?" aciklama="İstediğini aç, istemediğini kapat. Şifre gerekmez; seçimin yalnız bu cihaz için geçerlidir.">
                     {!izinVar && <p className="text-[12px] text-amber-200/90 bg-amber-500/10 border border-amber-500/25 rounded-lg px-3 py-2 mb-2">Önce yukarıdaki "🔔 Bildirimleri aç" düğmesine dokun; sonra buradan seç.</p>}
-                    {destek === '0' && <p className="text-[12px] text-rose-200 bg-rose-500/10 border border-rose-500/25 rounded-lg px-3 py-2 mb-2">Kasa seçmeli bildirimi henüz desteklemiyor; genel hatırlatmalar gelir.</p>}
+                    {destek === '0' && (
+                        <div className="text-[12px] text-amber-100 bg-amber-500/10 border border-amber-500/25 rounded-lg px-3 py-2 mb-2 leading-relaxed">
+                            ⏳ Seçmeli bildirim bu telefonda henüz etkinleşmedi. Bu arada temel hatırlatmalar (sabah, öğle, Cuma, akşam, hatim) yine gelir.
+                            <button onClick={() => { try { localStorage.removeItem('zks_kanal_destek'); localStorage.removeItem('zks_kanal_destek_t'); } catch(e){} setDestek(null); setMesaj(null); }} className="block mt-1.5 font-bold underline underline-offset-2">🔄 Yeniden dene</button>
+                        </div>
+                    )}
                     <div className="space-y-2">
                         {KONU_KATALOG.map(k => {
                             const acik = acikMi(k);
