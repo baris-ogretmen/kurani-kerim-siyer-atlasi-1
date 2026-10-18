@@ -674,7 +674,7 @@
         adimlar: [
           { ikon:'📖', metin:"Ana ekrandan bir sure seç; ayetleri Arapça, meal ve sesli kıraat (okuyucu) ile birlikte oku." },
           { ikon:'🔬', metin:"Bir ayetin <b>Arapçasına dokun</b>: <b>Ayet Anatomisi</b> açılır — ayet kişilere, kavramlara, duygulara, emirlere ve kelime köklerine ayrılarak renkli bir harita gibi önüne serilir." },
-          { ikon:'💬', metin:"Ayetin altındaki <b>✨ Yapay Zekâ ile Keşfet</b> ile nüzul sebebi, tefsir, Ruha Şifa, hadis gibi içerikleri üret ya da &#39;Ayete Sor&#39; ile kendi sorunu sor." },
+          { ikon:'💬', metin:"Ayetin altındaki <b>✨ Keşfet</b> düğmesiyle nüzul sebebi, tefsir, Ruha Şifa, hadis gibi içerikleri üret ya da &#39;Ayete Sor&#39; ile kendi sorunu sor." },
           { ikon:'🎨', metin:"Ana ekrandaki renkli kartlarla (Manevi Ayna, Siyer Zaman Yolculuğu, Tefekkür, Aile &amp; Eğitim Rehberi...) özel içerikler hazırlat." },
           { ikon:'🔔', metin:"<b>⚙️ Ayarlar → 🔔 Bildirim</b>den sabah ayeti, Cuma ve akşam Kur&#39;an saati hatırlatmalarını açabilirsin. Tam ekran ve uygulamayı ana ekrana yükleme <b>🧰 Araçlar</b>da." },
           { ikon:'🔑', vurgu:true, metin:"Yapay zekâ <b>anahtar kasası</b> üzerinden kendiliğinden çalışır. Çalışmazsa <b>⚙️ Ayarlar → ✨ Yapay Zekâ</b>dan ücretsiz bir Google Gemini anahtarı ekleyebilirsin (nasıl alınacağı orada adım adım anlatılıyor)." }
@@ -1314,9 +1314,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v2.2', tarih:'16.10.2026', satir:5666, kb:578,
-        onceki:{ surum:'v2.1', satir:5557, kb:582 },
-        yenilikler:['Yeni simge ve ad: Kur\'an ve Siyer Atlası','Günün kartları alt alta — hepsi tek bakışta (istersen yan yana kaydır)','Kabul edilmeyen anahtarlar altta listelenir, tek dokunuşla silinir','Okunan bildirimler ve simgedeki sayı kendiliğinden silinir'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v2.5', tarih:'18.10.2026', satir:5964, kb:617,
+        onceki:{ surum:'v2.4', satir:5789, kb:599 },
+        yenilikler:['📬 Herkes hangi bildirimlerin geleceğini kendi seçer: sabah ayeti, saat başı ayet, saat başı hadis, Esmâ, Cuma, akşam, hatim','Dini içerik baştan sona denetlendi: besmele, nüzul sırası, hadis künyeleri, sünnetler','Sure adlarının anlamları ve ayet sayısı denetimi','Bildirim: adım adım tanılama + önerilen hatırlatmaları tek dokunuşla kur','Ayet sorularında yapay zekâya sure ve ayet numarası gönderiliyor'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1376,9 +1376,9 @@
         if(!('serviceWorker' in navigator)) return Promise.resolve(null);
         return navigator.serviceWorker.getRegistration().then(function(r){ return (r && r.pushManager) ? r.pushManager.getSubscription() : null; }).catch(function(){ return null; });
       }
-      function aboneGovde(sub){
+      function aboneGovde(sub, uyg, rol){
         var j = sub && sub.toJSON ? sub.toJSON() : (sub || {}); var k = j.keys || {};
-        return { s:{ endpoint:j.endpoint, keys:{ p256dh:k.p256dh, auth:k.auth } }, rol:'kullanici', ogrId:cihazId(), sinif:'', sube:'', ad:'', uyg:UYG };
+        return { s:{ endpoint:j.endpoint, keys:{ p256dh:k.p256dh, auth:k.auth } }, rol:rol||'kullanici', ogrId:cihazId(), sinif:'', sube:'', ad:'', uyg:uyg||UYG };
       }
       function aboneOl(){
         if(!destek()) return Promise.reject(new Error(destekYok()));
@@ -1409,12 +1409,14 @@
       // Açılışta kaydı denetle, haftada bir tazele
       function tazele(){
         if(!destek() || izin()!=='granted' || oku('zks_acik')==='0') return;
-        abonelik().then(function(s){ var t=+(oku('zks_abone_t')||0); if(!s || Date.now()-t > 7*864e5) return aboneOl(); }).catch(function(){});
+        abonelik().then(function(s){ var t=+(oku('zks_abone_t')||0); if(!s || Date.now()-t > 7*864e5) return aboneOl().then(konulariTazele); }).catch(function(){});
       }
       // Okunan bildirim kalmasın: rozet + bildirim merkezi temizliği
       // Okunan bildirim kalmasın: uygulama açılınca/öne gelince bildirim merkezindeki bu uygulamanın bildirimleri kapanır, simgedeki sayı (rozet) silinir.
       // iPhone'da sayfa görünür olduktan biraz sonra da gelebildiği için kısa aralıklarla birkaç kez tekrarlanır.
+      var korumaBitis=0; // "Bana dene"den sonra 2 dk gelen bildirimi kapatma
       function temizleBir(){
+        if(Date.now()<korumaBitis) return;
         try{ if(navigator.clearAppBadge) navigator.clearAppBadge().catch(function(){ try{ navigator.setAppBadge && navigator.setAppBadge(0); }catch(e){} }); else if(navigator.setAppBadge) navigator.setAppBadge(0).catch(function(){}); }catch(e){}
         try{ if('serviceWorker' in navigator) navigator.serviceWorker.getRegistration().then(function(r){ if(r && r.getNotifications) return r.getNotifications().then(function(l){ l.forEach(function(n){ try{ n.close(); }catch(e){} }); }); }).catch(function(){}); }catch(e){}
       }
@@ -1432,6 +1434,7 @@
         });
       }
       function dene(){
+        korumaBitis=Date.now()+120000;
         return post('/olay', { hedef:{ uyg:UYG, rol:['kullanici'], ogrId:cihazId() },
           veri:{ baslik:'📖 '+AD+' · Deneme bildirimi', govde:'Bildirimler bu cihazda çalışıyor. Hayırlı okumalar! ✨', url:taban()+'#kaldigim', etiket:'deneme-'+Date.now() } });
       }
@@ -1442,11 +1445,55 @@
         try{ ham()(kasa()+'/olay', { method:'POST', keepalive:true, headers:{'Content-Type':'text/plain'}, body:g }).catch(function(){}); }catch(e){}
         return true;
       }
-      function hListe(sifre){ return post('/hatirlatma/liste', { sifre:sifre, uyg:UYG }); }
-      function hKaydet(sifre, liste){ return post('/hatirlatma/kaydet', { sifre:sifre, uyg:UYG, liste:liste }); }
+      function hListe(sifre, uyg){ return post('/hatirlatma/liste', { sifre:sifre, uyg:uyg||UYG }); }
+      function hKaydet(sifre, liste, uyg){ return post('/hatirlatma/kaydet', { sifre:sifre, uyg:uyg||UYG, liste:liste }).then(function(r){
+        if(uyg && uyg!==UYG) return r;
+        try{ var akt=(liste||[]).filter(function(x){ return x && x.aktif!==false; }).length; localStorage.setItem('zks_hatirlatma', JSON.stringify({ sayi:akt, t:Date.now() })); }catch(e){}
+        return r; }); }
+      function hBilgi(){ try{ return JSON.parse(localStorage.getItem('zks_hatirlatma')||'null'); }catch(e){ return null; } }
+      // sw.js gerçekten bu klasörde mi ve bildirim dinleyicisi var mı?
+      function swDosya(){
+        if(!/^https?:$/.test(location.protocol)) return Promise.resolve({ var:false, push:false, durum:0 });
+        return ham()('sw.js?v='+Date.now(), { cache:'no-store' }).then(function(r){ return r.text().then(function(t){ return { var:r.ok, push:/addEventListener\(\s*['"]push['"]/.test(t), durum:r.status }; }); }).catch(function(){ return { var:false, push:false, durum:0 }; });
+      }
+      // ===== 📬 KONU KANALLARI: her hazır bildirim kasada ayrı bir uyg kanalıdır; kullanıcı ŞİFRESİZ abone olur/çıkar =====
+      // Açık: rol 'kullanici' · Kapalı: rol 'kapali' (sahibin kurduğu kanal hatırlatmaları hedef {rol:['kullanici']} ile gider)
+      function konular(){ try{ return JSON.parse(oku('zks_konular')||'{}')||{}; }catch(e){ return {}; } }
+      function konuYaz(m){ yaz('zks_konular', JSON.stringify(m)); }
+      function konuAyarla(uyg, acik){
+        if(izin()!=='granted') return Promise.reject(new Error('Önce yukarıdan "🔔 Bildirimleri aç"a dokun.'));
+        return hazir().then(function(reg){ return reg.pushManager.getSubscription().then(function(s){ return s || reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:u8(VAPID) }); }); })
+          .then(function(sub){ return post('/abone', aboneGovde(sub, uyg, acik?'kullanici':'kapali')).then(function(){ var m=konular(); m[uyg]=!!acik; konuYaz(m); return sub; }); });
+      }
+      function uygKayitli(endpoint, uyg){
+        return post('/abone/durum', { endpoint:endpoint, uyg:uyg }).then(function(r){ return !!(r && Array.isArray(r.ben) && r.ben.length); }, function(){ return null; });
+      }
+      // Kasa bir cihazı birden çok kanala aynı anda kaydedebiliyor mu? (ana kayıt silinmemeli)
+      function kanalDestek(){
+        var d=oku('zks_kanal_destek'); if(d==='1') return Promise.resolve(true); if(d==='0') return Promise.resolve(false);
+        return abonelik().then(function(s){
+          if(!s) throw new Error('Önce bildirimleri aç.');
+          var ep=s.endpoint;
+          return post('/abone', aboneGovde(s, UYG, 'kullanici'))
+            .then(function(){ return post('/abone', aboneGovde(s, 'kskanaltest', 'kapali')); })
+            .then(function(){ return Promise.all([uygKayitli(ep, UYG), uygKayitli(ep, 'kskanaltest')]); })
+            .then(function(r){
+              var ok = r[0]===true && r[1]===true;
+              if(r[0]===null || r[1]===null) throw new Error('Kasaya ulaşılamadı, biraz sonra tekrar dene.');
+              yaz('zks_kanal_destek', ok?'1':'0');
+              if(!ok) return post('/abone', aboneGovde(s, UYG, 'kullanici')).then(function(){ return false; });
+              return true;
+            });
+        });
+      }
+      function konulariTazele(){
+        var m=konular(); var u=Object.keys(m); if(!u.length || izin()!=='granted' || oku('zks_kanal_destek')!=='1') return Promise.resolve();
+        return abonelik().then(function(s){ if(!s) return; return Promise.all(u.map(function(k){ return post('/abone', aboneGovde(s, k, m[k]?'kullanici':'kapali')).catch(function(){}); })); }).catch(function(){});
+      }
+      function swAktif(){ if(!('serviceWorker' in navigator)) return Promise.resolve(false); return navigator.serviceWorker.getRegistration().then(function(r){ return !!(r && (r.active||r.waiting||r.installing)); }).catch(function(){ return false; }); }
 
       window.ZBILDIRIM={ UYG:UYG, AD:AD, kasa:kasa, post:post, cihazId:cihazId, destek:destek, destekYok:destekYok, https:https, ios:ios, standalone:standalone,
-        izin:izin, ac:ac, kapat:kapat, acikMi:acikMi, aboneOl:aboneOl, abonelik:abonelik, durum:durum, dene:dene, olay:olay, hListe:hListe, hKaydet:hKaydet, taban:taban, temizle:temizle, swKaydet:swKaydet };
+        izin:izin, ac:ac, kapat:kapat, acikMi:acikMi, aboneOl:aboneOl, abonelik:abonelik, durum:durum, dene:dene, olay:olay, hListe:hListe, hKaydet:hKaydet, hBilgi:hBilgi, swDosya:swDosya, swAktif:swAktif, konular:konular, konuAyarla:konuAyarla, kanalDestek:kanalDestek, konulariTazele:konulariTazele, uygKayitli:uygKayitli, ham:ham, hazir:hazir, taban:taban, temizle:temizle, swKaydet:swKaydet };
 
       function basla(){ swKaydet().catch(function(){}); tazele(); temizle(); }
       if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', basla); else basla();
@@ -1461,7 +1508,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='2.2';
+    const SURUM='2.5';
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -1723,7 +1770,12 @@
 3) Ayet meali verirken anlamı doğru aktar; hadis naklederken zayıf/uydurma olabileceğini düşünüyorsan bunu belirt, mümkünse kaynağını (ör. Buhârî, Müslim) an.
 4) İçtihadi/mezhepler arası farklı görüş olan konularda tek doğruymuş gibi dayatma; "âlimler arasında farklı görüşler vardır" diyerek dengeli aktar ve kesin fetva vermekten kaçın, gerekirse bir din görevlisine/müftülüğe danışmayı öner.
 5) Gaybî konularda (kader detayı, rüya kesin yorumu vb.) "kesin bilgi Allah katındadır" edebini koru.
-6) Şüpheye düştüğünde, yanlış bilgi vermektense "bu konuda kesin konuşamam, güvenilir bir âlime danışılmalı" de. İnsanların dini hayatı söz konusu olduğu için doğruluk her şeyden önemlidir.\n\nBİÇİMLENDİRME (cevabı gözü şenlendirecek, akılda kalıcı şekilde yaz — çıktı Markdown+HTML olarak işlenir):
+6) Şüpheye düştüğünde, yanlış bilgi vermektense "bu konuda kesin konuşamam, güvenilir bir âlime danışılmalı" de. İnsanların dini hayatı söz konusu olduğu için doğruluk her şeyden önemlidir.
+7) AYET KÜNYESİ: Bir ayet anarken sure adını ve ayet numarasını ver; numarasından emin değilsen numara yazma, "ilgili ayet" de. Ayetin Arapçasını yazacaksan harfi harfine doğru yaz; emin değilsen Arapçayı yazma, yalnızca meali ver. Meali kendi kafandan uydurma; tanınmış bir meale (Diyanet, Elmalılı vb.) sadık kal. Besmele Fâtiha dışındaki surelerin 1. ayeti değildir.
+8) HADİS KÜNYESİ: Hadisi kaynak kitap ve bölüm adıyla ver (ör. Buhârî, İlim, 11). Derecesini bilmiyorsan "kaynağını doğrulayınız" notu düş. Uydurma olduğu bilinen sözleri hadis diye aktarma (ör. "İlim Çin'de de olsa…", "Vatan sevgisi imandandır", "Yemeğe tuzla başlayın"). Sahabe ve âlim sözlerini hadis gibi sunma.
+9) BİLİM VE SAĞLIK: Bilimsel olarak kanıtlanmamış sağlık/tıp faydası iddia etme; "Kur'an şu bilimsel buluşu önceden haber verdi" türü iddiaları kesin bilgi gibi sunma, tartışmalı olduğunu belirt. Hastalık sorularında tıbbi tedavinin yerini tutmadığını söyle, hekime yönlendir.
+10) GERÇEK KİŞİLER: Yaşayan ya da vefat etmiş hiçbir âlime, yazara, hocaya söz veya alıntı uydurma; eser adı verirken emin değilsen belirt. Birebir alıntı yerine özetle.
+11) SİYER TARİHLERİ: Tarihlerin ve sayıların ihtilaflı olduğu yerlerde "rivayete göre / yaklaşık" de; tek rivayeti kesin gerçek gibi sunma.\n\nBİÇİMLENDİRME (cevabı gözü şenlendirecek, akılda kalıcı şekilde yaz — çıktı Markdown+HTML olarak işlenir):
 - Önemli kavramları/anahtar kelimeleri renkli vurgula: <span style="color:#10b981;font-weight:700">önemli kavram</span> (yeşil), çok kritik uyarılar için <span style="color:#f59e0b;font-weight:700">...</span> (turuncu/altın).
 - Duygu, edebi vurgu veya incelik için *italik/eğik yazı* kullan.
 - Ana başlıkları ## ile, alt başlıkları ### ile yaz; maddeleri - ile listele.
@@ -1998,17 +2050,22 @@ Kullanıcının isteği: `;
         const MEAL_SOURCES = [
             { id: 'tr.yazir', name: 'Elmalılı Hamdi Yazır (Önerilen)' },
             { id: 'tr.vakfi', name: 'Diyanet Vakfı' },
-            { id: 'tr.diyanet', name: 'Diyanet İşleri' },
-            { id: 'tr.bulac', name: 'Ali Bulaç' },
-            { id: 'tr.kucuk', name: 'Ali Küçük' }
+            { id: 'tr.diyanet', name: 'Diyanet İşleri (bazı ayetleri birlikte çevirir)' },
+            { id: 'tr.ates', name: 'Süleyman Ateş' },
+            { id: 'tr.yildirim', name: 'Suat Yıldırım' },
+            { id: 'tr.golpinarli', name: 'Abdülbâki Gölpınarlı' },
+            { id: 'tr.bulac', name: 'Ali Bulaç' }
         ];
+        // Eski sürümde seçilebilen ama sunucuda bulunmayan "tr.kucuk" (Ali Küçük) seçiliyse Türkçe yerine Arapça geliyordu → Elmalılı'ya geçir
+        try { if (localStorage.getItem('mealSource') === 'tr.kucuk') localStorage.setItem('mealSource', 'tr.yazir'); } catch(e){}
 
         // --- KIRAAT (OKUYUCU) KAYNAKLARI ---
         const RECITER_SOURCES = [
             { id: 'ar.abdulbasitmurattal', name: 'Abdulbasit Abdussamed (Murattal)' },
             { id: 'ar.alafasy', name: 'Mishary Rashid Alafasy' },
+            { id: 'ar.husary', name: 'Mahmud Halil el-Husarî' },
             { id: 'ar.mahermuaiqly', name: 'Maher Al Muaiqly' },
-            { id: 'ar.minshawi', name: 'Minshawi' }
+            { id: 'ar.minshawi', name: 'Muhammed Sıddık el-Minşâvî' }
         ];
 
         // --- ARAPÇA FONT SEÇENEKLERİ ---
@@ -2020,6 +2077,21 @@ Kullanıcının isteği: `;
         const TURKISH_SURAH_NAMES = {
             1: "Fatiha", 2: "Bakara", 3: "Al-i İmran", 4: "Nisa", 5: "Maide", 6: "En'am", 7: "A'raf", 8: "Enfal", 9: "Tevbe", 10: "Yunus", 11: "Hud", 12: "Yusuf", 13: "Ra'd", 14: "İbrahim", 15: "Hicr", 16: "Nahl", 17: "İsra", 18: "Kehf", 19: "Meryem", 20: "Taha", 21: "Enbiya", 22: "Hac", 23: "Mü'minun", 24: "Nur", 25: "Furkan", 26: "Şuara", 27: "Neml", 28: "Kasas", 29: "Ankebut", 30: "Rum", 31: "Lokman", 32: "Secde", 33: "Ahzab", 34: "Sebe", 35: "Fatır", 36: "Yasin", 37: "Saffat", 38: "Sad", 39: "Zümer", 40: "Mü'min (Gafir)", 41: "Fussilet", 42: "Şura", 43: "Zuhruf", 44: "Duhan", 45: "Casiye", 46: "Ahkaf", 47: "Muhammed", 48: "Fetih", 49: "Hucurat", 50: "Kaf", 51: "Zariyat", 52: "Tur", 53: "Necm", 54: "Kamer", 55: "Rahman", 56: "Vakıa", 57: "Hadid", 58: "Mücadele", 59: "Haşr", 60: "Mümtehine", 61: "Saf", 62: "Cuma", 63: "Münafikun", 64: "Teğabun", 65: "Talak", 66: "Tahrim", 67: "Mülk", 68: "Kalem", 69: "Hakka", 70: "Mearic", 71: "Nuh", 72: "Cin", 73: "Müzzemmil", 74: "Müddessir", 75: "Kıyamet", 76: "İnsan", 77: "Mürselat", 78: "Nebe", 79: "Naziat", 80: "Abese", 81: "Tekvir", 82: "İnfitar", 83: "Mutaffifin", 84: "İnşikak", 85: "Buruc", 86: "Tarık", 87: "A'la", 88: "Gaşiye", 89: "Fecr", 90: "Beled", 91: "Şems", 92: "Leyl", 93: "Duha", 94: "İnşirah", 95: "Tin", 96: "Alak", 97: "Kadir", 98: "Beyyine", 99: "Zilzal", 100: "Adiyat", 101: "Karia", 102: "Tekasür", 103: "Asr", 104: "Hümeze", 105: "Fil", 106: "Kureyş", 107: "Maun", 108: "Kevser", 109: "Kafirun", 110: "Nasr", 111: "Tebbet", 112: "İhlas", 113: "Felak", 114: "Nas"
         };
+        // Sunucu (alquran.cloud) Fâtiha ve Tevbe dışındaki surelerin 1. ayetinin Arapçasına besmeleyi ekliyor.
+        // Besmele bu surelerde 1. ayetin parçası değildir; ayırıp surenin başında ayrıca gösteriyoruz.
+        const harfIskelet = (w) => String(w || '').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '').replace(/[\u0671\u0622\u0623\u0625]/g, '\u0627');
+        const besmeleAyir = (metin, sureNo, ayetNo) => {
+            const t = String(metin || '');
+            if (ayetNo !== 1 || sureNo === 1 || sureNo === 9) return t;
+            const k = t.trim().split(/\s+/);
+            const hedef = ['بسم', 'الله', 'الرحمن', 'الرحيم'];
+            if (k.length > 4 && hedef.every((w, i) => harfIskelet(k[i]) === w)) return k.slice(4).join(' ');
+            return t;
+        };
+        // Her surenin ayet sayısı (Kûfe sayımı; Türkiye'deki mushaflarda kullanılan; toplam 6236)
+        const AYET_SAYILARI = {1:7,2:286,3:200,4:176,5:120,6:165,7:206,8:75,9:129,10:109,11:123,12:111,13:43,14:52,15:99,16:128,17:111,18:110,19:98,20:135,21:112,22:78,23:118,24:64,25:77,26:227,27:93,28:88,29:69,30:60,31:34,32:30,33:73,34:54,35:45,36:83,37:182,38:88,39:75,40:85,41:54,42:53,43:89,44:59,45:37,46:35,47:38,48:29,49:18,50:45,51:60,52:49,53:62,54:55,55:78,56:96,57:29,58:22,59:24,60:13,61:14,62:11,63:11,64:18,65:12,66:12,67:30,68:52,69:52,70:44,71:28,72:28,73:20,74:56,75:40,76:31,77:50,78:40,79:46,80:42,81:29,82:19,83:36,84:25,85:22,86:17,87:19,88:26,89:30,90:20,91:15,92:21,93:11,94:8,95:8,96:19,97:5,98:8,99:8,100:11,101:11,102:8,103:3,104:9,105:5,106:4,107:7,108:3,109:6,110:3,111:5,112:4,113:5,114:6};
+        // Sure adlarının Türkçe anlamı (Diyanet Kur'an Yolu tefsiri ve meallerdeki yaygın karşılıklar)
+        const SURE_ANLAMLARI = {1:"Açılış",2:"İnek",3:"İmrân Ailesi",4:"Kadınlar",5:"Sofra",6:"Davarlar",7:"Yüksek Yerler",8:"Ganimetler",9:"Tövbe",10:"Yûnus Peygamber",11:"Hûd Peygamber",12:"Yûsuf Peygamber",13:"Gök Gürültüsü",14:"İbrâhim Peygamber",15:"Hicr (Semûd kavminin yurdu)",16:"Bal Arısı",17:"Gece Yolculuğu",18:"Mağara",19:"Hz. Meryem",20:"Tâ-Hâ (mukattaa harfleri)",21:"Peygamberler",22:"Hac",23:"Mü'minler",24:"Işık",25:"Hakkı Bâtıldan Ayıran",26:"Şairler",27:"Karınca",28:"Kıssalar",29:"Örümcek",30:"Rumlar (Bizanslılar)",31:"Lokmân",32:"Secde",33:"Birlikler",34:"Sebe' (halkı)",35:"Yaratan",36:"Yâ-Sîn (mukattaa harfleri)",37:"Saf Saf Duranlar",38:"Sâd (mukattaa harfi)",39:"Zümreler",40:"Mü'min / Bağışlayan",41:"Açıklanmış",42:"Danışma",43:"Altın Süs",44:"Duman",45:"Diz Çöken",46:"Kum Tepeleri",47:"Hz. Muhammed",48:"Fetih (Zafer)",49:"Odalar",50:"Kâf (mukattaa harfi)",51:"Savuranlar",52:"Tûr Dağı",53:"Yıldız",54:"Ay",55:"Çok Merhametli",56:"Gerçekleşecek Olay",57:"Demir",58:"Tartışan Kadın",59:"Toplanma (Sürgün)",60:"İmtihan Edilen Kadın",61:"Saf",62:"Cuma",63:"Münafıklar",64:"Aldanış",65:"Boşanma",66:"Yasaklama",67:"Hükümranlık",68:"Kalem",69:"Gerçekleşecek Olan",70:"Yükselme Yolları",71:"Nûh Peygamber",72:"Cinler",73:"Örtünen",74:"Bürünen",75:"Kıyamet",76:"İnsan",77:"Gönderilenler",78:"Haber",79:"Söküp Çıkaranlar",80:"Yüzünü Ekşitti",81:"Dürülme",82:"Yarılma",83:"Ölçüde Hile Yapanlar",84:"Yarılma (Çatlama)",85:"Burçlar",86:"Gece Gelen",87:"En Yüce",88:"Kuşatan",89:"Tan Vakti",90:"Şehir",91:"Güneş",92:"Gece",93:"Kuşluk Vakti",94:"Göğsü Açma",95:"İncir",96:"Rahme Tutunan",97:"Değer, Kadir",98:"Apaçık Delil",99:"Deprem",100:"Koşan Atlar",101:"Kapıyı Çalan",102:"Çoğalma Yarışı",103:"Zaman (İkindi)",104:"Arkadan Çekiştiren",105:"Fil",106:"Kureyş",107:"Yardım",108:"Bol Nimet",109:"İnkârcılar",110:"Yardım (Zafer)",111:"Kurusun (Mesed)",112:"İhlas, Samimiyet",113:"Sabah Aydınlığı",114:"İnsanlar"};
         const getTurkishName = (number) => TURKISH_SURAH_NAMES[number] || `Sure ${number}`;
 
         // ÖZEL AYET VERİTABANI
@@ -2028,14 +2100,14 @@ Kullanıcının isteği: `;
 
         // İLHAM KARTLARI
         const INSPIRATION_VERSES = [
-            { surahNo: 2, ayahNo: 286, text: "Allah hiçbir nefse gücünün yeteceğinden ötesini yüklemez.", ar: "لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا" },
+            { surahNo: 2, ayahNo: 286, text: "Allah hiçbir kimseye gücünün yeteceğinden fazlasını yüklemez. …", ar: "لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا …", kismi: true },
             { surahNo: 94, ayahNo: 5, text: "Demek ki zorlukla beraber bir kolaylık vardır.", ar: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا" },
             { surahNo: 3, ayahNo: 139, text: "Gevşemeyin, hüzünlenmeyin. Eğer (gerçekten) iman etmiş kimselerseniz üstün olan sizlersiniz.", ar: "وَلَا تَهِنُوا۟ وَلَا تَحْزَنُوا۟ وَأَنتُمُ ٱلْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ" },
             { surahNo: 2, ayahNo: 152, text: "Öyleyse beni (ibadetle) anın ki ben de sizi anayım. Bana şükredin; sakın bana nankörlük etmeyin!", ar: "فَٱذْكُرُونِىٓ أَذْكُرْكُمْ وَٱشْكُرُوا۟ لِى وَلَا تَكْفُرُونِ" },
-            { surahNo: 50, ayahNo: 16, text: "Andolsun, insanı biz yarattık ve nefsinin ona verdiği vesveseyi de biz biliriz. Çünkü biz ona şah damarından daha yakınız.", ar: "وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ ٱلْوَرِيدِ" },
-            { surahNo: 39, ayahNo: 53, text: "De ki: Ey kendi nefisleri aleyhine haddi aşan kullarım! Allah'ın rahmetinden ümit kesmeyin!", ar: "قُلْ يَٰعِبَادِىَ ٱلَّذِينَ أَسْرَفُوا۟ عَلَىٰٓ أَنفُسِهِمْ لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ" },
-            { surahNo: 65, ayahNo: 3, text: "Kim Allah'a tevekkül ederse, O kendisine yeter.", ar: "وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥ" },
-            { surahNo: 20, ayahNo: 46, text: "Korkmayın, çünkü ben sizinle beraberim; işitir ve görürüm.", ar: "قَالَ لَا تَخَافَآ ۖ إِنَّنِى مَعَكُمَآ أَسْمَعُ وَأَرَىٰ" }
+            { surahNo: 50, ayahNo: 16, text: "Andolsun, insanı biz yarattık ve nefsinin ona verdiği vesveseyi de biz biliriz. Çünkü biz ona şah damarından daha yakınız.", ar: "وَلَقَدْ خَلَقْنَا ٱلْإِنسَٰنَ وَنَعْلَمُ مَا تُوَسْوِسُ بِهِۦ نَفْسُهُۥ ۖ وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ ٱلْوَرِيدِ" },
+            { surahNo: 39, ayahNo: 53, text: "De ki: Ey kendi nefisleri aleyhine haddi aşan kullarım! Allah'ın rahmetinden ümit kesmeyin. Şüphesiz Allah bütün günahları affeder. Çünkü O, çok bağışlayıcı, çok merhamet edicidir.", ar: "قُلْ يَٰعِبَادِىَ ٱلَّذِينَ أَسْرَفُوا۟ عَلَىٰٓ أَنفُسِهِمْ لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ ۚ إِنَّ ٱللَّهَ يَغْفِرُ ٱلذُّنُوبَ جَمِيعًا ۚ إِنَّهُۥ هُوَ ٱلْغَفُورُ ٱلرَّحِيمُ" },
+            { surahNo: 65, ayahNo: 3, text: "… Kim Allah'a tevekkül ederse, O kendisine yeter. …", ar: "… وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ …", kismi: true },
+            { surahNo: 20, ayahNo: 46, text: "(Allah) buyurdu: Korkmayın, çünkü ben sizinle beraberim; işitir ve görürüm.", ar: "قَالَ لَا تَخَافَآ ۖ إِنَّنِى مَعَكُمَآ أَسْمَعُ وَأَرَىٰ" }
         ];
 
         const DAILY_DUAS = [
@@ -2051,13 +2123,13 @@ Kullanıcının isteği: `;
             { name: "El-Vedûd", desc: "İtaatkâr kullarını çok seven, sevilmeye en lâyık olan." },
             { name: "El-Fettâh", desc: "Her türlü sıkıntıları açan ve kolaylaştıran." },
             { name: "El-Gafûr", desc: "Bağışlaması, af ve mağfireti çok olan." },
-            { name: "Eş-Şâfî", desc: "Maddi ve manevi hastalıklara şifa veren." },
+            { name: "Eş-Şâfî", desc: "Şifa veren. (Tirmizî'deki 99 isim listesinde yer almaz; Peygamberimizin hasta ziyareti duasında geçer: Buhârî, Merdâ, 20.)" },
             { name: "El-Latîf", desc: "Kullarına sezilmez yollardan iyilikler, güzellikler ulaştıran." }
         ];
 
         const DAILY_HADITH = [
             { text: "Kolaylaştırınız, zorlaştırmayınız. Müjdeleyiniz, nefret ettirmeyiniz.", source: "Buhârî, İlim, 11" },
-            { text: "Kim ilim tahsil etmek için bir yola girerse, Allah o kişiye cennetin yolunu kolaylaştırır.", source: "Müslim, Zikr, 39" },
+            { text: "Kim ilim tahsil etmek için bir yola girerse, Allah o kişiye cennetin yolunu kolaylaştırır.", source: "Müslim, Zikir, 38" },
             { text: "Yumuşak huydan mahrum olan, iyilikten de mahrum olur.", source: "Müslim, Birr, 74" },
             { text: "Sizin en hayırlınız, ahlakı en güzel olanınızdır.", source: "Buhârî, Edeb, 38" }
         ];
@@ -2071,44 +2143,45 @@ Kullanıcının isteği: `;
 
         // YENİ: GÜNÜN SÜNNETİ
         const DAILY_SUNNAH = [
-            { title: "Suyu Üç Yudumda İçmek", text: "Suyu oturarak, besmele ile ve üç nefeste yudum yudum içmek.", wisdom: "Mideyi yormaz, suyun vücutta emilimini kolaylaştırır." },
-            { title: "Yemeğe Tuz veya Tatlı ile Başlamak", text: "Yemeğe başlarken çok küçük bir miktar tuz tatmak.", wisdom: "Ağızdaki tükürük bezlerini çalıştırır, hazma hazırlık yapar." },
-            { title: "Uyurken Sağa Yatmak", text: "Gece uyumadan önce sağ tarafa dönerek, sağ eli yanağın altına koyarak uyumak.", wisdom: "Kalbin rahat çalışmasını sağlar, uyku apnesini azaltır." },
-            { title: "Eve Girerken Selam Vermek", text: "Evde kimse olmasa bile 'Es-selamu aleykum' diyerek girmek.", wisdom: "Eve bereket ve huzur getirir." },
-            { title: "Öfkelenince Abdest Almak", text: "Öfkelendiğinde pozisyon değiştirmek, geçmezse su ile abdest almak.", wisdom: "Su ateşi (öfkeyi) söndürür, sinir sistemini sakinleştirir." }
+            { title: "Suyu Üç Yudumda İçmek", text: "Suyu besmele ile, oturarak ve üç nefeste içmek.", wisdom: "Peygamberimiz \"Böylesi daha kandırıcı, daha sağlıklı ve daha hazımlıdır\" buyurmuştur.", source: "Müslim, Eşribe, 123" },
+            { title: "Besmeleyle, Sağ Elle ve Önünden Yemek", text: "Yemeğe besmele ile başlamak, sağ elle ve kendi önünden yemek.", wisdom: "Peygamberimiz küçük Ömer b. Ebû Seleme'ye bu üç adabı öğretmiştir.", source: "Buhârî, Et'ime, 2; Müslim, Eşribe, 108" },
+            { title: "Uyurken Sağa Yatmak", text: "Yatmadan önce abdest almak, sağ tarafa yatmak ve uyku duasını okumak.", wisdom: "Peygamberimiz Berâ b. Âzib'e böyle yapmasını ve son sözünün dua olmasını tavsiye etmiştir.", source: "Buhârî, Vudû, 75; Müslim, Zikir, 56" },
+            { title: "Eve Girerken Selam Vermek", text: "Eve girerken ev halkına selam vermek; kimse yoksa da selam vermek.", wisdom: "Kur'an bu selamı \"Allah katından mübarek ve güzel bir selam\" diye anar.", source: "Nûr Suresi, 61" },
+            { title: "Öfkelenince Durumu Değiştirmek", text: "Öfkelenince ayaktaysan oturmak, geçmezse uzanmak ve \"Eûzü billâhi mine'ş-şeytânirracîm\" demek.", wisdom: "Bu tavsiyeler öfkeyle hemen söz söylemeyi ve davranmayı önlemeye yöneliktir.", source: "Ebû Dâvûd, Edeb, 4; Buhârî, Edeb, 76" }
         ];
 
         const JUZ_CONTENT = [
             "Fatiha, Bakara (1-141)", "Bakara (142-252)", "Bakara (253-286), Al-i İmran (1-92)", "Al-i İmran (93-200), Nisa (1-23)", "Nisa (24-147)", "Nisa (148-176), Maide (1-81)", "Maide (82-120), En'am (1-110)", "En'am (111-165), A'raf (1-87)", "A'raf (88-206), Enfal (1-40)", "Enfal (41-75), Tevbe (1-92)", "Tevbe (93-129), Yunus, Hud (1-5)", "Hud (6-123), Yusuf (1-52)", "Yusuf (53-111), Ra'd, İbrahim", "Hicr, Nahl", "İsra, Kehf (1-74)", "Kehf (75-110), Meryem, Taha", "Enbiya, Hac", "Mü'minun, Nur, Furkan (1-20)", "Furkan (21-77), Şuara, Neml (1-55)", "Neml (56-93), Kasas, Ankebut (1-45)", "Ankebut (46-69), Rum, Lokman, Secde, Ahzab (1-30)", "Ahzab (31-73), Sebe, Fatır, Yasin (1-27)", "Yasin (28-83), Saffat, Sad, Zümer (1-31)", "Zümer (32-75), Mü'min, Fussilet (1-46)", "Fussilet (47-54), Şura, Zuhruf, Duhan, Casiye", "Ahkaf, Muhammed, Fetih, Hucurat, Kaf, Zariyat (1-30)", "Zariyat (31-60), Tur, Necm, Kamer, Rahman, Vakıa, Hadid", "Mücadele'den Tahrim'e kadar", "Mülk'ten Mürselat'a kadar", "Nebe'den Nas'a kadar (Amme Cüzü)"
         ];
 
+        // NÜZUL SIRASI: sure numarası → iniş sırası (Mısır/Ezher mushafındaki yaygın tertip; Diyanet meallerinde de verilir).
+        // Bu tertip rivayetlere dayanır, kesin değildir. Mekke: 1-86 · Medine: 87-114.
+        const NUZUL_SIRASI = {1:5,2:87,3:89,4:92,5:112,6:55,7:39,8:88,9:113,10:51,11:52,12:53,13:96,14:72,15:54,16:70,17:50,18:69,19:44,20:45,21:73,22:103,23:74,24:102,25:42,26:47,27:48,28:49,29:85,30:84,31:57,32:75,33:90,34:58,35:43,36:41,37:56,38:38,39:59,40:60,41:61,42:62,43:63,44:64,45:65,46:66,47:95,48:111,49:106,50:34,51:67,52:76,53:23,54:37,55:97,56:46,57:94,58:105,59:101,60:91,61:109,62:110,63:104,64:108,65:99,66:107,67:77,68:2,69:78,70:79,71:71,72:40,73:3,74:4,75:31,76:98,77:33,78:80,79:81,80:24,81:7,82:82,83:86,84:83,85:27,86:36,87:8,88:68,89:10,90:35,91:26,92:9,93:11,94:12,95:28,96:1,97:25,98:100,99:93,100:14,101:30,102:16,103:13,104:32,105:19,106:29,107:17,108:15,109:18,110:114,111:6,112:22,113:20,114:21};
         const SIYER_PERIODS_DATA = [
-            { start: 1, end: 5, year: "Nübüvvet 1-3. Yıl", era: "İlk Vahiy & Gizli Davet", desc: "İslam'ın ilk tohumlarının atıldığı dönem." },
-            { start: 6, end: 20, year: "Nübüvvet 4-5. Yıl", era: "Açıktan Davet Başlangıcı", desc: "Peygamberimizin yakın akrabalarını uyardığı dönem." },
-            { start: 21, end: 50, year: "Nübüvvet 5-9. Yıl", era: "Zulüm ve İşkence Dönemi", desc: "Müşriklerin baskılarının fiziksel şiddete dönüştüğü dönem." },
-            { start: 51, end: 85, year: "Nübüvvet 10-12. Yıl", era: "Hüzün Yılı & İsra", desc: "Hüznün yaşandığı, ardından Mirac ile teselli olunan dönem." },
-            { start: 86, end: 114, year: "Medine Dönemi", era: "Hicret & Devletleşme", desc: "Müslümanların Medine'ye hicret ettiği dönem." }
+            { min: 1,  max: 20,  yer: 'Mekke', era: "Mekke'nin ilk yılları", desc: "İlk vahiy, önce gizli sonra açık davet. Bu dönemin sureleri çoğunlukla kısa; tevhid, ahiret ve ahlak üzerinde durur." },
+            { min: 21, max: 45,  yer: 'Mekke', era: "Mekke'nin orta yılları", desc: "Müşriklerin baskısının arttığı, bazı Müslümanların Habeşistan'a hicret ettiği dönem. Peygamber kıssaları sıkça anlatılır." },
+            { min: 46, max: 86,  yer: 'Mekke', era: "Mekke'nin son yılları", desc: "Boykot, Hüzün Yılı, İsrâ ve Mîrac, Akabe biatleri. Sabır, teselli ve hicrete hazırlık öne çıkar." },
+            { min: 87, max: 114, yer: 'Medine', era: "Medine dönemi (622-632)", desc: "Hicretten sonra Medine'de toplumun kurulduğu dönem: ibadet, aile, toplum ve devlet hayatına dair hükümler, savaş ve antlaşmalar." }
         ];
-        
+
         const getSurahTimelineData = (surah) => {
-             const period = SIYER_PERIODS_DATA.find(p => surah.revelationType === 'Meccan' 
-                ? (surah.number >= p.start && surah.number <= p.end) 
-                : (p.start >= 86)
-            ) || SIYER_PERIODS_DATA[SIYER_PERIODS_DATA.length - 1];
-             return {
-                title: `${surah.revelationType === 'Meccan' ? 'Mekke' : 'Medine'} Dönemi`,
-                color: surah.revelationType === 'Meccan' ? 'amber' : 'emerald',
-                before: { title: "Dönem", text: period.desc },
-                revelation: { title: "Vahiy", text: "Ayetler bu dönemde topluma yol göstermek üzere nazil oldu." },
-                after: { title: "Etki", text: "Müslümanların inancını pekiştirdi." }
+            const sira = NUZUL_SIRASI[surah.number];
+            const medeni = sira ? sira >= 87 : surah.revelationType !== 'Meccan';
+            const period = (sira && SIYER_PERIODS_DATA.find(p => sira >= p.min && sira <= p.max)) || SIYER_PERIODS_DATA[medeni ? 3 : 1];
+            return {
+                title: `${medeni ? 'Medine' : 'Mekke'} Dönemi`,
+                color: medeni ? 'emerald' : 'amber',
+                before: { title: period.era, text: period.desc },
+                revelation: { title: "Nüzul sırası", text: sira ? `Yaygın nüzul tertibine göre ${sira}. sırada inmiştir (${medeni ? 'Medenî' : 'Mekkî'} sure). Bu sıralama rivayetlere dayanır; kesin değildir.` : `${medeni ? 'Medenî' : 'Mekkî'} sure.` },
+                after: { title: "Okurken", text: medeni ? "Ayetleri, Medine'de kurulan toplumun ihtiyaçları ve yaşanan olaylar bağlamında düşünmek anlamayı kolaylaştırır." : "Ayetleri, Mekke'de iman edenlerin yaşadığı zorluklar ve tevhid daveti bağlamında düşünmek anlamayı kolaylaştırır." }
             };
         };
 
         const DETAILED_CONTEXTS = {
-            "19:1": { title: "Habeşistan Diplomasisi", color: "indigo", before: { title: "Zulmün Zirvesi", text: "Mekke'de işkence dayanılmaz hale gelmişti." }, revelation: { title: "Stratejik Vahiy", text: "Meryem Suresi, Hristiyan bir kralın karşısına çıkacak Müslümanlar için indi." }, after: { title: "Kralın Gözyaşları", text: "Necaşi bu sureyi dinleyince ağladı ve Müslümanları teslim etmedi." } },
-            "93:1": { title: "Fetret Dönemi", color: "amber", before: { title: "Vahyin Kesilmesi", text: "Müşrikler 'Rabbi ona küstü' diyerek alay ediyordu." }, revelation: { title: "İlahî Cevap", text: "Rabbin seni terk etmedi ve darılmadı." }, after: { title: "Tekbir Sünneti", text: "Peygamberimiz sevincinden tekbir getirdi." } },
-            "80:1": { title: "Ama Sahabe ve İkaz", color: "rose", before: { title: "Tebliğ Anı", text: "Peygamberimiz Mekke liderlerine İslam'ı anlatıyordu." }, revelation: { title: "Abese (Yüzünü Ekşitti)", text: "Görmeyen Abdullah gelince yüzünü ekşittiği için uyarıldı." }, after: { title: "İkram", text: "Peygamberimiz ona hep iltifat etti." } },
-            "111:1": { title: "Ebu Leheb", color: "slate", before: { title: "Safa Tepesi", text: "Peygamberimiz akrabalarını uyardı." }, revelation: { title: "Beddua", text: "Ebu Leheb 'Tebben lek' (Elin kurusun) deyince bu sure indi." }, after: { title: "Mucize", text: "Ebu Leheb iman etmeden feci şekilde öldü." } }
+            "19:1": { title: "Meryem Suresi ve Habeşistan", color: "indigo", before: { title: "Habeşistan'a hicret", text: "Mekke'deki baskılar artınca bir grup Müslüman, Peygamberimizin izniyle Habeşistan'a hicret etti." }, revelation: { title: "Necâşî'nin huzurunda", text: "Kureyş elçileri onları geri istediğinde Ca'fer b. Ebû Tâlib, Necâşî'nin huzurunda Meryem Suresi'nin baş kısmını okudu." }, after: { title: "Necâşî'nin cevabı", text: "Necâşî ağladı ve Müslümanları Kureyş'e teslim etmedi. (Ahmed b. Hanbel, Müsned, 1/201-203; İbn Hişâm, Sîret)" } },
+            "93:1": { title: "Vahyin Ara Vermesi", color: "amber", before: { title: "Vahiy bir süre gelmedi", text: "Vahiy bir süre gelmeyince müşrik bir kadın \"Umarım şeytanın seni bırakmıştır\" diyerek alay etti. (Buhârî, Tefsîr, 93)" }, revelation: { title: "Teselli", text: "\"Rabbin seni bırakmadı ve sana darılmadı.\" (Duhâ, 3)" }, after: { title: "Mesaj", text: "Sure, geçmişteki ilahi lütufları hatırlatarak teselli eder; yetime ve muhtaca iyiliği emreder. (Duhâ, 6-11)" } },
+            "80:1": { title: "Abdullah b. Ümmü Mektûm", color: "rose", before: { title: "Tebliğ anı", text: "Peygamberimiz Kureyş'in ileri gelenlerine İslam'ı anlatırken görme engelli sahabi Abdullah b. Ümmü Mektûm soru sormak için geldi." }, revelation: { title: "Uyarı", text: "Peygamberimizin ona yüzünü ekşitip ilgilenmemesi üzerine ayetler indi. (Tirmizî, Tefsîr, 80)" }, after: { title: "Sonrası", text: "Peygamberimiz ona değer verdi; seferlere çıkarken birkaç kez Medine'de yerine vekil bıraktı. (Ebû Dâvûd, Harâc, 3)" } },
+            "111:1": { title: "Ebû Leheb", color: "slate", before: { title: "Safâ tepesi", text: "Peygamberimiz Safâ tepesine çıkıp Kureyş'i topladı ve onları uyardı." }, revelation: { title: "Surenin inişi", text: "Ebû Leheb \"Yazıklar olsun sana! Bizi bunun için mi topladın?\" deyince bu sure indi. (Buhârî, Tefsîr, 111)" }, after: { title: "Haber gerçekleşti", text: "Sure, Ebû Leheb'in akıbetini haber verdi; o da Bedir'den kısa süre sonra iman etmeden öldü." } }
         };
 
         // --- COMPONENTS ---
@@ -2657,23 +2730,50 @@ Kullanıcının isteği: `;
             );
         };
 
+        // 🛠️ Yalnız uygulama sahibinin (Barış) kullandığı, şifre isteyen kartlar burada durur.
+        // Kullanıcılar bildirim ve yapay zekâ için ŞİFRE GİRMEZ; bu bölüm varsayılan olarak kapalıdır.
+        const sahipMi = () => { try { return localStorage.getItem('zirve_sahip') === '1'; } catch(e){ return false; } };
+        const SahipBolumu = ({ children, not }) => {
+            const [acik, setAcik] = React.useState(sahipMi);
+            const ayarla = (v) => { try { v ? localStorage.setItem('zirve_sahip', '1') : localStorage.removeItem('zirve_sahip'); } catch(e){} setAcik(v); window.dispatchEvent(new Event('zirve-sahip')); };
+            if (!acik) return (
+                <button onClick={() => ayarla(true)} className="w-full text-[11px] text-slate-500 hover:text-slate-300 py-2 underline underline-offset-4 decoration-dotted">🛠️ Uygulama sahibi ayarları (yalnız yönetici için)</button>
+            );
+            return (
+                <div className="rounded-2xl border border-dashed border-slate-600 p-3 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                        <p className="text-[11px] text-slate-400 leading-relaxed">🛠️ <b className="text-slate-200">Uygulama sahibi ayarları.</b> {not || 'Kullanıcıların burada bir şey yapmasına gerek yok; her şey onlar için kendiliğinden çalışır.'}</p>
+                        <button onClick={() => ayarla(false)} className="shrink-0 text-[11px] font-bold text-slate-300 bg-slate-800 border border-slate-700 rounded-lg px-2.5 min-h-[32px]">Gizle</button>
+                    </div>
+                    {children}
+                </div>
+            );
+        };
+
         const BildirimKarti = ({ showToast }) => {
             const ZB = window.ZBILDIRIM;
             const [d, setD] = React.useState(null);
             const [acik, setAcik] = React.useState(() => !!(ZB && ZB.acikMi()));
             const [mesgul, setMesgul] = React.useState('');
             const [mesaj, setMesaj] = React.useState(null);
-            const yenile = async () => { if (!ZB) return; try { setD(await ZB.durum()); } catch (e) {} };
-            React.useEffect(() => { yenile(); }, []);
+            const yenile = async () => {
+                if (!ZB) return;
+                try {
+                    const [x, sw, aktif] = await Promise.all([ZB.durum(), ZB.swDosya ? ZB.swDosya() : Promise.resolve(null), ZB.swAktif ? ZB.swAktif() : Promise.resolve(false)]);
+                    setD({ ...x, sw, swAktif: aktif, hat: ZB.hBilgi ? ZB.hBilgi() : null });
+                } catch (e) {}
+            };
+            React.useEffect(() => { yenile(); const f = () => yenile(); window.addEventListener('zirve-sahip', f); return () => window.removeEventListener('zirve-sahip', f); }, []);
             if (!ZB) return null;
             // İzin penceresi için ZB.ac() dokunuşun içinde, beklemeden çağrılır
             const ac = async () => {
                 setMesaj(null); setMesgul('ac');
-                try { await ZB.ac(); setAcik(true); showToast && showToast('🔔 Bildirimler açıldı'); setMesaj({ tip: 'ok', metin: '✅ Bu cihaz kaydedildi. "🧪 Bana dene" ile kontrol edebilirsin.' }); }
+                try { await ZB.ac(); setAcik(true); window.dispatchEvent(new Event('zirve-bildirim')); showToast && showToast('🔔 Bildirimler açıldı'); setMesaj({ tip: 'ok', metin: '✅ Bu cihaz kaydedildi. Aşağıdan hangi bildirimlerin geleceğini seç; "🧪 Bana dene" ile kontrol edebilirsin.' });
+                    try { const ilk = Object.keys(ZB.konular()).length === 0; if (ilk && await ZB.kanalDestek()) { for (const k of KONU_KATALOG.filter(x => x.varsayilan)) await ZB.konuAyarla(k.uyg, true); window.dispatchEvent(new Event('zirve-konu')); } } catch (x) {} }
                 catch (e) { setMesaj({ tip: 'hata', metin: e.message }); }
                 setMesgul(''); yenile();
             };
-            const kapat = async () => { setMesgul('kapat'); await ZB.kapat(); setAcik(false); setMesgul(''); setMesaj({ tip: 'ok', metin: '🔕 Bildirimler bu cihazda kapatıldı.' }); yenile(); };
+            const kapat = async () => { setMesgul('kapat'); await ZB.kapat(); setAcik(false); window.dispatchEvent(new Event('zirve-bildirim')); setMesgul(''); setMesaj({ tip: 'ok', metin: '🔕 Bildirimler bu cihazda kapatıldı.' }); yenile(); };
             const kaydet = async () => {
                 setMesaj(null); setMesgul('kaydet');
                 try { await ZB.aboneOl(); setAcik(true); setMesaj({ tip: 'ok', metin: '📲 Bu cihaz kasaya kaydedildi.' }); }
@@ -2682,7 +2782,10 @@ Kullanıcının isteği: `;
             };
             const dene = async () => {
                 setMesaj(null); setMesgul('dene');
-                try { const r = await ZB.dene(); const n = [r.gonderilen, r.gonderildi, r.sayi, r.hedef].find(v => typeof v === 'number'); setMesaj({ tip: 'ok', metin: `🧪 Deneme gönderildi${typeof n === 'number' ? ` (${n} cihaza)` : ''} — birkaç saniye içinde bildirim gelmeli.` }); }
+                try { const r = await ZB.dene(); const n = [r.gonderilen, r.gonderildi, r.sayi, r.hedef, r.basarili].find(v => typeof v === 'number');
+                    if (n === 0) { setMesaj({ tip: 'hata', metin: '⛔ Kasa bu cihazı bulamadı (0 cihaza gönderildi). Önce "📲 Bu cihazı kaydet"e bas, sonra tekrar dene.' }); setMesgul(''); yenile(); return; }
+                    setMesaj({ tip: 'ok', metin: `🧪 Deneme gönderildi${typeof n === 'number' ? ` (${n} cihaza)` : ''}. Şimdi uygulamadan çıkıp ana ekrana dön; bildirim genellikle 5-30 saniye içinde gelir. Gelmezse telefonun Ayarlar → Bildirimler bölümünde "Kur'an ve Siyer Atlası" için izin açık mı, Odak/Rahatsız Etme kapalı mı kontrol et.` }); setMesgul(''); return;
+                    }
                 catch (e) { setMesaj({ tip: 'hata', metin: '⛔ ' + e.message }); }
                 setMesgul('');
             };
@@ -2690,7 +2793,7 @@ Kullanıcının isteği: `;
             const k = d && d.kasa;
             return (
                 <>
-                    <AyarKart ikon="🔔" baslik="Bildirimler" aciklama="Günlük ayet, Cuma ve akşam Kur'an saati gibi hatırlatmalar telefonuna bildirim olarak gelir.">
+                    <AyarKart ikon="🔔" baslik="Bildirimler" aciklama="Sabah ayeti, Cuma ve akşam Kur'an saati hatırlatmaları telefonuna bildirim olarak gelir. Tek yapman gereken aşağıdaki düğmeye dokunmak; şifre gerekmez.">
                         {acik
                             ? <button onClick={kapat} disabled={!!mesgul} className={`${ayarBtn()} w-full py-3.5 text-sm`}>🔕 Bildirimleri kapat</button>
                             : <button onClick={ac} disabled={!!mesgul} className="w-full py-3.5 rounded-2xl text-sm font-extrabold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 shadow-lg shadow-emerald-500/20 disabled:opacity-60">{mesgul === 'ac' ? 'Açılıyor…' : '🔔 Bildirimleri aç'}</button>}
@@ -2698,15 +2801,33 @@ Kullanıcının isteği: `;
                         {!ZB.https() && <p className="text-[11px] text-amber-300/90 mt-1.5">ℹ️ Bildirimler yalnız https adresinde (GitHub Pages) çalışır; bu önizlemede kapalıdır.</p>}
                         <Mesaj m={mesaj} />
                     </AyarKart>
-                    <AyarKart ikon="📶" baslik="Bildirim durumu" aciklama="Bu cihazın bildirim almaya hazır olup olmadığı.">
-                        <div className="rounded-xl bg-black/25 border border-slate-700/70 px-3 py-1">
-                            <DurumSatir ok={d ? d.destek : false} etiket="Tarayıcı desteği" />
-                            <DurumSatir ok={d && d.izin === 'granted'} etiket="Bildirim izni" deger={d ? izinMetin[d.izin] || d.izin : '…'} />
-                            <DurumSatir ok={d ? (d.standalone || !d.ios) : false} notr={d && !d.ios} etiket="Ana ekrandan açıldı" deger={d ? (d.standalone ? '✅' : (d.ios ? '⛔ (iPhone için gerekli)' : 'gerekmez')) : '…'} />
-                            <DurumSatir ok={d ? d.abone : false} etiket="Abonelik" />
-                            <DurumSatir ok={d ? d.kayitli : false} etiket="Kasada kayıt" deger={d ? (d.kayitli ? '✅' : (d.hata ? '⛔ ' + d.hata : '⛔')) : '…'} />
-                            {k && typeof k.toplam === 'number' && <DurumSatir notr etiket="Bu uygulamada kayıtlı cihaz" deger={`${k.toplam}`} />}
-                        </div>
+                    <AyarKart ikon="📶" baslik="Bildirim durumu" aciklama="Bildirimin gelmesi için aşağıdaki adımların hepsi ✅ olmalı. ⛔ olan ilk adım sorunun yeridir.">
+                        {(() => {
+                            if (!d) return <p className="text-[12px] text-slate-400">Denetleniyor…</p>;
+                            const adimlar = [
+                                { ok: d.https, ad: 'Güvenli adres (https)', cozum: 'Uygulamayı GitHub Pages adresinden (https://…) aç.' },
+                                { ok: d.sw ? d.sw.var : false, ad: 'sw.js dosyası bulundu', cozum: "GitHub'da index.html ile AYNI klasöre sw.js dosyasını yükle." },
+                                { ok: d.sw ? d.sw.push : false, ad: 'sw.js bildirim dinliyor', cozum: "Klasördeki sw.js eski ya da farklı; bu uygulamayla gelen sw.js'i yükle." },
+                                ...(d.ios ? [{ ok: d.standalone, ad: 'Ana ekrandaki simgeden açıldı', cozum: "iPhone'da bildirim yalnız ana ekrana eklenmiş uygulamada çalışır: Safari → Paylaş (□↑) → Ana Ekrana Ekle, sonra o simgeden aç." }] : []),
+                                { ok: d.izin === 'granted', ad: 'Bildirim izni', deger: izinMetin[d.izin] || d.izin, cozum: d.izin === 'denied' ? "İzin reddedilmiş: telefon Ayarlar → Bildirimler → Kur'an ve Siyer Atlası → İzin Ver'i aç." : 'Yukarıdaki "🔔 Bildirimleri aç" düğmesine dokun.' },
+                                { ok: d.swAktif, ad: 'Servis çalışanı etkin', cozum: 'Uygulamayı kapatıp yeniden aç; sorun sürerse sw.js dosyasını kontrol et.' },
+                                { ok: d.abone, ad: 'Bu cihazın aboneliği', cozum: '"📲 Bu cihazı kaydet"e dokun.' },
+                                { ok: d.kayitli, ad: 'Kasada kayıtlı', deger: d.kayitli ? '✅' : (d.hata ? '⛔ ' + d.hata : '⛔'), cozum: '"📲 Bu cihazı kaydet"e dokun.' },
+                                ...(sahipMi() ? [{ ok: !!(d.hat && d.hat.sayi > 0), ad: 'Hatırlatmalar kasaya kurulu (sahip)', deger: d.hat ? (d.hat.sayi > 0 ? `✅ ${d.hat.sayi} (${new Date(d.hat.t).toLocaleDateString('tr-TR')})` : '⛔ 0') : '❔ bu cihazdan kurulmadı', cozum: 'Aşağıdaki ⏰ Hatırlatmalar kartında şifreni yazıp "⭐ Hazır bildirim kanallarını kur"a bir kez dokun. Kurulmadan kanallardan kimseye bildirim gitmez.', yumusak: !d.hat }] : [])
+                            ];
+                            const ilk = adimlar.find(a => !a.ok && !a.yumusak) || adimlar.find(a => !a.ok);
+                            return (
+                                <>
+                                    <div className="rounded-xl bg-black/25 border border-slate-700/70 px-3 py-1">
+                                        {adimlar.map((a, i) => <DurumSatir key={i} ok={a.ok} notr={a.yumusak && !a.ok} etiket={`${i + 1}. ${a.ad}`} deger={a.deger} />)}
+                                        {k && typeof k.toplam === 'number' && <DurumSatir notr etiket="Bu uygulamada kayıtlı cihaz" deger={`${k.toplam}`} />}
+                                    </div>
+                                    <p className={`text-[12px] mt-2 rounded-lg px-3 py-2 leading-relaxed ${ilk ? 'bg-amber-500/10 text-amber-100 border border-amber-500/25' : 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/25'}`}>
+                                        {ilk ? <>🔧 <b>Yapılacak:</b> {ilk.cozum}</> : '✅ Her şey hazır. "🧪 Bana dene" ile deneyebilirsin.'}
+                                    </p>
+                                </>
+                            );
+                        })()}
                         <div className="grid grid-cols-3 gap-2 mt-2.5">
                             <button onClick={kaydet} disabled={!!mesgul} className={ayarBtn()}>{mesgul === 'kaydet' ? '…' : '📲 Bu cihazı kaydet'}</button>
                             <button onClick={dene} disabled={!!mesgul} className={ayarBtn()}>{mesgul === 'dene' ? '…' : '🧪 Bana dene'}</button>
@@ -2714,6 +2835,130 @@ Kullanıcının isteği: `;
                         </div>
                     </AyarKart>
                 </>
+            );
+        };
+
+        // ===== 📬 HAZIR BİLDİRİM KANALLARI — kullanıcı istediğini şifresiz açar/kapatır =====
+        // Ayet mealleri Diyanet Vakfı mealine dayanır; "…" ayetin bir bölümü alındığını gösterir.
+        const BILDIRIM_AYETLERI = [
+            { s: 2, a: 152, t: "Beni anın ki ben de sizi anayım. Bana şükredin, nankörlük etmeyin." },
+            { s: 2, a: 186, t: "Kullarım sana beni sorarlarsa, (bilsinler ki) ben onlara çok yakınım. Bana dua edince dua edenin duasına cevap veririm. …" },
+            { s: 2, a: 153, t: "Ey iman edenler! Sabır ve namaz ile (Allah'tan) yardım dileyin. Şüphesiz Allah sabredenlerle beraberdir." },
+            { s: 2, a: 286, t: "Allah hiçbir kimseye gücünün yeteceğinden fazlasını yüklemez. …" },
+            { s: 3, a: 139, t: "Gevşemeyin, hüzünlenmeyin. Eğer (gerçekten) iman etmiş kimselerseniz üstün olan sizlersiniz." },
+            { s: 13, a: 28, t: "… Bilesiniz ki kalpler ancak Allah'ı anmakla huzur bulur." },
+            { s: 94, a: 5, t: "Demek ki zorlukla beraber bir kolaylık vardır." },
+            { s: 65, a: 3, t: "… Kim Allah'a tevekkül ederse, O kendisine yeter. …" },
+            { s: 39, a: 53, t: "De ki: Ey kendi nefisleri aleyhine haddi aşan kullarım! Allah'ın rahmetinden ümit kesmeyin. …" },
+            { s: 50, a: 16, t: "… Biz ona şah damarından daha yakınız." },
+            { s: 20, a: 114, t: "… \"Rabbim! İlmimi artır\" de." },
+            { s: 49, a: 13, t: "… Allah katında en değerli olanınız, O'na karşı gelmekten en çok sakınanınızdır. …" },
+            { s: 3, a: 159, t: "… Bir işe azmettiğin zaman da artık Allah'a tevekkül et. …" },
+            { s: 1, a: 5, t: "(Rabbimiz!) Yalnız sana ibadet eder ve yalnız senden yardım dileriz." },
+            { s: 33, a: 41, t: "Ey iman edenler! Allah'ı çokça zikredin." },
+            { s: 29, a: 69, t: "Bizim uğrumuzda cihad edenleri elbette yollarımıza ileteceğiz. Şüphesiz Allah iyilik yapanlarla beraberdir." },
+            { s: 93, a: 5, t: "Şüphesiz Rabbin sana verecek, sen de razı olacaksın." },
+            { s: 8, a: 46, t: "… Sabredin. Çünkü Allah sabredenlerle beraberdir." },
+            { s: 16, a: 128, t: "Şüphesiz Allah, kendisine karşı gelmekten sakınanlarla ve iyilik yapanlarla beraberdir." },
+            { s: 17, a: 23, t: "Rabbin, kendisinden başkasına asla ibadet etmemenizi, anaya babaya iyi davranmanızı kesin olarak emretti. …" },
+            { s: 51, a: 56, t: "Ben cinleri ve insanları ancak bana ibadet etsinler diye yarattım." }
+        ];
+        const BILDIRIM_HADISLERI = [
+            { t: "Ameller ancak niyetlere göredir.", k: "Buhârî, Bed'ü'l-vahy, 1; Müslim, İmâre, 155" },
+            { t: "Kolaylaştırınız, zorlaştırmayınız. Müjdeleyiniz, nefret ettirmeyiniz.", k: "Buhârî, İlim, 11" },
+            { t: "Sizin en hayırlınız Kur'an'ı öğrenen ve öğretendir.", k: "Buhârî, Fedâilü'l-Kur'ân, 21" },
+            { t: "Müslüman, dilinden ve elinden Müslümanların güvende olduğu kimsedir.", k: "Buhârî, Îmân, 4" },
+            { t: "Sizden biri kendisi için istediğini kardeşi için de istemedikçe (gerçek anlamda) iman etmiş olmaz.", k: "Buhârî, Îmân, 7; Müslim, Îmân, 71" },
+            { t: "Allah'a ve ahiret gününe iman eden ya hayır söylesin ya da sussun.", k: "Buhârî, Edeb, 31; Müslim, Îmân, 74" },
+            { t: "Temizlik imanın yarısıdır.", k: "Müslim, Tahâret, 1" },
+            { t: "Kardeşine tebessüm etmen sadakadır.", k: "Tirmizî, Birr, 36" },
+            { t: "Merhamet etmeyene merhamet olunmaz.", k: "Buhârî, Edeb, 18; Müslim, Fezâil, 65" },
+            { t: "Güçlü kimse güreşte rakibini yenen değil, öfke anında kendine hâkim olandır.", k: "Buhârî, Edeb, 76; Müslim, Birr, 107" },
+            { t: "Allah sizin suretlerinize ve mallarınıza bakmaz; kalplerinize ve amellerinize bakar.", k: "Müslim, Birr, 34" },
+            { t: "Amellerin Allah katında en sevimlisi, az da olsa devamlı olanıdır.", k: "Buhârî, Rikak, 18; Müslim, Müsâfirîn, 218" },
+            { t: "Din nasihattir (samimiyettir).", k: "Müslim, Îmân, 95" },
+            { t: "Kim bir hayra vesile olursa, onu yapanın sevabı kadar sevap alır.", k: "Müslim, İmâre, 133" },
+            { t: "Güzel söz sadakadır.", k: "Buhârî, Cihâd, 128; Müslim, Zekât, 56" },
+            { t: "İnsanlara teşekkür etmeyen Allah'a şükretmiş olmaz.", k: "Tirmizî, Birr, 35; Ebû Dâvûd, Edeb, 11" },
+            { t: "Yumuşak huydan mahrum olan, iyilikten de mahrum olur.", k: "Müslim, Birr, 74" },
+            { t: "Sizin en hayırlınız, ahlakı en güzel olanınızdır.", k: "Buhârî, Edeb, 38" }
+        ];
+        const BILDIRIM_ESMA = [
+            { n: "Er-Rahmân", d: "Dünyada bütün mahlûkata merhamet eden." },
+            { n: "Er-Rezzâk", d: "Bütün canlıların rızkını veren." },
+            { n: "El-Vedûd", d: "Kullarını çok seven, sevilmeye en lâyık olan." },
+            { n: "El-Fettâh", d: "Her türlü sıkıntıyı açan ve kolaylaştıran." },
+            { n: "El-Gafûr", d: "Bağışlaması çok olan." },
+            { n: "Es-Sabûr", d: "Çok sabırlı olan, cezalandırmada acele etmeyen." },
+            { n: "El-Latîf", d: "Kullarına sezilmez yollardan iyilikler ulaştıran." }
+        ];
+        const BAS = (x) => `📖 Kur'an ve Siyer Atlası · ${x}`;
+        const KONU_KATALOG = [
+            { uyg: 'kssabah', ikon: '🌅', ad: 'Sabah ayeti', zaman: 'Her gün 07:00', varsayilan: true,
+              liste: () => [0,1,2,3,4,5,6].map(g => { const v = BILDIRIM_AYETLERI[g % BILDIRIM_AYETLERI.length]; return { id: 'sabah-' + g, saat: '07:00', gunler: [g], baslik: BAS('Sabah ayeti'), govde: `${v.t} (${getTurkishName(v.s)}, ${v.a})`, bolum: `sure-${v.s}-${v.a}` }; }) },
+            { uyg: 'kssaatayet', ikon: '⏰', ad: 'Saat başı bir ayet', zaman: 'Her gün 09:00–21:00, saat başı',
+              liste: () => { const r = []; for (let g = 0; g < 7; g++) for (let i = 0; i < 13; i++) { const v = BILDIRIM_AYETLERI[(g * 13 + i) % BILDIRIM_AYETLERI.length]; r.push({ id: `sa-${g}-${i}`, saat: String(9 + i).padStart(2, '0') + ':00', gunler: [g], baslik: BAS('Saatin ayeti'), govde: `${v.t} (${getTurkishName(v.s)}, ${v.a})`, bolum: `sure-${v.s}-${v.a}` }); } return r; } },
+            { uyg: 'kssaathadis', ikon: '📜', ad: 'Saat başı bir hadis', zaman: 'Her gün 09:30–21:30, saat başı',
+              liste: () => { const r = []; for (let g = 0; g < 7; g++) for (let i = 0; i < 13; i++) { const v = BILDIRIM_HADISLERI[(g * 13 + i) % BILDIRIM_HADISLERI.length]; r.push({ id: `sh-${g}-${i}`, saat: String(9 + i).padStart(2, '0') + ':30', gunler: [g], baslik: BAS('Saatin hadisi'), govde: `"${v.t}" (${v.k})`, bolum: 'anasayfa' }); } return r; } },
+            { uyg: 'ksesma', ikon: '✨', ad: "Günün Esmâ'sı", zaman: 'Her gün 08:30',
+              liste: () => [0,1,2,3,4,5,6].map(g => { const e = BILDIRIM_ESMA[g]; return { id: 'esma-' + g, saat: '08:30', gunler: [g], baslik: BAS("Günün Esmâ'sı"), govde: `${e.n}: ${e.d}`, bolum: 'anasayfa' }; }) },
+            { uyg: 'ksogle', ikon: '☀️', ad: 'Öğle tefekkürü', zaman: 'Hafta içi 13:00',
+              liste: () => [{ id: 'ogle', saat: '13:00', gunler: [1,2,3,4,5], baslik: BAS('Öğle tefekkürü'), govde: 'Beş dakikalık mola: bir ayet oku, bir cümlesini gün boyu aklında tut.', bolum: 'kaldigim' }] },
+            { uyg: 'kscuma', ikon: '🕌', ad: 'Cuma ve Kehf Suresi', zaman: 'Cuma 12:30', varsayilan: true,
+              liste: () => [{ id: 'cuma', saat: '12:30', gunler: [5], baslik: BAS('Hayırlı Cumalar'), govde: "Cuman mübarek olsun. Bugün Kehf Suresi'ni okumayı unutma.", bolum: 'sure-18' }] },
+            { uyg: 'ksaksam', ikon: '🌙', ad: "Akşam Kur'an saati", zaman: 'Her gün 21:00', varsayilan: true,
+              liste: () => [{ id: 'aksam', saat: '21:00', gunler: [], baslik: BAS("Akşam Kur'an saati"), govde: 'Yatmadan önce birkaç ayet oku. Mülk Suresi güzel bir kapanıştır.', bolum: 'sure-67' }] },
+            { uyg: 'kshatim', ikon: '📿', ad: 'Haftalık hatim', zaman: 'Pazar 10:00',
+              liste: () => [{ id: 'hatim', saat: '10:00', gunler: [0], baslik: BAS('Haftalık hatim'), govde: 'Hatim planına göz at: bu hafta hangi cüzdesin?', bolum: 'hatim' }] }
+        ];
+        const konuGirdileri = (k) => k.liste().map(x => ({ id: x.id, saat: x.saat, gunler: x.gunler, baslik: x.baslik, govde: x.govde, url: (window.ZBILDIRIM ? window.ZBILDIRIM.taban() : '') + '#' + x.bolum, hedef: { rol: ['kullanici'] }, aktif: true }));
+
+        // Kullanıcı: hangi bildirimler gelsin? (şifresiz)
+        const BildirimKonulari = ({ showToast }) => {
+            const ZB = window.ZBILDIRIM;
+            const [m, setM] = React.useState(() => (ZB ? ZB.konular() : {}));
+            const [, setTik] = React.useState(0);
+            React.useEffect(() => { const f = () => { setM(ZB ? ZB.konular() : {}); setTik(t => t + 1); try { setDestek(localStorage.getItem('zks_kanal_destek')); } catch(e){} }; ['zirve-konu', 'zirve-bildirim'].forEach(a => window.addEventListener(a, f)); return () => ['zirve-konu', 'zirve-bildirim'].forEach(a => window.removeEventListener(a, f)); }, []);
+            const [mesgul, setMesgul] = React.useState('');
+            const [mesaj, setMesaj] = React.useState(null);
+            const [destek, setDestek] = React.useState(() => { try { return localStorage.getItem('zks_kanal_destek'); } catch(e){ return null; } });
+            if (!ZB) return null;
+            const acikMi = (k) => (k.uyg in m) ? !!m[k.uyg] : false;
+            const izinVar = ZB.izin() === 'granted' && ZB.acikMi();
+            const ayarla = async (k, acik) => {
+                setMesaj(null); setMesgul(k.uyg);
+                try {
+                    const d = await ZB.kanalDestek();
+                    setDestek(d ? '1' : '0');
+                    if (!d) { setMesaj({ tip: 'hata', metin: '⛔ Kasa şu an bir cihazı yalnız tek kanala kaydedebiliyor; seçmeli bildirim için kasada küçük bir ekleme gerekiyor. Uygulamanın sahibine haber ver. Sahibin kurduğu genel hatırlatmalar yine gelir.' }); setMesgul(''); return; }
+                    await ZB.konuAyarla(k.uyg, acik);
+                    setM(ZB.konular());
+                    showToast && showToast(acik ? `${k.ikon} ${k.ad} açıldı` : `${k.ad} kapatıldı`);
+                } catch (e) { setMesaj({ tip: 'hata', metin: '⛔ ' + e.message }); }
+                setMesgul('');
+            };
+            return (
+                <AyarKart ikon="📬" baslik="Hangi bildirimler gelsin?" aciklama="İstediğini aç, istemediğini kapat. Şifre gerekmez; seçimin yalnız bu cihaz için geçerlidir.">
+                    {!izinVar && <p className="text-[12px] text-amber-200/90 bg-amber-500/10 border border-amber-500/25 rounded-lg px-3 py-2 mb-2">Önce yukarıdaki "🔔 Bildirimleri aç" düğmesine dokun; sonra buradan seç.</p>}
+                    {destek === '0' && <p className="text-[12px] text-rose-200 bg-rose-500/10 border border-rose-500/25 rounded-lg px-3 py-2 mb-2">Kasa seçmeli bildirimi henüz desteklemiyor; genel hatırlatmalar gelir.</p>}
+                    <div className="space-y-2">
+                        {KONU_KATALOG.map(k => {
+                            const acik = acikMi(k);
+                            return (
+                                <div key={k.uyg} className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${acik ? 'bg-emerald-950/40 border-emerald-700/50' : 'bg-black/25 border-slate-700/70'}`}>
+                                    <span className="text-xl shrink-0">{k.ikon}</span>
+                                    <span className="flex-1 min-w-0"><span className="block text-sm font-bold text-slate-100">{k.ad}</span><span className="block text-[11px] text-slate-400">{k.zaman}</span></span>
+                                    <button onClick={() => ayarla(k, !acik)} disabled={!izinVar || !!mesgul} aria-pressed={acik} aria-label={`${k.ad} bildirimini ${acik ? 'kapat' : 'aç'}`}
+                                        className={`relative w-12 h-7 rounded-full transition-colors shrink-0 disabled:opacity-40 ${acik ? 'bg-emerald-500' : 'bg-slate-600'}`}>
+                                        {mesgul === k.uyg ? <span className="absolute inset-0 flex items-center justify-center text-[10px] text-white">…</span> : <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all ${acik ? 'left-6' : 'left-1'}`}></span>}
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-2">Saatler Türkiye saatidir. Bildirime dokununca ilgili ayet ya da bölüm açılır.</p>
+                    <Mesaj m={mesaj} />
+                </AyarKart>
             );
         };
 
@@ -2759,14 +3004,44 @@ Kullanıcının isteği: `;
                 catch (e) { setMesaj({ tip: 'hata', metin: '⛔ ' + e.message }); }
                 setMesgul('');
             };
+            const [kurIlerleme, setKurIlerleme] = React.useState('');
+            const onerilenleriKur = async () => {
+                const s = sifreAl(); if (!s) return;
+                setMesgul('kur'); setMesaj(null);
+                try {
+                    let n = 0;
+                    for (const k of KONU_KATALOG) {
+                        setKurIlerleme(`${++n}/${KONU_KATALOG.length} · ${k.ad}`);
+                        await ZB.hKaydet(s, konuGirdileri(k), k.uyg);
+                    }
+                    // Kasa bir cihazı birden çok kanala kaydedebiliyor mu? (sahibin kendi cihazından denetlenir)
+                    let destek = null; try { destek = await ZB.kanalDestek(); } catch (x) {}
+                    const r = await ZB.hListe(s);
+                    const mevcut = kasaListeBul(r).map(normal);
+                    let yeni;
+                    if (destek === true) yeni = mevcut.filter(x => !HAZIR_HATIRLATMALAR.some(hz => hz.id === x.id)); // temel hatırlatmalar artık kanallardan, isteyene
+                    else yeni = mevcut.concat(HAZIR_HATIRLATMALAR.filter(hz => !mevcut.some(x => x.id === hz.id)).map((x, i) => normal({ ...x, url: urlYap(x.bolum) }, i))); // güvence: herkese temel 5 hatırlatma
+                    await ZB.hKaydet(s, yeni);
+                    setListe(yeni); setYuklendi(true);
+                    try { localStorage.setItem('zks_hatirlatma', JSON.stringify({ sayi: KONU_KATALOG.length, t: Date.now(), katalog: true })); } catch(e){}
+                    setMesaj({ tip: destek === false ? 'hata' : 'ok', metin: destek === true
+                        ? `⭐ ${KONU_KATALOG.length} bildirim kanalı kuruldu ve kasa seçmeli bildirimi destekliyor. Kullanıcılar "📬 Hangi bildirimler gelsin?" kartından istediklerini şifresiz açar. Bunu bir daha yapman gerekmez.`
+                        : destek === false
+                        ? `⚠️ Kanallar kuruldu ama kasa bir cihazı yalnız tek kanala kaydediyor; seçmeli bildirim için kasada küçük bir ekleme gerekiyor. Şimdilik 5 temel hatırlatma (sabah, öğle, Cuma, akşam, hatim) bildirimi açık herkese gidiyor.`
+                        : `⭐ Kanallar kuruldu. Kasanın seçmeli bildirimi destekleyip desteklemediği bu cihazdan denetlenemedi (önce burada 🔔 Bildirimleri aç). O zamana kadar 5 temel hatırlatma herkese gidiyor; bildirimleri açıp bu düğmeye bir kez daha basarsan ayar tamamlanır.` });
+                    showToast && showToast('📬 Bildirim kanalları kuruldu');
+                } catch (e) { setMesaj({ tip: 'hata', metin: '⛔ ' + e.message }); }
+                setKurIlerleme(''); setMesgul('');
+            };
             const guncelle = (i, alan, deger) => setListe(l => l.map((x, j) => j === i ? { ...x, [alan]: deger } : x));
             const gunDegis = (i, g) => setListe(l => l.map((x, j) => { if (j !== i) return x; const v = x.gunler.includes(g) ? x.gunler.filter(y => y !== g) : [...x.gunler, g]; return { ...x, gunler: v.sort() }; }));
             const ekle = (h) => setListe(l => [...l, normal(h ? { ...h, url: urlYap(h.bolum) } : { saat: '08:00', gunler: [], baslik: "📖 Kur'an ve Siyer Atlası · ", govde: '', url: urlYap('kaldigim') }, l.length)]);
             const varMi = (id) => liste.some(x => x.id === id);
             return (
-                <AyarKart ikon="⏰" baslik="Hatırlatmalar" aciklama="Uygulamanın sahibi ayarlar; bu uygulamaya abone olan herkese seçilen saatte (Türkiye saati) bildirim gider. Kaydet, kasadaki listeyi tümüyle değiştirir — önce kasadan getir.">
+                <AyarKart ikon="⏰" baslik="Hatırlatmalar" aciklama="1) ⭐ ile hazır kanalları bir kez kur: kullanıcılar sabah ayeti, saat başı ayet/hadis, Esmâ, Cuma, akşam, hatim kanallarından istediklerini kendileri açar. 2) Aşağıdaki liste ise bildirimi açık HERKESE giden genel duyurulardır (isteğe bağlı).">
                     <input type="password" value={sifre} onChange={e => setSifre(e.target.value)} placeholder="🔒 Kasa şifresi" autoComplete="off" className="w-full p-2.5 rounded-xl bg-black/30 border border-slate-700 text-sm text-white outline-none focus:border-emerald-500" />
-                    <button onClick={getir} disabled={!!mesgul} className={`${ayarBtn()} w-full mt-2`}>{mesgul === 'getir' ? 'Getiriliyor…' : '📥 Kasadan getir'}</button>
+                    <button onClick={onerilenleriKur} disabled={!!mesgul} className={`${ayarBtn('ana')} w-full mt-2 py-3`}>{mesgul === 'kur' ? `Kuruluyor… ${kurIlerleme}` : '⭐ Hazır bildirim kanallarını kur (tek seferlik)'}</button>
+                    <button onClick={getir} disabled={!!mesgul} className={`${ayarBtn()} w-full mt-2`}>{mesgul === 'getir' ? 'Getiriliyor…' : '📥 Kasadan getir (düzenlemek için)'}</button>
 
                     <p className="text-[11px] font-bold text-slate-400 mt-3 mb-1.5">Hazır öneriler — tek dokunuşla ekle</p>
                     <div className="flex flex-wrap gap-1.5">
@@ -2835,7 +3110,7 @@ Kullanıcının isteği: `;
                 setYz(d); try { sessionStorage.setItem('zirve_yz_durum', JSON.stringify(d)); } catch(e){}
                 return d;
             };
-            React.useEffect(() => { yzBak(false); }, []);
+            React.useEffect(() => { yzBak(false); const f = () => setBil(!!(ZB && ZB.acikMi())); window.addEventListener('zirve-bildirim', f); return () => window.removeEventListener('zirve-bildirim', f); }, []);
             const yzTikla = async () => {
                 sekmeSec('yz'); setMesgul(true);
                 let d = await yzBak(true);
@@ -3283,7 +3558,9 @@ Kullanıcının isteği: `;
                                 <label className="text-xs font-bold text-emerald-400 mb-2 block">Yapay Zeka Modeli</label>
                                 <input type="text" value={tempModel} onChange={(e) => setTempModel(e.target.value)} className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none" placeholder="Örn: gemini-2.5-flash"/>
                             </div>
-                            <KasaKarti showToast={showToast} />
+                            <SahipBolumu not="Anahtarlar kasada ortaktır; kullanıcılar anahtar ya da şifre girmeden yapay zekâyı kullanır.">
+                                <KasaKarti showToast={showToast} />
+                            </SahipBolumu>
                         </div>
                         )}
 
@@ -3296,7 +3573,10 @@ Kullanıcının isteği: `;
                         {sekme === 'bildirim' && (
                         <div className="space-y-4 animate-fade-in">
                             <BildirimKarti showToast={showToast} />
-                            <HatirlatmaKarti showToast={showToast} />
+                            <BildirimKonulari showToast={showToast} />
+                            <SahipBolumu not="Hatırlatmaları SEN bir kez kurarsın; kasa onları bildirimi açık olan herkese kendisi gönderir. Kullanıcılar yalnız '🔔 Bildirimleri aç'a dokunur, şifre girmez.">
+                                <HatirlatmaKarti showToast={showToast} />
+                            </SahipBolumu>
                         </div>
                         )}
 
@@ -3339,8 +3619,10 @@ Kullanıcının isteği: `;
                     }
                 }
                 
-                if(surahNo > 0 && surahNo <= 114 && ayahNo > 0) {
-                     const selectedSurah = surahs?.find(s => s.number === surahNo) || {number: surahNo, revelationType: 'Meccan', numberOfAyahs: 286};
+                if(surahNo > 0 && surahNo <= 114 && ayahNo > AYET_SAYILARI[surahNo]) {
+                     showToast(`${getTurkishName(surahNo)} Suresi ${AYET_SAYILARI[surahNo]} ayettir. ${ayahNo}. ayet yok.`);
+                } else if(surahNo > 0 && surahNo <= 114 && ayahNo > 0) {
+                     const selectedSurah = surahs?.find(s => s.number === surahNo) || {number: surahNo, revelationType: (NUZUL_SIRASI[surahNo] >= 87 ? 'Medinan' : 'Meccan'), numberOfAyahs: AYET_SAYILARI[surahNo]};
                      setCurrentSurah(selectedSurah);
                      setView('surah');
                      sessionStorage.setItem('jumpToAyah', ayahNo);
@@ -3922,6 +4204,8 @@ JSON ŞEMASI:
             const [translation, setTranslation] = React.useState([]);
             const [detailLoading, setDetailLoading] = React.useState(true);
             const [remoteContexts, setRemoteContexts] = React.useState({});
+            // Yapay zekâya her zaman hangi ayet olduğunu kesin olarak bildir (ayet karışmasın)
+            const ayetBaglam = (a, meal) => `AYET KİMLİĞİ: ${trName} Suresi (${surah.number}. sure), ${a.numberInSurah}. ayet.\nARAPÇA: ${a.text}\nMEAL (${(MEAL_SOURCES.find(m => m.id === mealSource) || {}).name || mealSource}): ${meal}\nYalnızca bu ayet hakkında konuş; başka bir ayeti bu ayet sanma. Bu ayetin bilinen özel bir nüzul sebebi, hadisi veya rivayeti yoksa bunu açıkça söyle, uydurma.\n\n`;
             const [customPromptAyah, setCustomPromptAyah] = React.useState(null);
             
             const [focusMode, setFocusMode] = React.useState(false);
@@ -3975,7 +4259,7 @@ JSON ŞEMASI:
                         const dataAr = await arRes.json();
                         const dataTr = await trRes.json();
                         
-                        setAyahs(dataAr.data.ayahs);
+                        setAyahs((dataAr.data.ayahs || []).map(a => a.numberInSurah === 1 ? { ...a, text: besmeleAyir(a.text, surah.number, 1) } : a));
                         setTranslation(dataTr.data.ayahs);
                     } catch (e) {
                         console.error("Veri çekme hatası:", e);
@@ -4057,7 +4341,8 @@ JSON ŞEMASI:
                         <button onClick={() => setView('home')} className="p-2 rounded-full hover:bg-slate-800"><Icons.ChevronLeft size={24} /></button>
                         <div className="text-center flex-1">
                             <h2 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} title="Başa dön" className="text-lg font-bold font-serif text-emerald-400 cursor-pointer">{trName} Suresi</h2>
-                            <p className="text-[10px] opacity-60 uppercase tracking-widest">{surah.revelationType === 'Meccan' ? 'Mekke' : 'Medine'} • {surah.numberOfAyahs} Ayet</p>
+                            <p className="text-[10px] opacity-60 uppercase tracking-widest">{surah.number}. Sure • {surah.revelationType === 'Meccan' ? 'Mekke' : 'Medine'} • {surah.numberOfAyahs} Ayet</p>
+                            {SURE_ANLAMLARI[surah.number] && <p className="text-[11px] text-slate-400 italic">“{SURE_ANLAMLARI[surah.number]}”</p>}
                         </div>
                         <div className="flex gap-1">
                             <button onClick={() => { setEzberMode(!ezberMode); setAcikAyetler({}); }} className={`p-2 rounded-full transition-colors ${ezberMode ? 'bg-amber-500/20 text-amber-400' : 'hover:bg-slate-800 text-slate-300'}`} title="Ezber Modu (Arapçayı gizle, kendini sına)">
@@ -4095,6 +4380,15 @@ JSON ŞEMASI:
                     )}
 
                     <div className={`px-4 space-y-8 max-w-5xl mx-auto ${focusMode ? 'pt-6' : 'pt-2'}`}>
+                        {surah.number !== 1 && surah.number !== 9 && ayahs.length > 0 && (
+                            <div className="text-center pt-2" aria-label="Besmele">
+                                <p className={`${arabicFont} text-3xl md:text-4xl text-emerald-300 leading-loose`} dir="rtl">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+                                <p className="text-[12px] text-slate-400 mt-1">Rahmân ve Rahîm olan Allah'ın adıyla</p>
+                            </div>
+                        )}
+                        {surah.number === 9 && ayahs.length > 0 && (
+                            <p className="text-center text-[12px] text-slate-500 pt-2">Tevbe Suresi besmelesiz başlar.</p>
+                        )}
                         {ayahs.map((ayah, index) => {
                             const trText = translation[index] ? translation[index].text : "...";
                             const uid = `${surah.number}:${ayah.numberInSurah}`;
@@ -4170,6 +4464,9 @@ JSON ŞEMASI:
                                         </div>
                                         <div className="leading-relaxed font-serif text-slate-300 mb-6" style={{fontSize: `${fontSize}px`, fontFamily: mealFont || undefined, color: mealColor || undefined}}>
                                             <span style={isaretStili(ann)}><HighlightedText text={trText} highlight={highlightedSearch} /></span>
+                                            {trText !== '...' && ((translation[index - 1] && translation[index - 1].text === trText) || (translation[index + 1] && translation[index + 1].text === trText)) && (
+                                                <span className="block mt-1.5 text-[11px] not-italic font-sans text-slate-500">ℹ️ Bu meal, bu ayeti komşu ayetle birlikte çevirmiştir.</span>
+                                            )}
                                         </div>
 
                                         {markMenu === ayah.numberInSurah && (
@@ -4223,39 +4520,39 @@ JSON ŞEMASI:
                                                 <button onClick={() => setCustomPromptAyah({ ...ayah, trText })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-900/20 text-yellow-400 hover:bg-yellow-900/40 border border-yellow-500/30 shrink-0 transition-colors" title="Ayete Dair Soru Sor">
                                                     <Icons.HelpCircle size={14}/><span className="text-[10px] font-bold tracking-wider">AYETE SOR</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Aşağıdaki ayetin nüzul sebebini ve siyer bağlamını anlat: ${ayah.text}`, 'verse')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Siyer Analizi ve Nüzul Sebebi">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Aşağıdaki ayetin nüzul sebebini ve siyer bağlamını anlat: ${ayah.text}`, 'verse')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Siyer Analizi ve Nüzul Sebebi">
                                                     <Icons.Sparkles size={14}/><span className="text-[10px] font-bold tracking-wider">NÜZUL SEBEBİ</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Sen şefkatli, sıcak ve umut veren bir manevi rehber ve insan psikolojisini iyi bilen bir danışmansın. Aşağıdaki ayeti, ŞU AN hayatı zor olan, bunalmış, kaygılı, üzgün, tükenmiş ya da yalnız hisseden bir insanın gözünden ele al: "${trText}"\n\nSıcak, yargılamayan, umut dolu bir dille şunları yaz:\n- Bu ayet insanın iç dünyasına ne söyler; hangi duyguya şifa olur (kaygı, korku, yalnızlık, ümitsizlik, öfke, tükenmişlik gibi).\n- Ayetin hayata somut, pratik katkısı ne olabilir; bugün zorlanan biri bundan nasıl güç ve teselli alabilir.\n- Kısa, uygulanabilir 2-3 nazik manevi/psikolojik öneri (şükür, dua, sabır, tevekkül, küçük bir adım gibi).\n- Sonunda kısa ve içten bir teselli cümlesi.\n\nÖNEMLİ: Tıbbi teşhis/tanı koyma. Kişi ağır ve süregelen bir sıkıntı yaşıyorsa (derin çökkünlük, kendine zarar verme düşüncesi vb.), yazının uygun bir yerinde nazikçe; bu duyguların ciddiye alınması gerektiğini, güvendiği birine açılmanın ve bir uzmandan (psikolog/hekim) destek almanın çok değerli olduğunu, bu uygulamanın profesyonel yardımın yerini tutmadığını hatırlat. Umut kırıcı olma, kimseyi suçlama.`, 'sifa')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-green-400 hover:bg-slate-700 border border-green-500/40 shrink-0 transition-colors shadow-[0_0_10px_rgba(34,197,94,0.15)]" title="Bu ayet bunalımdaki insana ne katar? (psikolojik/manevi fayda)">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Sen şefkatli, sıcak ve umut veren bir manevi rehber ve insan psikolojisini iyi bilen bir danışmansın. Aşağıdaki ayeti, ŞU AN hayatı zor olan, bunalmış, kaygılı, üzgün, tükenmiş ya da yalnız hisseden bir insanın gözünden ele al: "${trText}"\n\nSıcak, yargılamayan, umut dolu bir dille şunları yaz:\n- Bu ayet insanın iç dünyasına ne söyler; hangi duyguya şifa olur (kaygı, korku, yalnızlık, ümitsizlik, öfke, tükenmişlik gibi).\n- Ayetin hayata somut, pratik katkısı ne olabilir; bugün zorlanan biri bundan nasıl güç ve teselli alabilir.\n- Kısa, uygulanabilir 2-3 nazik manevi/psikolojik öneri (şükür, dua, sabır, tevekkül, küçük bir adım gibi).\n- Sonunda kısa ve içten bir teselli cümlesi.\n\nÖNEMLİ: Tıbbi teşhis/tanı koyma. Kişi ağır ve süregelen bir sıkıntı yaşıyorsa (derin çökkünlük, kendine zarar verme düşüncesi vb.), yazının uygun bir yerinde nazikçe; bu duyguların ciddiye alınması gerektiğini, güvendiği birine açılmanın ve bir uzmandan (psikolog/hekim) destek almanın çok değerli olduğunu, bu uygulamanın profesyonel yardımın yerini tutmadığını hatırlat. Umut kırıcı olma, kimseyi suçlama.`, 'sifa')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-green-400 hover:bg-slate-700 border border-green-500/40 shrink-0 transition-colors shadow-[0_0_10px_rgba(34,197,94,0.15)]" title="Bu ayet bunalımdaki insana ne katar? (psikolojik/manevi fayda)">
                                                     <Icons.Heart size={14}/><span className="text-[10px] font-bold tracking-wider">RUHA ŞİFA</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Bediüzzaman Said Nursi'nin Risale-i Nur Külliyatı perspektifinden şu ayetin ("${trText}") derin manevi izahını yap.`, 'risale_ayah')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Risale-i Nur İzahı">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Bediüzzaman Said Nursi'nin Risale-i Nur Külliyatı perspektifinden şu ayetin ("${trText}") derin manevi izahını yap.`, 'risale_ayah')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Risale-i Nur İzahı">
                                                     <Icons.Feather size={14}/><span className="text-[10px] font-bold tracking-wider">RİSALE-İ NUR</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Bu ayeti açıklayan, destekleyen sahih hadisleri ve Siyer örneklerini derle: ${trText}`, 'hadith')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-cyan-400 hover:bg-slate-700 border border-cyan-500/30 shrink-0 transition-colors" title="Hadis ve Siyer İklimi">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Bu ayeti açıklayan, destekleyen sahih hadisleri ve Siyer örneklerini derle: ${trText}`, 'hadith')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-cyan-400 hover:bg-slate-700 border border-cyan-500/30 shrink-0 transition-colors" title="Hadis ve Siyer İklimi">
                                                     <Icons.Book size={14}/><span className="text-[10px] font-bold tracking-wider">HADİS & SİYER</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Bu ayetin ("${trText}") mesajını 21. yüzyıl modern hayatına, iş dünyasına, aile yaşantısına nasıl uygulayabiliriz?`, 'modern_life')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-indigo-400 hover:bg-slate-700 border border-indigo-500/30 shrink-0 transition-colors" title="Modern Hayata Uyarlama">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Bu ayetin ("${trText}") mesajını 21. yüzyıl modern hayatına, iş dünyasına, aile yaşantısına nasıl uygulayabiliriz?`, 'modern_life')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-indigo-400 hover:bg-slate-700 border border-indigo-500/30 shrink-0 transition-colors" title="Modern Hayata Uyarlama">
                                                     <Icons.Briefcase size={14}/><span className="text-[10px] font-bold tracking-wider">MODERN HAYAT</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Aşağıdaki ayetin kelime analizini yap: ${ayah.text}`, 'concepts')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-fuchsia-400 hover:bg-slate-700 border border-fuchsia-500/30 shrink-0 transition-colors" title="Kelime Analizi">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Aşağıdaki ayetin kelime analizini yap: ${ayah.text}`, 'concepts')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-fuchsia-400 hover:bg-slate-700 border border-fuchsia-500/30 shrink-0 transition-colors" title="Kelime Analizi">
                                                     <Icons.ZoomIn size={14}/><span className="text-[10px] font-bold tracking-wider">KELİME ANALİZİ</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Şu ayet ile benzer konulu başka ayetleri bul: ${trText}`, 'related')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-sky-400 hover:bg-slate-700 border border-sky-500/30 shrink-0 transition-colors" title="Benzer Ayetler">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Şu ayet ile benzer konulu başka ayetleri bul: ${trText}`, 'related')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-sky-400 hover:bg-slate-700 border border-sky-500/30 shrink-0 transition-colors" title="Benzer Ayetler">
                                                     <Icons.Link size={14}/><span className="text-[10px] font-bold tracking-wider">BENZER AYETLER</span>
                                                 </button>
                                                 
-                                                <button onClick={() => handleAiRequest(`Bu ayeti fıkhi, tasavvufi ve güncel açıdan detaylıca yorumla ve tefsir et: ${trText}`, 'comparison')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Tefsir Karşılaştırması">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Bu ayeti fıkhi, tasavvufi ve güncel açıdan detaylıca yorumla ve tefsir et: ${trText}`, 'comparison')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 shrink-0 transition-colors" title="Tefsir Karşılaştırması">
                                                     <Icons.Scale size={14}/><span className="text-[10px] font-bold tracking-wider">TEFSİR</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Bu ayetin tecvid analizini ve doğru okunuş kurallarını anlat: ${ayah.text}`, 'tajweed')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-rose-400 hover:bg-slate-700 border border-rose-500/30 shrink-0 transition-colors" title="Tecvid Analizi">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Bu ayetin tecvid analizini ve doğru okunuş kurallarını anlat: ${ayah.text}`, 'tajweed')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-rose-400 hover:bg-slate-700 border border-rose-500/30 shrink-0 transition-colors" title="Tecvid Analizi">
                                                     <Icons.Activity size={14}/><span className="text-[10px] font-bold tracking-wider">TECVİD</span>
                                                 </button>
 
-                                                <button onClick={() => handleAiRequest(`Bu ayetin farklı meallerdeki çevirilerini karşılaştır ve aralarındaki dil nüanslarını incele. Orijinal: ${ayah.text}`, 'meal')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-amber-400 hover:bg-slate-700 border border-amber-500/30 shrink-0 transition-colors" title="Farklı Mealleri Kıyasla">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Bu ayetin farklı meallerdeki çevirilerini karşılaştır ve aralarındaki dil nüanslarını incele. Orijinal: ${ayah.text}`, 'meal')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-amber-400 hover:bg-slate-700 border border-amber-500/30 shrink-0 transition-colors" title="Farklı Mealleri Kıyasla">
                                                     <Icons.Layers size={14}/><span className="text-[10px] font-bold tracking-wider">MEALLERİ KIYASLA</span>
                                                 </button>
-                                                <button onClick={() => handleAiRequest(`Aşağıdaki ayeti çocuklar için bir masal/hikaye gibi anlat: ${trText}`, 'child')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-orange-400 hover:bg-slate-700 border border-orange-500/30 shrink-0 transition-colors" title="Çocuklar İçin Anlat">
+                                                <button onClick={() => handleAiRequest(ayetBaglam(ayah, trText) + `Aşağıdaki ayeti çocuklar için bir masal/hikaye gibi anlat: ${trText}`, 'child')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-orange-400 hover:bg-slate-700 border border-orange-500/30 shrink-0 transition-colors" title="Çocuklar İçin Anlat">
                                                     <Icons.Baby size={14}/><span className="text-[10px] font-bold tracking-wider">ÇOCUKLAR İÇİN</span>
                                                 </button>
                                                 <button onClick={() => handleCopy(ayah.text, trText, ayah.numberInSurah)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 shrink-0 transition-colors" title="Ayeti Kopyala">
@@ -4287,7 +4584,7 @@ JSON ŞEMASI:
                         surahName={trName}
                         onSubmit={(query, ayahInfo) => {
                             setCustomPromptAyah(null);
-                            handleAiRequest(`Ayet: "${ayahInfo.text}"\nMeal: "${ayahInfo.trText}"\n\nKullanıcının Sorusu: "${query}"\n\nSen bilgili ve hikmet sahibi bir İslam bilginisin. Lütfen kullanıcının sorusunu sadece bu ayetin ışığında, ayetin bağlamını, ruhunu ve hikmetini dikkate alarak detaylı ve samimi bir dille cevapla.`, 'custom');
+                            handleAiRequest(ayetBaglam(ayahInfo, ayahInfo.trText) + `Kullanıcının Sorusu: "${query}"\n\nSen bilgili ve hikmet sahibi bir İslam bilginisin. Lütfen kullanıcının sorusunu sadece bu ayetin ışığında, ayetin bağlamını, ruhunu ve hikmetini dikkate alarak detaylı ve samimi bir dille cevapla.`, 'custom');
                         }}
                     />
                 </div>
@@ -4307,7 +4604,7 @@ JSON ŞEMASI:
                 const c = ayetler[fav.uid];
                 if (c && (c.ar || c.tr)) return c;
                 // önbellek yoksa: kayıttan mantıklı tahmin
-                let ar = fav.arabic || (arapcaMi(fav.text) ? fav.text : '');
+                let ar = besmeleAyir(fav.arabic || (arapcaMi(fav.text) ? fav.text : ''), Number(fav.surahNo), Number(fav.ayahNo));
                 let tr = arapcaMi(fav.text) ? '' : (fav.text || '');
                 return { ar, tr };
             };
@@ -4321,12 +4618,12 @@ JSON ŞEMASI:
                         try {
                             const [arR, trR] = await Promise.all([
                                 fetch(`https://api.alquran.cloud/v1/ayah/${fav.surahNo}:${fav.ayahNo}/quran-uthmani`),
-                                fetch(`https://api.alquran.cloud/v1/ayah/${fav.surahNo}:${fav.ayahNo}/${mealSource || 'tr.diyanet'}`)
+                                fetch(`https://api.alquran.cloud/v1/ayah/${fav.surahNo}:${fav.ayahNo}/${mealSource || 'tr.yazir'}`)
                             ]);
                             const arJ = await arR.json(); const trJ = await trR.json();
                             const ar = (arJ && arJ.data && arJ.data.text) ? arJ.data.text : (fav.arabic || (arapcaMi(fav.text) ? fav.text : ''));
                             const tr = (trJ && trJ.data && trJ.data.text) ? trJ.data.text : (arapcaMi(fav.text) ? '' : (fav.text || ''));
-                            yeni[fav.uid] = { ar, tr };
+                            yeni[fav.uid] = { ar: besmeleAyir(ar, Number(fav.surahNo), Number(fav.ayahNo)), tr };
                         } catch(e) {
                             yeni[fav.uid] = { ar: fav.arabic || (arapcaMi(fav.text) ? fav.text : ''), tr: arapcaMi(fav.text) ? '' : (fav.text || '') };
                         }
@@ -4756,11 +5053,12 @@ JSON ŞEMASI:
                                             <Icons.Sun size={14}/> Günün Sünneti
                                         </div>
                                         <h3 className="font-bold text-lg text-orange-300 mb-2">{sunnahOfDay.title}</h3>
-                                        <p className="text-sm text-slate-300 mb-4 line-clamp-4 leading-relaxed">{sunnahOfDay.text}</p>
+                                        <p className="text-sm text-slate-300 mb-2 line-clamp-4 leading-relaxed">{sunnahOfDay.text}</p>
+                                        {sunnahOfDay.wisdom && <p className="text-[12px] text-orange-200/70 italic mb-4 leading-relaxed">{sunnahOfDay.wisdom}</p>}
                                     </div>
                                     <div className="flex items-center justify-between border-t border-slate-700/50 pt-3 relative z-10">
-                                        <span className="text-[10px] font-bold text-slate-400">Nebevi Tavsiye</span>
-                                        <button onClick={() => handleAiRequest(`Şu Nebevi Sünnetin ("${sunnahOfDay.title} - ${sunnahOfDay.text}") modern tıp, psikoloji ve manevi açıdan hikmetlerini derinlemesine açıkla.`, 'hadith')} className="bg-orange-600/20 text-orange-400 hover:bg-orange-600/40 px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors">Sırrını Keşfet</button>
+                                        <span className="text-[10px] font-bold text-slate-400 min-w-0 pr-2">{sunnahOfDay.source || 'Nebevi Tavsiye'}</span>
+                                        <button onClick={() => handleAiRequest(`Şu sünneti açıkla: "${sunnahOfDay.title} — ${sunnahOfDay.text}" (dayanağı: ${sunnahOfDay.source || 'belirtilmedi'}). Önce ilgili hadisin/ayetin tam anlamını ve kaynağını ver, sonra manevi ve ahlaki hikmetini anlat. Bilimsel olarak kanıtlanmamış sağlık faydası iddia etme; bilimle ilgili bir şey söyleyeceksen ihtiyatlı ol ve kesinleşmiş bulguyla yorumu ayır.`, 'hadith')} className="bg-orange-600/20 text-orange-400 hover:bg-orange-600/40 px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors">Sırrını Keşfet</button>
                                     </div>
                                 </div>
                             )}
@@ -4904,12 +5202,12 @@ JSON ŞEMASI:
                                         <span className="text-[12px] font-bold text-orange-100">Çocuklara İzah</span>
                                     </button>
 
-                                    <button onClick={() => setHomePromptConfig({ type: 'science_psychology', title: 'Kur\'an, Bilim & Psikoloji', placeholder: 'Örn: Sabır, Evrenin yaratılışı...', prefix: 'Sen hem İslami ilimlere hem de modern bilime ve psikolojiye hakim bir uzmansın. Kullanıcının verdiği şu konuyu/ayeti, modern bilimsel bulgular, psikolojik tahliller ve Kur\'an\'ın mucizevi boyutuyla harmanlayarak, ufuk açıcı bir şekilde analiz et: ' })} className="bg-gradient-to-r from-teal-600/30 to-cyan-600/30 border border-teal-500/50 hover:from-teal-500/50 hover:to-cyan-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <button onClick={() => setHomePromptConfig({ type: 'science_psychology', title: 'Kur\'an, Bilim & Psikoloji', placeholder: 'Örn: Sabır, Evrenin yaratılışı...', prefix: 'Sen hem İslami ilimlere hem de modern bilime ve psikolojiye hakim bir uzmansın. Kullanıcının verdiği şu konuyu/ayeti, kesinleşmiş bilimsel bulgular ve psikolojik tahliller ışığında, ufuk açıcı bir şekilde analiz et. Bilimsel bulguyu ayetin yorumundan açıkça ayır; "Kur\'an bunu önceden haber verdi" türü iddiaları kesin bilgi gibi sunma: ' })} className="bg-gradient-to-r from-teal-600/30 to-cyan-600/30 border border-teal-500/50 hover:from-teal-500/50 hover:to-cyan-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                         <div className="p-2 bg-teal-500/20 text-teal-300 rounded-full group-hover:bg-teal-500 group-hover:text-white transition-colors"><Icons.Brain size={24}/></div>
                                         <span className="text-[12px] font-bold text-teal-100">Kur'an & Bilim</span>
                                     </button>
 
-                                    <button onClick={() => setHomePromptConfig({ type: 'modern_illness', title: 'Çağımızın Hastalıkları & Tedavisi', placeholder: 'Örn: Kaygı, depresyon, uykusuzluk, bağımlılık, stres, öfke...', prefix: 'Sen hem tıp/psikoloji bilgisine hem de Kur\'an, sünnet ve İslami şifa geleneğine vakıf, şefkatli bir manevi rehbersin. Kullanıcının belirttiği çağımıza ait hastalığı/rahatsızlığı (bedensel veya ruhsal: kaygı, depresyon, stres, uykusuzluk, bağımlılık, öfke, vesvese, kalp katılığı, tükenmişlik vb.) ele al. Şu başlıklarla ver: (1) bu derdin manevi ve psikolojik kök analizi; (2) Kur\'an-ı Kerim\'den ilgili ayet(ler) — Arapça + Türkçe meal, önemli yerler renkli-kalın; (3) konuyla ilgili SAHİH hadis(ler) (uydurma/zayıf rivayet KULLANMA; emin değilsen bunu belirt); (4) peygamber tıbbı ve sünnetten pratik tavsiyeler; (5) okunabilecek dua ve Esmâ-i Hüsnâ; (6) hayattan somut, akılda kalıcı bir metafor. ÇOK ÖNEMLİ: Bu içerik tıbbi teşhis/tedavinin yerine geçmez; ciddi/süregelen durumlarda mutlaka bir hekime veya uzmana başvurmayı nazikçe hatırlat. Konu: ' })} className="bg-gradient-to-r from-rose-600/30 to-red-600/30 border border-rose-500/50 hover:from-rose-500/50 hover:to-red-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <button onClick={() => setHomePromptConfig({ type: 'modern_illness', title: 'Çağımızın Dertleri & Manevi Destek', placeholder: 'Örn: Kaygı, depresyon, uykusuzluk, bağımlılık, stres, öfke...', prefix: 'Sen hem tıp/psikoloji bilgisine hem de Kur\'an, sünnet ve İslami şifa geleneğine vakıf, şefkatli bir manevi rehbersin. Kullanıcının belirttiği çağımıza ait hastalığı/rahatsızlığı (bedensel veya ruhsal: kaygı, depresyon, stres, uykusuzluk, bağımlılık, öfke, vesvese, kalp katılığı, tükenmişlik vb.) ele al. Şu başlıklarla ver: (1) bu derdin manevi ve psikolojik kök analizi; (2) Kur\'an-ı Kerim\'den ilgili ayet(ler) — Arapça + Türkçe meal, önemli yerler renkli-kalın; (3) konuyla ilgili SAHİH hadis(ler) (uydurma/zayıf rivayet KULLANMA; emin değilsen bunu belirt); (4) sünnetten, kaynağı belirtilmiş sahih pratik tavsiyeler (kanıtlanmamış tedavi ya da şifa iddiası yazma); (5) okunabilecek dua ve Esmâ-i Hüsnâ; (6) hayattan somut, akılda kalıcı bir metafor. ÇOK ÖNEMLİ: Bu içerik tıbbi teşhis/tedavinin yerine geçmez; ciddi/süregelen durumlarda mutlaka bir hekime veya uzmana başvurmayı nazikçe hatırlat. Konu: ' })} className="bg-gradient-to-r from-rose-600/30 to-red-600/30 border border-rose-500/50 hover:from-rose-500/50 hover:to-red-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                         <div className="p-2 bg-rose-500/20 text-rose-300 rounded-full group-hover:bg-rose-500 group-hover:text-white transition-colors"><Icons.Heart size={24}/></div>
                                         <span className="text-[12px] font-bold text-rose-100">Çağın Dertleri & Şifa</span>
                                     </button>
@@ -4950,7 +5248,7 @@ JSON ŞEMASI:
                                         <div className="p-2 bg-yellow-500/20 text-yellow-300 rounded-full group-hover:bg-yellow-500 group-hover:text-white transition-colors"><Icons.Star size={20}/></div>
                                         <span className="text-[11px] font-bold text-yellow-100">Esma-ül Hüsna</span>
                                     </button>
-                                    <button onClick={() => setHomePromptConfig({ type: 'mey_siyer', title: 'Sahabe İklimi (M.E. Yıldırım)', placeholder: 'Örn: Mus\'ab Bin Umeyr, Bedir...', prefix: 'Sen siyer ve sahabe hayatı konusunda uzman, kıymetli hoca Muhammed Emin Yıldırım\'ın o samimi, heyecanlı, yüreklere dokunan ve günümüze mesajlar çıkaran muhteşem anlatım üslubunu benimsemiş bir yapay zekasın. Kullanıcının sorduğu şu konuyu/sahabeyi bu özel üslupla, sanki bir Siyer Vakfı sohbetindeymişiz gibi anlat: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-orange-500/40 hover:border-orange-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <button onClick={() => setHomePromptConfig({ type: 'mey_siyer', title: 'Sahabe İklimi (Sohbet Üslubu)', placeholder: 'Örn: Mus\'ab Bin Umeyr, Bedir...', prefix: 'Sen siyer ve sahabe hayatı konusunda bilgili, samimi, heyecanlı, yüreklere dokunan ve günümüze mesajlar çıkaran bir sohbet üslubuyla anlatan bir rehbersin. Hiçbir gerçek hocanın adını kullanma, kimseye söz uydurma; olayları sahih siyer kaynaklarına (İbn Hişâm, Buhârî, Müslim vb.) dayandır, ihtilaflı ayrıntıları belirt. Kullanıcının sorduğu şu konuyu/sahabeyi bir sohbet havasında anlat: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-orange-500/40 hover:border-orange-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                         <div className="p-2 bg-orange-500/20 text-orange-300 rounded-full group-hover:bg-orange-500 group-hover:text-white transition-colors"><Icons.Users size={20}/></div>
                                         <span className="text-[11px] font-bold text-orange-100">Sahabe İklimi</span>
                                     </button>
@@ -4986,11 +5284,11 @@ JSON ŞEMASI:
                                     </button>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 md:contents">
-                                    <button onClick={() => setHomePromptConfig({ type: 'risale_problem', title: 'Risale-i Nur Şifası', placeholder: 'Dert nedir? Örn: Anksiyete...', prefix: 'Sen Risale-i Nur Külliyatı\'nı çok iyi bilen manevi bir rehbersin. Kullanıcının belirttiği şu manevi/psikolojik probleme karşı (Örn: anksiyete, vesvese), Bediüzzaman Said Nursi\'nin eserlerindeki manevi şifa reçetelerini sun: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-emerald-500/40 hover:border-emerald-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <button onClick={() => setHomePromptConfig({ type: 'risale_problem', title: 'Risale-i Nur Şifası', placeholder: 'Dert nedir? Örn: Anksiyete...', prefix: 'Sen Risale-i Nur Külliyatı\'nı çok iyi bilen manevi bir rehbersin. Kullanıcının belirttiği şu manevi/psikolojik probleme karşı (Örn: anksiyete, vesvese), Bediüzzaman Said Nursi\'nin eserlerindeki manevi şifa reçetelerini sun. Eserden birebir alıntı uydurma; hangi eser/bölümden (ör. Lem\'alar, Hastalar Risalesi) özetlediğini belirt, emin değilsen söyle. Psikolojik rahatsızlıklarda uzman desteğinin yerini tutmadığını hatırlat: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-emerald-500/40 hover:border-emerald-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                         <div className="p-2 bg-emerald-500/20 text-emerald-300 rounded-full group-hover:bg-emerald-500 group-hover:text-white transition-colors"><Icons.Feather size={20}/></div>
                                         <span className="text-[11px] font-bold text-emerald-100">Risale Şifası</span>
                                     </button>
-                                    <button onClick={() => setHomePromptConfig({ type: 'prophetic_med', title: 'Nebevi Tıp', placeholder: 'Örn: Baş ağrısı, Uyku...', prefix: 'Sen İslam tıp tarihi (Tıbb-ı Nebevi) araştırmacısısın. Kullanıcının belirttiği şu sağlık veya yaşam stili durumu hakkında, Kuran ve Sahih Sünnet\'teki tavsiyeleri modern bilimle çelişmeden açıkla: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-rose-500/40 hover:border-rose-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <button onClick={() => setHomePromptConfig({ type: 'prophetic_med', title: 'Nebevi Tıp', placeholder: 'Örn: Baş ağrısı, Uyku...', prefix: 'Sen İslam tıp tarihi (Tıbb-ı Nebevi) araştırmacısısın. Kullanıcının belirttiği şu sağlık veya yaşam stili durumu hakkında, Kuran ve Sahih Sünnet\'teki tavsiyeleri kaynaklarıyla açıkla. Rivayeti (kaynak + derece) ile bilimsel kanıtı ayrı başlıklarda ver; kanıtlanmamış tedavi/fayda iddiası yazma; bunun tıbbi tavsiye olmadığını, tedavi için hekime başvurulması gerektiğini belirt: ' })} className="bg-slate-900/80 backdrop-blur-sm border border-rose-500/40 hover:border-rose-500/80 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                         <div className="p-2 bg-rose-500/20 text-rose-400 rounded-full group-hover:bg-rose-500 group-hover:text-white transition-colors"><Icons.Stethoscope size={20}/></div>
                                         <span className="text-[11px] font-bold text-rose-100">Nebevi Tıp</span>
                                     </button>
@@ -5002,7 +5300,7 @@ JSON ŞEMASI:
                             <div>
                                 <p className="text-[10px] text-slate-400 font-bold mb-2 px-2 uppercase tracking-widest border-b border-slate-800 pb-1">Güncel Hayat & Fıkıh</p>
                                 <div className="grid grid-cols-2 gap-2">
-                                    <button onClick={() => setHomePromptConfig({ type: 'grounded_search', useSearch: true, title: 'İnternet Taramalı Güncel Fetva', placeholder: 'Örn: Kripto paralar caiz mi?...', prefix: 'Sen alanında uzman bir İslam hukuku (Fıkıh) alimisin. Kullanıcının sorduğu şu güncel meseleyi, internetteki güvenilir kaynakları tarayarak, farklı görüşleri (ihtilafları) belirterek, delilleriyle detaylıca açıkla: ' })} className="bg-gradient-to-r from-emerald-600/30 to-teal-600/30 border border-emerald-500/50 hover:from-emerald-500/50 hover:to-teal-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
+                                    <button onClick={() => setHomePromptConfig({ type: 'grounded_search', useSearch: true, title: 'İnternet Taramalı Güncel Fetva', placeholder: 'Örn: Kripto paralar caiz mi?...', prefix: 'Sen alanında uzman bir İslam hukuku (Fıkıh) alimisin. Kullanıcının sorduğu şu güncel meseleyi, internetteki güvenilir kaynakları (öncelikle Diyanet İşleri Başkanlığı Din İşleri Yüksek Kurulu kararları, sonra tanınmış fıkıh eserleri) tarayarak, farklı görüşleri (ihtilafları) belirterek, delilleriyle açıkla. Kesin fetva verme; bağlayıcı bir karar için müftülüğe ya da Diyanet\'in 190 Alo Fetva hattına danışılmasını öner: ' })} className="bg-gradient-to-r from-emerald-600/30 to-teal-600/30 border border-emerald-500/50 hover:from-emerald-500/50 hover:to-teal-500/50 p-3 rounded-xl flex flex-col items-center justify-center gap-2 text-center transition-all group shadow-lg">
                                         <div className="p-2 bg-emerald-500/20 text-emerald-300 rounded-full group-hover:bg-emerald-500 group-hover:text-white transition-colors"><Icons.Globe size={24}/></div>
                                         <span className="text-[12px] font-bold text-emerald-100">Güncel Fetva (Arama)</span>
                                     </button>
@@ -5080,7 +5378,7 @@ JSON ŞEMASI:
                             {surahs.filter(s => getTurkishName(s.number).toLowerCase().includes(searchQuery.toLowerCase())).map(surah => (
                                 <div key={surah.number} onClick={() => { setCurrentSurah(surah); setView('surah'); }} className="flex items-center p-4 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition-all group shadow-sm">
                                     <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 font-bold mr-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors">{surah.number}</div>
-                                    <div><h4 className="font-bold text-white">{getTurkishName(surah.number)}</h4><p className="text-xs text-slate-500">{surah.numberOfAyahs} Ayet</p></div>
+                                    <div><h4 className="font-bold text-white">{getTurkishName(surah.number)}</h4><p className="text-xs text-slate-500">{surah.numberOfAyahs} Ayet{SURE_ANLAMLARI[surah.number] ? ` · ${SURE_ANLAMLARI[surah.number]}` : ''}</p></div>
                                 </div>
                             ))}
                         </div>
@@ -5421,7 +5719,7 @@ JSON ŞEMASI:
             const handleImageRequest = async (ayahText) => {
                 setAiImageModalOpen(true); setAiImageLoading(true); setAiImageError(null); setAiImageUrl('');
                 try {
-                    const imagePrompt = `A beautiful, highly detailed, atmospheric, and symbolic Islamic art illustration representing the core meaning of this verse: "${ayahText}". IMPORTANT: No human faces, no animal faces. Focus on nature, light, cosmic elements, islamic geometric patterns, or serene landscapes. Masterpiece, 4k.`;
+                    const imagePrompt = `A beautiful, highly detailed, atmospheric, and symbolic Islamic art illustration representing the core meaning of this verse: "${ayahText}". IMPORTANT: No human figures or faces, no animal faces, never depict God, prophets, angels or companions in any form, no text or calligraphy (it would be misspelled). Focus on nature, light, cosmic elements, islamic geometric patterns, or serene landscapes. Masterpiece, 4k.`;
                     const url = await GeminiAPI.generateImage(imagePrompt);
                     setAiImageUrl(url);
                 } catch (err) {
