@@ -1319,9 +1319,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v3.0', tarih:'18.11.2026', satir:6782, kb:719,
-        onceki:{ surum:'v2.6', satir:5972, kb:617 },
-        yenilikler:['🎧 Kesintisiz dinleme: Arapça + meal sesi, tekrar, hız, uyku zamanlayıcı, kilit ekranı kontrolleri','🎨 Tecvidli renkli Mushaf ve 🔤 harf harf renkli görünüm; okunan kelime izlenir','🔔 Bildirimler her gün değişir: 89 ayet, 130 hadis, 99 Esmâ, mübarek günler','📖 Bildirime dokununca dinle/favori/paylaş kartı','🕌 Namaz vakitleri ve sıradaki mübarek gün'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v3.1', tarih:'18.11.2026', satir:7091, kb:748,
+        onceki:{ surum:'v3.0', satir:6782, kb:719 },
+        yenilikler:['📬 Bildirim Kutusu: gelen bildirimler birikir; okunan silinir, beğendiğin kalır','❤️ Beğendiklerim: istediğin an tekrar oku, dinle; 🔗 metin ya da 🖼️ görsel olarak paylaş','🔕 Bildirime dokununca simgedeki sayı düşer (yeni sw.js)','🎧 Kesintisiz dinleme, 🎨 tecvidli Mushaf, 🔔 her gün değişen bildirimler','🕌 Namaz vakitleri ve sıradaki mübarek gün'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1459,7 +1459,7 @@
       // sw.js gerçekten bu klasörde mi ve bildirim dinleyicisi var mı?
       function swDosya(){
         if(!/^https?:$/.test(location.protocol)) return Promise.resolve({ var:false, push:false, durum:0 });
-        return ham()('sw.js?v='+Date.now(), { cache:'no-store' }).then(function(r){ return r.text().then(function(t){ return { var:r.ok, push:/addEventListener\(\s*['"]push['"]/.test(t), durum:r.status }; }); }).catch(function(){ return { var:false, push:false, durum:0 }; });
+        return ham()('sw.js?v='+Date.now(), { cache:'no-store' }).then(function(r){ return r.text().then(function(t){ return { var:r.ok, push:/addEventListener\(\s*['"]push['"]/.test(t), kutu:/zirve-kutu/.test(t), durum:r.status }; }); }).catch(function(){ return { var:false, push:false, durum:0 }; });
       }
       // ===== 📬 KONU KANALLARI: her hazır bildirim kasada ayrı bir uyg kanalıdır; kullanıcı ŞİFRESİZ abone olur/çıkar =====
       // Rol her zaman 'kullanici' (kasa yalnız bilinen rolleri kabul edebilir). Açık/kapalı 'sube' alanıyla: 'acik' / 'kapali'
@@ -1516,7 +1516,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='3.0';
+    const SURUM='3.1';
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -1591,7 +1591,7 @@
       function temizleYenile(){
         var is=[];
         try{ sessionStorage.clear(); }catch(e){}
-        try{ if(window.caches && caches.keys) is.push(caches.keys().then(function(k){ return Promise.all(k.map(function(x){ return caches.delete(x); })); })); }catch(e){}
+        try{ if(window.caches && caches.keys) is.push(caches.keys().then(function(k){ return Promise.all(k.filter(function(x){ return x!=='zirve-kutu'; }).map(function(x){ return caches.delete(x); })); /* bildirim kutusu korunur */ })); }catch(e){}
         Promise.all(is).catch(function(){}).then(yenile);
       }
       function bosMu(){ var r=document.getElementById('root'); return !r || !r.children.length; }
@@ -1922,12 +1922,153 @@
     })();
     </script>
 
-    <script type="text/babel">
+    <!-- ===== 📬 BİLDİRİM KUTUSU (v3.1): gelen bildirimler saklanır; okunan silinir, beğenilen kalır, paylaşılabilir ===== -->
+<script>
+    (function(){
+      var LS='zirve_kutu', LS_AYAR='zirve_kutu_ayar', CN='zirve-kutu', GUN=864e5;
+      var dinleyiciler=[];
+      function yay(){ dinleyiciler.forEach(function(f){ try{ f(); }catch(e){} }); }
+      function abone(f){ dinleyiciler.push(f); return function(){ dinleyiciler=dinleyiciler.filter(function(x){ return x!==f; }); }; }
+      function oku(){ try{ var a=JSON.parse(localStorage.getItem(LS)||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+      function ayar(){ try{ return JSON.parse(localStorage.getItem(LS_AYAR)||'{}')||{}; }catch(e){ return {}; } }
+      function ayarla(k,v){ var a=ayar(); a[k]=v; try{ localStorage.setItem(LS_AYAR, JSON.stringify(a)); }catch(e){} yaz(oku()); }
+      function hashOf(url){ var s=String(url||''), i=s.indexOf('#'); return i<0 ? '' : s.slice(i+1); }
+      function tur(url){ var h=hashOf(url); if(/^ayet-/.test(h)) return 'ayet'; if(/^hadis-/.test(h)) return 'hadis'; if(/^esma-/.test(h)) return 'esma'; return 'genel'; }
+      // Okunanlar (açıksa) 1 gün sonra, hepsi 30 gün sonra silinir; BEĞENİLENLER hiç silinmez
+      function budama(a){
+        var simdi=Date.now(), oto=ayar().otoSil!==false, sayac=0;
+        return a.filter(function(x){
+          if(x.begeni) return true;
+          if(oto && x.okundu && simdi-(x.okT||x.t) > GUN) return false;
+          if(simdi-x.t > 30*GUN) return false;
+          return ++sayac <= 150;
+        });
+      }
+      function yaz(a){
+        a.sort(function(x,y){ return y.t-x.t; }); var b=budama(a), ok=true;
+        try{ localStorage.setItem(LS, JSON.stringify(b)); }catch(e){
+          // Depo doluysa: önce okunmuş (beğenilmemiş) kayıtları at, yine olmazsa en eskileri
+          ok=false; try{ b=b.filter(function(x){ return x.begeni || !x.okundu; }); while(b.length){ try{ localStorage.setItem(LS, JSON.stringify(b)); ok=true; break; }catch(e2){ var i=b.length-1; while(i>=0 && b[i].begeni) i--; if(i<0) break; b.splice(i,1); } } }catch(e3){}
+        }
+        yay(); return ok;
+      }
+      function yeni(o){
+        return { id:o.id||('k'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), t:+o.t||Date.now(),
+          baslik:String(o.baslik||'Bildirim').slice(0,160), govde:String(o.govde||'').slice(0,1500), url:String(o.url||''),
+          tur:o.tur||tur(o.url), okundu:!!o.okundu, okT:o.okT||0, begeni:!!o.begeni };
+      }
+      // Servis çalışanının bıraktığı bildirimleri kutuya taşı
+      var toplaniyor=null;
+      function topla(){
+        if(toplaniyor) return toplaniyor;
+        if(!('caches' in window)) return Promise.resolve(0);
+        toplaniyor = caches.open(CN).then(function(c){
+          return c.keys().then(function(ks){
+            return Promise.all(ks.map(function(k){ return c.match(k).then(function(r){ return r ? r.json() : null; }).catch(function(){ return null; }).then(function(j){ return { k:k, j:j }; }); }));
+          }).then(function(l){
+            if(!l.length) return 0;
+            var a=oku(), say=0, okunan={};
+            l.forEach(function(x){ if(x.j && x.j.tip==='okundu') okunan[x.j.id]=x.j.t||Date.now(); });
+            l.forEach(function(x){ var j=x.j; if(!j || j.tip!=='bildirim' || !j.id) return; if(!a.some(function(y){ return y.id===j.id; })){ a.push(yeni(j)); say++; } });
+            a.forEach(function(y){ if(okunan[y.id] && !y.okundu){ y.okundu=true; y.okT=okunan[y.id]; } });
+            if(!yaz(a)) return 0; // yazılamadıysa önbellekte kalsın, sonra yeniden denenir
+            return Promise.all(l.map(function(x){ return c.delete(x.k); })).then(function(){ return say; });
+          });
+        }).catch(function(){ return 0; }).then(function(n){ toplaniyor=null; return n; });
+        return toplaniyor;
+      }
+      function guncelle(id, f){ var a=oku(); a.forEach(function(x){ if(x.id===id) f(x); }); yaz(a); }
+      function okundu(id){ guncelle(id, function(x){ if(!x.okundu){ x.okundu=true; x.okT=Date.now(); } }); }
+      function okunmadi(id){ guncelle(id, function(x){ x.okundu=false; x.okT=0; }); }
+      function hepsiOkundu(){ var a=oku(), t=Date.now(); a.forEach(function(x){ if(!x.okundu){ x.okundu=true; x.okT=t; } }); yaz(a); }
+      function begen(id){ var s=false; guncelle(id, function(x){ x.begeni=!x.begeni; s=x.begeni; }); return s; }
+      function sil(id){ yaz(oku().filter(function(x){ return x.id!==id; })); }
+      function okunanlariSil(){ yaz(oku().filter(function(x){ return x.begeni || !x.okundu; })); }
+      // Bildirimden açılan kart: o bağlantının okunmamış bildirimleri okundu sayılır
+      function okunduUrl(h){ h=String(h||'').replace(/^#/,''); if(!h) return; var a=oku(), t=Date.now(), deg=false; a.forEach(function(x){ if(!x.okundu && hashOf(x.url)===h){ x.okundu=true; x.okT=t; deg=true; } }); if(deg) yaz(a); }
+      // Karttaki ❤️: kutuda o bağlantı varsa onu beğenir, yoksa kutuya beğenilmiş kayıt ekler
+      function begeniMi(h){ h=String(h||'').replace(/^#/,''); return oku().some(function(x){ return x.begeni && hashOf(x.url)===h; }); }
+      function kartBegen(h, baslik, govde){
+        h=String(h||'').replace(/^#/,''); var a=oku(), varMi=a.filter(function(x){ return hashOf(x.url)===h; });
+        if(varMi.some(function(x){ return x.begeni; })){ a.forEach(function(x){ if(hashOf(x.url)===h) x.begeni=false; }); yaz(a); return false; }
+        if(varMi.length){ varMi[0].begeni=true; varMi[0].okundu=true; varMi[0].okT=varMi[0].okT||Date.now(); yaz(a); return true; }
+        a.push(yeni({ id:'b-'+h, baslik:baslik, govde:govde, url:'#'+h, okundu:true, okT:Date.now(), begeni:true })); yaz(a); return true;
+      }
+      function yeniSayi(){ return oku().filter(function(x){ return !x.okundu; }).length; }
+      function link(x){ var h=hashOf(x.url); return location.origin+location.pathname+(h?'#'+h:''); }
+      function paylas(x){
+        var metin=x.baslik+'\n\n'+x.govde, url=link(x);
+        if(navigator.share) return navigator.share({ title:x.baslik, text:metin, url:url }).then(function(){ return 'ok'; }).catch(function(e){ return (e && e.name==='AbortError') ? 'iptal' : kopyala(metin+'\n'+url); });
+        return kopyala(metin+'\n'+url);
+      }
+      function kopyala(t){
+        try{ if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function(){ return 'kopya'; }, function(){ return eskiKopya(t); }); }catch(e){}
+        return Promise.resolve(eskiKopya(t));
+      }
+      function eskiKopya(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); return 'kopya'; }catch(e){ return 'hata'; } }
+      // 🖼️ Görsel kart: 1080×1350 (Instagram/WhatsApp durumu oranı)
+      var RENK={ ayet:['#064e3b','#022c22','#6ee7b7','📖 AYET'], hadis:['#78350f','#1c1917','#fcd34d','📜 HADİS-İ ŞERİF'], esma:['#713f12','#1c1917','#fde68a','✨ ESMÂ-ÜL HÜSNÂ'], genel:['#0f172a','#020617','#93c5fd','🔔 BİLDİRİM'] };
+      function satirla(ctx, metin, gen){
+        var out=[]; String(metin||'').split(/\n+/).forEach(function(p){ var s='';
+          p.split(/\s+/).filter(Boolean).forEach(function(w){
+            // Sığmayan tek uzun kelime harf harf bölünür
+            while(ctx.measureText(w).width>gen && w.length>1){ var k=w.length; while(k>1 && ctx.measureText(w.slice(0,k)).width>gen) k--; if(s){ out.push(s); s=''; } out.push(w.slice(0,k)); w=w.slice(k); }
+            var d=s?s+' '+w:w; if(ctx.measureText(d).width>gen && s){ out.push(s); s=w; } else s=d; });
+          if(s) out.push(s); });
+        return out;
+      }
+      function gorsel(x){
+        return new Promise(function(coz){
+          var W=1080,H=1350,c=document.createElement('canvas'); c.width=W; c.height=H; var g=c.getContext('2d'), r=RENK[x.tur]||RENK.genel;
+          var gr=g.createLinearGradient(0,0,W,H); gr.addColorStop(0,r[0]); gr.addColorStop(1,r[1]); g.fillStyle=gr; g.fillRect(0,0,W,H);
+          g.strokeStyle=r[2]; g.globalAlpha=.35; g.lineWidth=4; g.strokeRect(48,48,W-96,H-96); g.globalAlpha=1;
+          g.fillStyle=r[2]; g.font='bold 34px system-ui, sans-serif'; g.fillText(r[3],96,150);
+          var bas=String(x.baslik||'').replace(/^[^\wÇĞİÖŞÜçğıöşüÂâÎîÛû"“]+/,'');
+          g.fillStyle='#f8fafc'; g.font='bold 46px system-ui, sans-serif'; var bs=satirla(g, bas, W-192).slice(0,2); bs.forEach(function(s,i){ g.fillText(s,96,230+i*60); });
+          var ust=230+bs.length*60+40, alt=H-200, boy=72, sat;
+          while(true){ boy-=4; g.font=boy+'px Georgia, "Times New Roman", serif'; sat=satirla(g, x.govde, W-192); if(sat.length*boy*1.45 <= alt-ust || boy<=32) break; }
+          var sigan=Math.max(1, Math.floor((alt-ust)/(boy*1.45)));
+          if(sat.length>sigan){ sat=sat.slice(0,sigan); var son=sat[sigan-1]; while(son.length>1 && g.measureText(son+' …').width>W-192) son=son.slice(0,-1); sat[sigan-1]=son.replace(/\s+$/,'')+' …'; }
+          var blok=sat.length*boy*1.45, y=ust+Math.max(0,(alt-ust-blok)/2)+boy;
+          g.save(); g.globalAlpha=.18; g.fillStyle=r[2]; g.font='bold 260px Georgia, serif'; g.fillText('“', 70, y+90-boy); g.restore();
+          g.fillStyle='#e2e8f0'; sat.forEach(function(s){ g.fillText(s,96,y); y+=boy*1.45; });
+          g.strokeStyle=r[2]; g.globalAlpha=.5; g.lineWidth=3; g.beginPath(); g.moveTo(96,H-175); g.lineTo(260,H-175); g.stroke(); g.globalAlpha=1;
+          g.fillStyle=r[2]; g.globalAlpha=.85; g.font='bold 30px system-ui, sans-serif'; g.fillText("Kur'an ve Siyer Atlası", 96, H-120); g.globalAlpha=.6; g.font='26px system-ui, sans-serif'; g.fillStyle='#cbd5e1'; g.fillText(location.host||'', 96, H-80); g.globalAlpha=1;
+          c.toBlob(function(b){ coz(b); }, 'image/png');
+        });
+      }
+      var hazirGorsel={}; // dokunuş anında beklemeden paylaşmak için (iPhone Safari izni)
+      function gorselHazirla(x){ if(hazirGorsel[x.id]) return; hazirGorsel[x.id]='uretiliyor'; gorsel(x).then(function(b){ hazirGorsel[x.id]=b||null; }).catch(function(){ hazirGorsel[x.id]=null; }); }
+      function gorselPaylas(x){
+        var hb=hazirGorsel[x.id];
+        if(hb && hb!=='uretiliyor') return gorselGonder(x, hb);
+        return gorsel(x).then(function(b){ return gorselGonder(x, b); });
+      }
+      function gorselGonder(x, b){ // eşzamanlı çağrılır: dokunuş izni korunur
+        try{
+          if(!b) return Promise.resolve('hata');
+          var ad='bildirim-'+(x.tur||'kart')+'.png', f=null; try{ f=new File([b], ad, { type:'image/png' }); }catch(e){}
+          if(f && navigator.canShare && navigator.canShare({ files:[f] })) return navigator.share({ files:[f], title:x.baslik }).then(function(){ return 'ok'; }).catch(function(e){ return (e && e.name==='AbortError') ? 'iptal' : indir(b, ad); });
+          return Promise.resolve(indir(b, ad));
+        }catch(e){ return Promise.resolve('hata'); }
+      }
+      function indir(b, ad){ var u=URL.createObjectURL(b), a=document.createElement('a'); a.href=u; a.download=ad; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 4000); return 'indi'; }
+
+      window.ZKUTU={ oku:oku, abone:abone, topla:topla, okundu:okundu, okunmadi:okunmadi, hepsiOkundu:hepsiOkundu, begen:begen, sil:sil, okunanlariSil:okunanlariSil,
+        okunduUrl:okunduUrl, begeniMi:begeniMi, kartBegen:kartBegen, yeniSayi:yeniSayi, paylas:paylas, gorselPaylas:gorselPaylas, gorselHazirla:gorselHazirla, gorsel:gorsel, ayar:ayar, ayarla:ayarla, hashOf:hashOf, ekle:function(o){ var a=oku(); a.push(yeni(o)); yaz(a); } };
+      try{ if('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', function(e){ if(e.data && e.data.tip==='zirve-kutu') topla(); }); }catch(e){}
+      document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') topla(); });
+      window.addEventListener('storage', function(e){ if(e.key===LS) yay(); });
+      setTimeout(topla, 300);
+    })();
+</script>
+<script type="text/babel">
         // --- ICONLAR ---
         const Icons = {
             BookOpen: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
             Search: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
             Heart: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M19 14c1.49-1.28 3.6-2.34 3.6-5.36a4.83 4.83 0 0 0-5.5-5.36C15.22 3.79 15 5.79 15 6h-3.17A4.62 4.62 0 0 0 9.5 2.5 5.25 5.25 0 0 0 2.5 7.5c0 3.09 3.06 4.7 5.1 6.5l6.4 6z"/></svg>,
+            Bell: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
             ChevronRight: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m9 18 6-6-6-6"/></svg>,
             ChevronLeft: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m15 18-6-6 6-6"/></svg>,
             ChevronUp: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m18 15-6-6-6 6"/></svg>,
@@ -3077,6 +3218,7 @@ Kullanıcının isteği: `;
                                 { ok: d.sw ? d.sw.push : false, ad: 'sw.js bildirim dinliyor', cozum: "Klasördeki sw.js eski ya da farklı; bu uygulamayla gelen sw.js'i yükle." },
                                 ...(d.ios ? [{ ok: d.standalone, ad: 'Ana ekrandaki simgeden açıldı', cozum: "iPhone'da bildirim yalnız ana ekrana eklenmiş uygulamada çalışır: Safari → Paylaş (□↑) → Ana Ekrana Ekle, sonra o simgeden aç." }] : []),
                                 { ok: d.izin === 'granted', ad: 'Bildirim izni', deger: izinMetin[d.izin] || d.izin, cozum: d.izin === 'denied' ? "İzin reddedilmiş: telefon Ayarlar → Bildirimler → Kur'an ve Siyer Atlası → İzin Ver'i aç." : 'Yukarıdaki "🔔 Bildirimleri aç" düğmesine dokun.' },
+                                { ok: d.sw ? !!d.sw.kutu : false, ad: 'sw.js güncel (bildirim kutusu, okununca silinme)', cozum: "GitHub'a bu sürümle gelen YENİ sw.js dosyasını yükle (index.html ile aynı klasöre)." },
                                 { ok: d.swAktif, ad: 'Servis çalışanı etkin', cozum: 'Uygulamayı kapatıp yeniden aç; sorun sürerse sw.js dosyasını kontrol et.' },
                                 { ok: d.abone, ad: 'Bu cihazın aboneliği', cozum: '"📲 Bu cihazı kaydet"e dokun.' },
                                 { ok: d.kayitli, ad: 'Kasada kayıtlı', deger: d.kayitli ? '✅' : (d.hata ? '⛔ ' + d.hata : '⛔'), cozum: '"📲 Bu cihazı kaydet"e dokun.' },
@@ -3377,11 +3519,167 @@ Kullanıcının isteği: `;
         };
 
         // ===== 🔔➡️📖 BİLDİRİM KARTI: bildirime dokununca açılan etkileşimli kart (ayet · hadis · Esmâ) =====
+        // ===== 📬 BİLDİRİM KUTUSU (v3.1) =====
+        const useKutu = () => {
+            const [, setT] = React.useState(0);
+            React.useEffect(() => (window.ZKUTU ? window.ZKUTU.abone(() => setT(t => t + 1)) : undefined), []);
+            return window.ZKUTU ? window.ZKUTU.oku() : [];
+        };
+        const zamanOnce = (t) => {
+            const d = (Date.now() - t) / 60000;
+            if (d < 1) return 'az önce';
+            if (d < 60) return `${Math.floor(d)} dk önce`;
+            if (d < 1440) return `${Math.floor(d / 60)} sa önce`;
+            return new Date(t).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        };
+        const gunEtiketi = (t) => {
+            const b = new Date(); b.setHours(0, 0, 0, 0);
+            const g = Math.round((b - new Date(new Date(t).setHours(0, 0, 0, 0))) / 864e5);
+            if (g <= 0) return 'Bugün';
+            if (g === 1) return 'Dün';
+            return new Date(t).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' });
+        };
+        const KUTU_TUR = {
+            ayet: { ik: '📖', ad: 'Ayet', kutu: 'bg-emerald-500/15 border-emerald-500/30', yazi: 'text-emerald-300' },
+            hadis: { ik: '📜', ad: 'Hadis', kutu: 'bg-amber-500/15 border-amber-500/30', yazi: 'text-amber-300' },
+            esma: { ik: '✨', ad: 'Esmâ', kutu: 'bg-yellow-500/15 border-yellow-500/30', yazi: 'text-yellow-300' },
+            genel: { ik: '🔔', ad: 'Bildirim', kutu: 'bg-sky-500/15 border-sky-500/30', yazi: 'text-sky-300' }
+        };
+
+        const KutuDugmesi = ({ onClick }) => {
+            const liste = useKutu();
+            const n = liste.filter(x => !x.okundu).length;
+            return (
+                <button onClick={onClick} className="relative p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white" title="Bildirim kutusu" aria-label={n ? `Bildirim kutusu, ${n} yeni` : 'Bildirim kutusu'}>
+                    <Icons.Bell size={20} />
+                    {n > 0 && <span className="absolute -top-1 -right-1 min-w-[19px] h-[19px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-slate-900">{n > 99 ? '99+' : n}</span>}
+                </button>
+            );
+        };
+
+        const BildirimKutusu = ({ acik, kapat, ac, showToast }) => {
+            const liste = useKutu();
+            const yeniN = liste.filter(x => !x.okundu).length;
+            const begeniN = liste.filter(x => x.begeni).length;
+            const [sekme, setSekme] = React.useState('yeni');
+            const [acikId, setAcikId] = React.useState(null);
+            const [ara, setAra] = React.useState('');
+            const [mesgul, setMesgul] = React.useState('');
+            const [gorulen, setGorulen] = React.useState([]); // bu açılışta okunanlar "Yeni" sekmesinde soluk kalır (hemen kaybolmaz)
+            React.useEffect(() => {
+                if (!acik) return;
+                setAra(''); setAcikId(null); setGorulen([]);
+                if (window.ZKUTU) window.ZKUTU.topla().then(() => setSekme(window.ZKUTU.yeniSayi() ? 'yeni' : (window.ZKUTU.oku().length ? 'tumu' : 'yeni')));
+                const esc = (e) => { if (e.key === 'Escape') kapat(); };
+                window.addEventListener('keydown', esc);
+                return () => window.removeEventListener('keydown', esc);
+            }, [acik]);
+            if (!acik) return null;
+            const Z = window.ZKUTU;
+            const ayar = Z ? Z.ayar() : {};
+            const kucuk = (s) => s.toLocaleLowerCase('tr-TR');
+            let gor = sekme === 'yeni' ? liste.filter(x => !x.okundu || gorulen.includes(x.id)) : sekme === 'begeni' ? liste.filter(x => x.begeni) : liste;
+            if (ara.trim()) { const q = kucuk(ara.trim()); gor = gor.filter(x => kucuk(x.baslik + ' ' + x.govde).includes(q)); }
+            const gruplar = [];
+            gor.forEach(x => { const e = gunEtiketi(x.t); const g = gruplar[gruplar.length - 1]; if (g && g.e === e) g.l.push(x); else gruplar.push({ e, l: [x] }); });
+            const okunanSilinebilir = liste.some(x => x.okundu && !x.begeni);
+            const sonuc = (r, ok) => { if (r === 'kopya') showToast && showToast('📋 Panoya kopyalandı'); else if (r === 'indi') showToast && showToast('🖼️ Görsel indirildi'); else if (r === 'hata') showToast && showToast('Paylaşılamadı'); else if (r === 'ok' && ok) showToast && showToast(ok); };
+            const sekmeBtn = (id, ad, n) => (
+                <button key={id} role="tab" aria-selected={sekme === id} onClick={() => { setSekme(id); setAcikId(null); }} className={`${id === 'begeni' ? 'flex-[1.7]' : 'flex-1'} min-h-[42px] px-1.5 whitespace-nowrap rounded-xl text-[13px] font-bold transition-colors ${sekme === id ? 'bg-emerald-500 text-emerald-950' : 'text-slate-300 hover:bg-white/5'}`}>
+                    {ad}{n ? <span className={`ml-1 text-[11px] ${sekme === id ? 'text-emerald-900' : 'text-slate-500'}`}>{n}</span> : null}
+                </button>
+            );
+            const kucukBtn = 'inline-flex items-center justify-center gap-1 min-h-[38px] px-3 rounded-lg text-[12px] font-bold border transition-colors';
+            return (
+                <div className="fixed inset-0 z-[72] bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={kapat}>
+                    <div role="dialog" aria-modal="true" aria-label="Bildirim kutusu" onClick={e => e.stopPropagation()} className="w-full sm:max-w-xl max-h-[92dvh] flex flex-col bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700 rounded-t-3xl sm:rounded-3xl shadow-2xl animate-fade-in">
+                        <div className="p-5 pb-3 border-b border-white/5">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                    <h2 className="text-lg font-bold text-white">📬 Bildirim Kutusu</h2>
+                                    <p className="text-[12px] text-slate-400">{yeniN ? `${yeniN} okunmamış` : 'Okunmamış bildirim yok'} · {begeniN} beğenilen</p>
+                                </div>
+                                <button autoFocus onClick={kapat} aria-label="Kutuyu kapat" className="p-2.5 -mr-1 -mt-1 rounded-full hover:bg-white/5 text-slate-300"><Icons.X size={20} /></button>
+                            </div>
+                            <div role="tablist" className="mt-3 flex gap-1 p-1 rounded-2xl bg-slate-800/70 border border-slate-700">
+                                {sekmeBtn('yeni', 'Yeni', yeniN)}
+                                {sekmeBtn('tumu', 'Tümü', liste.length)}
+                                {sekmeBtn('begeni', <>❤️<span className="hidden min-[360px]:inline"> Beğendiklerim</span></>, begeniN)}
+                            </div>
+                            {liste.length > 5 && sekme !== 'yeni' && (
+                                <input value={ara} onChange={e => setAra(e.target.value)} placeholder="🔍 Bildirimlerde ara…" aria-label="Bildirimlerde ara" className="mt-3 w-full min-h-[42px] px-3 rounded-xl bg-slate-800 border border-slate-700 text-[16px] text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500" />
+                            )}
+                            {(yeniN > 0 || okunanSilinebilir) && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {yeniN > 0 && <button onClick={() => { setGorulen(liste.filter(x => !x.okundu).map(x => x.id)); Z.hepsiOkundu(); showToast && showToast('✓ Hepsi okundu sayıldı'); }} className={`${kucukBtn} bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700`}>✓ Hepsini okundu say</button>}
+                                    {okunanSilinebilir && <button onClick={() => { Z.okunanlariSil(); showToast && showToast('🧹 Okunanlar silindi (beğendiklerin duruyor)'); }} className={`${kucukBtn} bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700`}>🧹 Okunanları sil</button>}
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex-1 overflow-y-auto px-5 py-3">
+                            {gor.length === 0 && (
+                                <div className="py-12 text-center">
+                                    <div className="text-5xl mb-3">{sekme === 'begeni' ? '🤍' : ara ? '🔍' : '📭'}</div>
+                                    <p className="text-slate-200 font-bold mb-1">{ara ? 'Aramaya uyan bildirim yok' : sekme === 'begeni' ? 'Henüz beğendiğin bildirim yok' : sekme === 'yeni' ? 'Yeni bildirim yok' : 'Kutu boş'}</p>
+                                    <p className="text-[13px] text-slate-400 max-w-xs mx-auto">{sekme === 'begeni' ? 'Bir bildirimdeki 🤍 düğmesine dokun; o bildirim burada kalır, istediğin zaman tekrar okur ve paylaşırsın.' : 'Telefona gelen bildirimler burada birikir. Okuduklarını silebilir, sevdiklerini saklayabilirsin.'}</p>
+                                </div>
+                            )}
+                            {gruplar.map(g => (
+                                <div key={g.e} className="mb-3">
+                                    <p className="text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-2 mt-1">{g.e}</p>
+                                    <div className="space-y-2">
+                                        {g.l.map(x => {
+                                            const tr = KUTU_TUR[x.tur] || KUTU_TUR.genel;
+                                            const genis = acikId === x.id;
+                                            const h = Z.hashOf(x.url);
+                                            return (
+                                                <div key={x.id} data-kutu-oge={x.id} className={`rounded-2xl border p-3 transition-colors ${x.okundu ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-800/80 border-slate-600'}`}>
+                                                    <button onClick={() => { setAcikId(genis ? null : x.id); if (!genis) Z.gorselHazirla(x); if (!x.okundu) { setGorulen(g => g.concat(x.id)); Z.okundu(x.id); } }} className="w-full text-left flex gap-3" aria-expanded={genis}>
+                                                        <span className={`shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center text-lg ${tr.kutu}`} aria-hidden="true">{tr.ik}</span>
+                                                        <span className="min-w-0 flex-1">
+                                                            <span className="flex items-center gap-2">
+                                                                {!x.okundu && <span role="img" className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" aria-label="okunmamış"></span>}
+                                                                <span className={`text-[14px] font-bold truncate ${x.okundu ? 'text-slate-300' : 'text-white'}`}>{x.baslik}</span>
+                                                                {x.begeni && <span className="text-[12px] shrink-0" aria-label="beğenildi">❤️</span>}
+                                                            </span>
+                                                            <span className={`text-[13px] leading-relaxed mt-0.5 break-words ${x.okundu ? 'text-slate-400' : 'text-slate-200'} ${genis ? 'block whitespace-pre-line' : 'line-clamp-2'}`}>{x.govde}</span>
+                                                            <span className={`block text-[11px] mt-1 ${tr.yazi}`}>{tr.ad} · {zamanOnce(x.t)}</span>
+                                                        </span>
+                                                    </button>
+                                                    {genis && (
+                                                        <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                                            {h && <button onClick={() => { kapat(); ac(h); }} className={`${kucukBtn} col-span-2 sm:col-span-4 bg-emerald-500 border-emerald-400 text-emerald-950 hover:bg-emerald-400 text-[13px] min-h-[42px]`}>{x.tur === 'genel' ? 'Uygulamada aç →' : `${tr.ik} Kartı aç · dinle →`}</button>}
+                                                            <button onClick={() => { const b = Z.begen(x.id); showToast && showToast(b ? '❤️ Beğendiklerine eklendi' : 'Beğeni kaldırıldı'); }} className={`${kucukBtn} ${x.begeni ? 'bg-rose-500/20 border-rose-500/40 text-rose-200' : 'bg-slate-800 border-slate-700 text-slate-100'}`}>{x.begeni ? '❤️ Beğenildi' : '🤍 Beğen'}</button>
+                                                            <button onClick={() => Z.paylas(x).then(r => sonuc(r))} className={`${kucukBtn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
+                                                            <button disabled={mesgul === x.id} onClick={() => { setMesgul(x.id); Z.gorselPaylas(x).then(r => sonuc(r)).finally(() => setMesgul('')); }} className={`${kucukBtn} bg-slate-800 border-slate-700 text-slate-100 disabled:opacity-50`}>{mesgul === x.id ? '⏳' : '🖼️'} Görsel</button>
+                                                            <button onClick={() => { Z.sil(x.id); setAcikId(null); }} className={`${kucukBtn} bg-slate-800 border-slate-700 text-slate-300 hover:text-rose-300`}>🗑 Sil</button>
+                                                            {x.okundu && <button onClick={() => Z.okunmadi(x.id)} className={`${kucukBtn} col-span-2 sm:col-span-4 bg-transparent border-transparent text-slate-500 hover:text-slate-300 min-h-[32px]`}>Okunmadı olarak işaretle</button>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-white/5">
+                            <label className="flex items-start gap-3 text-[13px] text-slate-200 cursor-pointer">
+                                <input type="checkbox" className="mt-0.5 w-5 h-5 accent-emerald-500 shrink-0" checked={ayar.otoSil !== false} onChange={e => Z.ayarla('otoSil', e.target.checked)} />
+                                <span>Okuduğum bildirimler 1 gün sonra kendiliğinden silinsin <span className="block text-[11px] text-slate-500 mt-0.5">Beğendiklerin hiç silinmez. Telefondaki bildirim ve simgedeki sayı, bildirime dokununca ya da uygulamayı açınca kalkar.</span></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const AnKarti = ({ kart, setKart, mealSource, reciterSource, toggleFavorite, favorites, surahs, sureAc, showToast }) => {
             const [veri, setVeri] = React.useState(null);
             const [hata, setHata] = React.useState('');
             const [gorunum] = useMushafGorunum();
             const tilavet = useTilavet();
+            useKutu();
             React.useEffect(() => {
                 setVeri(null); setHata('');
                 if (!kart || kart.tur !== 'ayet') return;
@@ -3406,6 +3704,7 @@ Kullanıcının isteği: `;
             };
             const paylas = async (metin) => { try { if (navigator.share) await navigator.share({ text: metin }); else { await navigator.clipboard.writeText(metin); showToast && showToast('📋 Kopyalandı'); } } catch(e){} };
             const btn = 'flex items-center justify-center gap-1.5 min-h-[46px] rounded-xl text-[13px] font-bold border transition-colors';
+            const begenBtn = (hh, baslik, govdeMetin) => { const b = !!(window.ZKUTU && window.ZKUTU.begeniMi(hh)); return <button onClick={() => { if (!window.ZKUTU) return; const s = window.ZKUTU.kartBegen(hh, baslik, govdeMetin); showToast && showToast(s ? '❤️ Beğendiklerine eklendi · 🔔 kutusunda' : 'Beğeni kaldırıldı'); }} className={`${btn} ${b ? 'bg-rose-500/20 border-rose-500/40 text-rose-200' : 'bg-slate-800 border-slate-700 text-slate-100'}`}>{b ? '❤️ Beğenildi' : '🤍 Beğen'}</button>; };
             const sure = kart.tur === 'ayet' ? (surahs.find(x => x.number === kart.s) || { number: kart.s, name: getTurkishName(kart.s), englishName: getTurkishName(kart.s) }) : null;
             const isFav = kart.tur === 'ayet' && favorites.some(f => f.uid === `${kart.s}:${kart.a}`);
             const ayetCaliyor = kart.tur === 'ayet' && tilavet.sure === kart.s && tilavet.ayet === kart.a && tilavet.caliyor;
@@ -3423,7 +3722,7 @@ Kullanıcının isteği: `;
                                 <p className="text-[11px] text-slate-500 mb-4">Meal: {(MEAL_SOURCES.find(m => m.id === mealSource) || {}).name || mealSource}</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     <button onClick={() => { if (ayetCaliyor) { window.ZTILAVET.duraklat(); return; } window.ZTILAVET.baslat({ sure: kart.s, sureAdi: getTurkishName(kart.s), ayet: kart.a, ayetler: [{ no: kart.a, audio: veri.audio, ar: veri.ar, tr: veri.tr }] }); }} className={`${btn} bg-emerald-500 text-emerald-950 border-emerald-400 hover:bg-emerald-400 col-span-2`}>{ayetCaliyor ? '⏸ Duraklat' : '▶ Dinle (Arapça + meal)'}</button>
-                                    <button onClick={() => { if (sure) toggleFavorite({ number: veri.number, numberInSurah: kart.a, text: veri.tr, arabic: veri.ar }, sure); }} className={`${btn} ${isFav ? 'bg-rose-500/20 border-rose-500/40 text-rose-200' : 'bg-slate-800 border-slate-700 text-slate-100'}`}>{isFav ? '❤️ Favoride' : '🤍 Favoriye ekle'}</button>
+                                    <button onClick={() => { if (sure) { toggleFavorite({ number: veri.number, numberInSurah: kart.a, text: veri.tr, arabic: veri.ar }, sure); try { const hh = `ayet-${kart.s}-${kart.a}`; if (window.ZKUTU && window.ZKUTU.begeniMi(hh) === isFav) window.ZKUTU.kartBegen(hh, `📖 ${getTurkishName(kart.s)} Suresi · ${kart.a}. ayet`, `${veri.tr} (${getTurkishName(kart.s)}, ${kart.a})`); } catch(e){} } }} className={`${btn} ${isFav ? 'bg-rose-500/20 border-rose-500/40 text-rose-200' : 'bg-slate-800 border-slate-700 text-slate-100'}`}>{isFav ? '❤️ Favoride' : '🤍 Favoriye ekle'}</button>
                                     <button onClick={() => { kapat(); sureAc(kart.s, kart.a); }} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>📖 Surede aç</button>
                                     <button onClick={() => paylas(`${veri.ar}\n\n${veri.tr}\n(${getTurkishName(kart.s)}, ${kart.a})`)} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
                                     <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🎲 Başka bir ayet</button>
@@ -3441,8 +3740,9 @@ Kullanıcının isteği: `;
                         <p className="text-[12px] text-amber-200/80 mb-4">{hd.k}</p>
                         <div className="grid grid-cols-2 gap-2">
                             <button onClick={() => window.ZTILAVET.tekMetin(hd.t)} className={`${btn} bg-amber-500 text-amber-950 border-amber-400 col-span-2`}>🔊 Dinle</button>
+                            {begenBtn(`hadis-${kart.i}`, '📜 Hadis-i şerif', `“${hd.t}” (${hd.k})`)}
                             <button onClick={() => paylas(`“${hd.t}” (${hd.k})`)} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
-                            <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🎲 Başka bir hadis</button>
+                            <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100 col-span-2`}>🎲 Başka bir hadis</button>
                         </div>
                     </>
                 );
@@ -3456,8 +3756,9 @@ Kullanıcının isteği: `;
                         <p className="text-[16px] text-center text-slate-300 mb-4">{es.d}</p>
                         <div className="grid grid-cols-2 gap-2">
                             <button onClick={() => window.ZTILAVET.tekMetin(`${es.n}. ${es.d}.`)} className={`${btn} bg-yellow-500 text-yellow-950 border-yellow-400 col-span-2`}>🔊 Dinle</button>
+                            {begenBtn(`esma-${kart.i}`, `✨ Esmâ-ül Hüsnâ · ${es.n}`, `${es.n}: ${es.d}`)}
                             <button onClick={() => paylas(`${es.ar} · ${es.n}: ${es.d}`)} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
-                            <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🎲 Başka bir isim</button>
+                            <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100 col-span-2`}>🎲 Başka bir isim</button>
                         </div>
                         <p className="text-[10px] text-slate-500 mt-3">Sıra ve isimler Tirmizî'nin (Daavât, 82) rivayetine, anlamlar TDV İslâm Ansiklopedisi'ne dayanır.</p>
                     </>
@@ -5799,7 +6100,10 @@ JSON ŞEMASI:
                                 <button onClick={() => setJumpModalOpen(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white" title="Hızlı Ayete Git"><Icons.Compass size={20} /></button>
                                 <button onClick={handleRandomAyah} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white" title="Rastgele Ayet (Tefekkür)"><Icons.Shuffle size={20} /></button>
                             </div>
-                            <button onClick={() => setShowSettings(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white" title="Ayarlar"><Icons.Settings size={20} /></button>
+                            <div className="flex gap-2">
+                                <KutuDugmesi onClick={() => window.dispatchEvent(new Event('zirve-kutu-ac'))} />
+                                <button onClick={() => setShowSettings(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white" title="Ayarlar"><Icons.Settings size={20} /></button>
+                            </div>
                         </div>
                         
                         <div className="text-center mb-6">
@@ -6210,7 +6514,9 @@ JSON ŞEMASI:
         const KuranSiyerApp = () => {
             const [user, setUser] = React.useState(null);
             const [view, setView] = React.useState('home'); 
-            const [anKart, setAnKart] = React.useState(null); // bildirimden açılan ayet/hadis/Esmâ kartı
+            const [anKart, setAnKart] = React.useState(null);
+            const [kutuAcik, setKutuAcik] = React.useState(false); // 📬 bildirim kutusu
+            React.useEffect(() => { const f = () => setKutuAcik(true); window.addEventListener('zirve-kutu-ac', f); return () => window.removeEventListener('zirve-kutu-ac', f); }, []); // bildirimden açılan ayet/hadis/Esmâ kartı
             useOtoTazele();
             const [surahs, setSurahs] = React.useState([]);
             const [currentSurah, setCurrentSurah] = React.useState(null);
@@ -6259,6 +6565,7 @@ JSON ŞEMASI:
                 let m = null;
                 if (h === 'kaldigim') { if (lastRead) sureAc(lastRead.surahNo, lastRead.ayahNo); else setView('home'); }
                 else if (h === 'hatim') setView('hatim');
+                else if (h === 'kutu' || h === 'bildirimler') setKutuAcik(true);
                 else if (h === 'favoriler') setView('favorites');
                 else if (h === 'notlar') setView('notes');
                 else if (h === 'anasayfa') setView('home');
@@ -6267,6 +6574,7 @@ JSON ŞEMASI:
                 else if ((m = h.match(/^hadis-(\d{1,4})$/)) && HADIS_HAVUZU[+m[1]]) setAnKart({ tur: 'hadis', i: +m[1] });
                 else if ((m = h.match(/^esma-(\d{1,3})$/)) && ESMA_99[+m[1]]) setAnKart({ tur: 'esma', i: +m[1] });
                 else return;
+                try { window.ZKUTU && window.ZKUTU.okunduUrl(h); } catch(e){}
                 try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
             }, [hashTik, surahs, lastRead]);
             const [jumpModalOpen, setJumpModalOpen] = React.useState(false);
@@ -6724,6 +7032,7 @@ JSON ŞEMASI:
                         error={aiImageError}
                     />
                     
+                    <BildirimKutusu acik={kutuAcik} kapat={() => setKutuAcik(false)} ac={(h) => { try { location.hash = h; } catch(e){} }} showToast={showToast} />
                     <AnKarti kart={anKart} setKart={setAnKart} mealSource={mealSource} reciterSource={reciterSource} toggleFavorite={toggleFavorite} favorites={favorites} surahs={surahs} showToast={showToast}
                         sureAc={(no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) sessionStorage.setItem('jumpToAyah', ayet); } }} />
                     <TilavetCubugu />
