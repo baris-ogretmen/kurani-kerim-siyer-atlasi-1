@@ -94,6 +94,11 @@
     <style>
     /* 📱 Telefon önce: iPhone giriş kutularında yakınlaştırmasın, Ayarlar'da dokunma alanları en az 44 px */
     .zs-izgara > * { min-width: 0 !important; }
+    /* 🎧 okunan kelime takibi */
+    body.zk-tilavet #root .pb-24 { padding-bottom: calc(13rem + env(safe-area-inset-bottom, 0px)); }
+    .zk-kelime { border-radius: .35em; transition: background-color .18s ease, box-shadow .18s ease; }
+    .zk-kelime.zk-aktif { background: rgba(250, 204, 21, .22); box-shadow: 0 0 0 .12em rgba(250, 204, 21, .35); }
+    .zk-kelime.zk-durak.zk-aktif { background: transparent; box-shadow: none; }
     .zs-cipler > button { white-space: normal !important; }
     @media (max-width: 768px) { input:not([type=range]):not([type=checkbox]):not([type=radio]), select, textarea { font-size: 16px !important; min-width: 0; } }
     @media (pointer: coarse) {
@@ -1314,9 +1319,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v2.6', tarih:'18.10.2026', satir:5972, kb:617,
-        onceki:{ surum:'v2.5', satir:5964, kb:617 },
-        yenilikler:['📬 Herkes hangi bildirimlerin geleceğini kendi seçer: sabah ayeti, saat başı ayet, saat başı hadis, Esmâ, Cuma, akşam, hatim','Dini içerik baştan sona denetlendi: besmele, nüzul sırası, hadis künyeleri, sünnetler','Sure adlarının anlamları ve ayet sayısı denetimi','Bildirim: adım adım tanılama + önerilen hatırlatmaları tek dokunuşla kur','Ayet sorularında yapay zekâya sure ve ayet numarası gönderiliyor'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v3.0', tarih:'18.11.2026', satir:6782, kb:719,
+        onceki:{ surum:'v2.6', satir:5972, kb:617 },
+        yenilikler:['🎧 Kesintisiz dinleme: Arapça + meal sesi, tekrar, hız, uyku zamanlayıcı, kilit ekranı kontrolleri','🎨 Tecvidli renkli Mushaf ve 🔤 harf harf renkli görünüm; okunan kelime izlenir','🔔 Bildirimler her gün değişir: 89 ayet, 130 hadis, 99 Esmâ, mübarek günler','📖 Bildirime dokununca dinle/favori/paylaş kartı','🕌 Namaz vakitleri ve sıradaki mübarek gün'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1511,7 +1516,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='2.6';
+    const SURUM='3.0';
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -1659,12 +1664,271 @@
     })();
     </script>
 
+    <!-- ===== 🎧 TİLAVET MOTORU (v3.0): kesintisiz dinleme · Arapça + meal sesi · tekrar · hız · uyku zamanlayıcı · kilit ekranı kontrolleri · kelime takibi ===== -->
+    <script>
+    (function(){
+      "use strict";
+      function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+      function yaz(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+      // ---------- 🗣️ MEAL SESİ: yapay zekâ sesi (Gemini TTS "Charon", baris-kasa üzerinden) → olmazsa cihazın Türkçe sesi ----------
+      var TTS_MODEL='gemini-2.5-flash-preview-tts';
+      var onbellek={}, sira=[], bekleyen={}, sogumaBitis=0;
+      function anahtar(){
+        try{ var k=(localStorage.getItem('geminiApiKey')||'').trim(); if(k) return k; var z=JSON.parse(localStorage.getItem('zirve_keys')||'[]'); if(Array.isArray(z)&&z[0]) return z[0]; }catch(e){}
+        return window.ZKASA_URL ? 'KASA-anahtar-kasada-saklaniyor-00' : '';
+      }
+      function yzSesAcik(){ return oku('zirve_meal_ses')!=='cihaz' && !!anahtar() && Date.now()>sogumaBitis; }
+      function pcmWav(b64, rate){
+        var ikili=atob(b64), n=ikili.length, buf=new ArrayBuffer(44+n), v=new DataView(buf), i;
+        function s(o,t){ for(var j=0;j<t.length;j++) v.setUint8(o+j,t.charCodeAt(j)); }
+        s(0,'RIFF'); v.setUint32(4,36+n,true); s(8,'WAVE'); s(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+        v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); s(36,'data'); v.setUint32(40,n,true);
+        for(i=0;i<n;i++) v.setUint8(44+i, ikili.charCodeAt(i));
+        return URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
+      }
+      function yzSes(metin){
+        if(onbellek[metin]) return Promise.resolve(onbellek[metin]);
+        if(bekleyen[metin]) return bekleyen[metin];
+        var govde={ contents:[{ parts:[{ text:'Ağırbaşlı, sakin, saygılı ve anlaşılır bir sesle, acele etmeden oku: '+metin }] }],
+          generationConfig:{ responseModalities:['AUDIO'], speechConfig:{ voiceConfig:{ prebuiltVoiceConfig:{ voiceName:'Charon' } } } } };
+        var zaman=new Promise(function(_,red){ setTimeout(function(){ red(new Error('zaman')); }, 20000); });
+        var p=Promise.race([fetch('https://generativelanguage.googleapis.com/v1beta/models/'+TTS_MODEL+':generateContent?key='+encodeURIComponent(anahtar()),
+          { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(govde) }), zaman])
+          .then(function(r){ if(!r.ok){ if(r.status===429||r.status>=500) sogumaBitis=Date.now()+10*60*1000; throw new Error('tts '+r.status); } return r.json(); })
+          .then(function(j){
+            var p0=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[];
+            var d=null; for(var i=0;i<p0.length;i++){ if(p0[i].inlineData&&p0[i].inlineData.data){ d=p0[i].inlineData; break; } }
+            if(!d) throw new Error('ses yok');
+            var m=/rate=(\d+)/.exec(d.mimeType||''); var url=pcmWav(d.data, m?+m[1]:24000);
+            onbellek[metin]=url; sira.push(metin); if(sira.length>40){ var eski=sira.shift(); try{ URL.revokeObjectURL(onbellek[eski]); }catch(e){} delete onbellek[eski]; }
+            return url;
+          });
+        bekleyen[metin]=p; p.then(function(){ delete bekleyen[metin]; }, function(){ delete bekleyen[metin]; });
+        return p;
+      }
+      function trSesi(){
+        try{ var s=speechSynthesis.getVoices()||[]; return s.find(function(v){ return /tr(-|_)?TR/i.test(v.lang) && /Yelda|Google|Siri|Premium|Enhanced/i.test(v.name); }) || s.find(function(v){ return /^tr/i.test(v.lang); }) || null; }catch(e){ return null; }
+      }
+      var cihazKonusma=null, cihazJeton=0;
+      // Uzun metinler cümle cümle okunur (bazı tarayıcılar ~15 sn sonra konuşmayı keser)
+      function cumleler(m){ var p=String(m||'').match(/[^.!?;:]+[.!?;:]*\s*/g)||[String(m||'')], out=[], b='';
+        p.forEach(function(x){ if((b+x).length>180 && b){ out.push(b.trim()); b=x; } else b+=x; }); if(b.trim()) out.push(b.trim()); return out; }
+      function cihazSes(metin, hiz){
+        var j=++cihazJeton, parca=cumleler(metin);
+        return parca.reduce(function(pr, c){ return pr.then(function(){ if(j!==cihazJeton) return; return cihazParca(c, hiz); }); }, Promise.resolve());
+      }
+      function cihazParca(metin, hiz){
+        return new Promise(function(coz){
+          try{
+            if(!('speechSynthesis' in window)) return coz();
+            speechSynthesis.cancel();
+            var u=new SpeechSynthesisUtterance(metin); u.lang='tr-TR'; var v=trSesi(); if(v) u.voice=v; u.rate=Math.max(.6, Math.min(1.4, (hiz||1)*0.95));
+            var bitti=false; function son(){ if(bitti) return; bitti=true; cihazKonusma=null; coz(); }
+            u.onend=son; u.onerror=son; cihazKonusma=u; speechSynthesis.speak(u);
+            setTimeout(son, Math.max(4000, metin.length*140/(hiz||1))); // iOS bazen onend vermez
+          }catch(e){ coz(); }
+        });
+      }
+      window.ZTTS={ yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, onYukle:function(m){ if(m && yzSesAcik()) yzSes(m).catch(function(){}); } };
+
+      // ---------- 🎧 TİLAVET ----------
+      var ses=new Audio(); ses.preload='auto'; try{ ses.setAttribute('playsinline',''); }catch(e){}
+      var D={ aktif:false, caliyor:false, sure:0, sureAdi:'', ayetler:[], idx:0, asama:'ar', tekrarSayac:0,
+        mod: oku('zirve_tilavet_mod')||'armeal', tekrar: +(oku('zirve_tilavet_tekrar')||1), hiz: +(oku('zirve_tilavet_hiz')||1),
+        takip: oku('zirve_tilavet_takip')!=='0', uyku:0, uykuBitis:0, okuyucu:'' };
+      var dinleyiciler=[]; var sonKelime=-1, kelimeEl=[], kelimeAg=[], toplamAg=0;
+      function yay(){ var k=durum(); dinleyiciler.forEach(function(f){ try{ f(k); }catch(e){} }); try{ window.dispatchEvent(new CustomEvent('ztilavet',{ detail:k })); }catch(e){} }
+      function durum(){ var a=D.ayetler[D.idx]; return { aktif:D.aktif, caliyor:D.caliyor, sure:D.sure, sureAdi:D.sureAdi, ayet:a?a.no:0, toplam:D.ayetler.length, son:D.ayetler.length?D.ayetler[D.ayetler.length-1].no:0, asama:D.asama, mod:D.mod, tekrar:D.tekrar, hiz:D.hiz, takip:D.takip, uyku:D.uyku, uykuBitis:D.uykuBitis }; }
+
+      function kelimeleriHazirla(){
+        var a=D.ayetler[D.idx]; kelimeTemizle(); kelimeEl=[]; kelimeAg=[]; toplamAg=0;
+        if(!a) return;
+        var kap=kapBul(a.no); if(!kap) return;
+        kelimeEl=[].slice.call(kap.querySelectorAll('.zk-kelime'));
+        kelimeAg=kelimeEl.map(function(e){ return +(e.getAttribute('data-w')||1); });
+        toplamAg=kelimeAg.reduce(function(x,y){ return x+y; },0) || 1;
+      }
+      function kelimeTemizle(){ document.querySelectorAll('.zk-kelime.zk-aktif').forEach(function(e){ e.classList.remove('zk-aktif'); }); sonKelime=-1; }
+      ses.addEventListener('timeupdate', function(){
+        if(!D.aktif || D.asama!=='ar' || !ses.duration || !isFinite(ses.duration)) return;
+        if(!kelimeEl.length || !kelimeEl[0].isConnected) kelimeleriHazirla();
+        if(!kelimeEl.length) return;
+        // Kelime takibi YAKLAŞIKTIR: süre, kelimelerin harf uzunluğuna göre bölüştürülür (baştaki ve sondaki kısa sessizlik payı ile)
+        var bas=Math.min(.6, ses.duration*.06), son=Math.min(.8, ses.duration*.08);
+        var t=(ses.currentTime-bas)/Math.max(.1, ses.duration-bas-son); t=Math.max(0, Math.min(.9999, t));
+        var hedef=t*toplamAg, top=0, i=0;
+        for(i=0;i<kelimeAg.length;i++){ top+=kelimeAg[i]; if(top>=hedef) break; }
+        if(i!==sonKelime && kelimeEl[i]){ if(sonKelime>=0 && kelimeEl[sonKelime]) kelimeEl[sonKelime].classList.remove('zk-aktif'); kelimeEl[i].classList.add('zk-aktif'); sonKelime=i; }
+      });
+
+      function medyaOturumu(){
+        try{
+          if(!('mediaSession' in navigator)) return;
+          var a=D.ayetler[D.idx]; if(!a || D.tek) return;
+          var ikon=(document.querySelector('link[rel="apple-touch-icon"]')||{}).href||'';
+          navigator.mediaSession.metadata=new MediaMetadata({ title:D.sureAdi+' Suresi · '+a.no+'. ayet', artist:(D.okuyucu||'Kur\'an-ı Kerîm')+(D.asama==='tr'?' · Meal':''), album:"Kur'an ve Siyer Atlası", artwork: ikon?[{ src:ikon, sizes:'180x180', type:'image/png' }]:[] });
+          navigator.mediaSession.setActionHandler('play', function(){ devam(); });
+          navigator.mediaSession.setActionHandler('pause', function(){ duraklat(); });
+          navigator.mediaSession.setActionHandler('nexttrack', function(){ sonraki(); });
+          navigator.mediaSession.setActionHandler('previoustrack', function(){ onceki(); });
+          try{ navigator.mediaSession.setActionHandler('stop', function(){ durdur(); }); }catch(e){}
+        }catch(e){}
+      }
+      function uykuDoldu(){ return D.uykuBitis && Date.now()>=D.uykuBitis; }
+      function cal(){
+        if(!D.aktif) return;
+        var a=D.ayetler[D.idx]; if(!a){ bitir(); return; }
+        if(uykuDoldu()){ D.uyku=0; D.uykuBitis=0; duraklat(); return; }
+        kelimeTemizle();
+        if(D.mod==='meal'){ D.asama='tr'; } else if(D.asama!=='tr'){ D.asama='ar'; }
+        D.caliyor=true; medyaOturumu(); yay();
+        try{ var sonrakiA=D.ayetler[D.idx+1]; if(D.mod!=='ar' && sonrakiA && sonrakiA.tr) window.ZTTS.onYukle(sonrakiA.tr); if(D.mod!=='ar' && a.tr) window.ZTTS.onYukle(a.tr); }catch(e){}
+        if(D.asama==='ar'){
+          ses.src=a.audio; ses.playbackRate=D.hiz; try{ ses.preservesPitch=true; ses.webkitPreservesPitch=true; }catch(e){}
+          var p=ses.play(); if(p&&p.catch) p.catch(function(e){ if(e && e.name==='AbortError') return; D.caliyor=false; yay(); if(e && e.name!=='NotAllowedError'){ try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('📶 Ses yüklenemedi. İnternet bağlantını kontrol edip ▶ ile devam et.','red'); }catch(_){} } });
+          setTimeout(kelimeleriHazirla, 60);
+        } else {
+          mealOku(a);
+        }
+        if(D.takip) kaydir(a.no);
+      }
+      var mealJeton=0;
+      function mealOku(a){
+        var jeton=++mealJeton;
+        var metin=(a.tr||'').replace(/\s+/g,' ').trim();
+        if(!metin || metin==='...'){ ilerle(); return; }
+        var on='';
+        var git=function(){ if(jeton===mealJeton && D.aktif && D.caliyor) ilerle(); };
+        if(window.ZTTS.yzSesAcik()){
+          window.ZTTS.yzSes(on+metin).then(function(url){
+            if(jeton!==mealJeton || !D.aktif) return;
+            ses.src=url; ses.playbackRate=Math.min(1.25, D.hiz); var p=ses.play(); if(p&&p.catch) p.catch(function(){ window.ZTTS.cihazSes(metin, D.hiz).then(git); });
+          }, function(){ if(jeton!==mealJeton || !D.aktif) return; window.ZTTS.cihazSes(metin, D.hiz).then(git); });
+        } else {
+          window.ZTTS.cihazSes(metin, D.hiz).then(git);
+        }
+      }
+      ses.addEventListener('ended', function(){
+        if(!D.aktif) return;
+        if(D.asama==='ar'){
+          kelimeTemizle();
+          if(D.mod==='armeal'){ D.asama='tr'; cal(); return; }
+          ilerle(); return;
+        }
+        // meal sesi (yapay zekâ) bitti
+        ilerle();
+      });
+      var hataSayac=0;
+      ses.addEventListener('playing', function(){ hataSayac=0; });
+      ses.addEventListener('error', function(){
+        if(!D.aktif || D.asama!=='ar' || !ses.getAttribute('src')) return;
+        hataSayac++;
+        if(hataSayac>=2){ hataSayac=0; duraklat(); try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('📶 Ses yüklenemedi. İnternet bağlantını kontrol edip ▶ ile devam et.','red'); }catch(e){} return; }
+        setTimeout(function(){ if(D.aktif && D.caliyor) ilerle(); }, 600);
+      });
+      function ilerle(){
+        if(D.tek){ D.tek=false; durdur(); return; }
+        D.tekrarSayac++;
+        if(D.tekrar===0 || D.tekrarSayac<D.tekrar){ D.asama= D.mod==='meal'?'tr':'ar'; cal(); return; } // aynı ayeti tekrar et (0 = sonsuz)
+        D.tekrarSayac=0; D.idx++; D.asama= D.mod==='meal'?'tr':'ar';
+        if(D.idx>=D.ayetler.length){ bitir(); return; }
+        cal();
+      }
+      function bitir(){ D.caliyor=false; D.idx=Math.max(0, D.ayetler.length-1); D.aktif=false; kelimeTemizle(); yay(); try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('✅ '+D.sureAdi+' Suresi tamamlandı','green'); }catch(e){} }
+      function kapBul(no){ return document.querySelector('[data-zk-kap="kart-'+D.sure+'-'+no+'"]') || document.querySelector('[data-zk-kap="sure-'+D.sure+'-'+no+'"]'); }
+      function kaydir(no){ try{ var el=kapBul(no); if(el) el.scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){} }
+
+      function baslat(o){
+        mealJeton++; D.tek=false; hataSayac=0; try{ ses.pause(); }catch(e){} cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){}
+        try{ if('speechSynthesis' in window){ var u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); } }catch(e){} // iOS: sesi dokunuşla aç
+        D.sure=o.sure; D.sureAdi=o.sureAdi||''; D.ayetler=o.ayetler||[]; D.okuyucu=o.okuyucu||'';
+        D.idx=Math.max(0, D.ayetler.findIndex(function(a){ return a.no===(o.ayet||D.ayetler[0]&&D.ayetler[0].no); }));
+        if(D.idx<0) D.idx=0; D.tekrarSayac=0; D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal();
+      }
+      function duraklat(){ D.caliyor=false; mealJeton++; try{ ses.pause(); }catch(e){} cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} try{ navigator.mediaSession.playbackState='paused'; }catch(e){} yay(); }
+      function devam(){ if(D.tek && D.ayetler[0]){ D.aktif=true; D.caliyor=true; mealOku(D.ayetler[0]); yay(); return; } if(!D.aktif && D.ayetler.length){ D.aktif=true; } if(!D.aktif) return; D.caliyor=true; if(D.asama==='ar' && ses.src && ses.currentTime>0 && !ses.ended){ var p=ses.play(); if(p&&p.catch) p.catch(function(){}); yay(); } else cal(); try{ navigator.mediaSession.playbackState='playing'; }catch(e){} }
+      function sonraki(){ if(!D.ayetler.length) return; mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.tekrarSayac=0; D.idx=Math.min(D.ayetler.length-1, D.idx+1); D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
+      function onceki(){ if(!D.ayetler.length) return; mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.tekrarSayac=0; D.idx=Math.max(0, D.idx-1); D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
+      function git(no){ var i=D.ayetler.findIndex(function(a){ return a.no===no; }); if(i<0) return; mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.idx=i; D.tekrarSayac=0; D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
+      function durdur(){ duraklat(); D.aktif=false; D.tek=false; D.ayetler=[]; kelimeTemizle(); try{ navigator.mediaSession.metadata=null; }catch(e){} yay(); }
+      var uykuZ=0;
+      function ayarla(k,v){
+        if(k==='mod'){ D.mod=v; yaz('zirve_tilavet_mod', v); }
+        if(k==='tekrar'){ D.tekrar=+v; D.tekrarSayac=0; yaz('zirve_tilavet_tekrar', String(v)); }
+        if(k==='hiz'){ D.hiz=+v; yaz('zirve_tilavet_hiz', String(v)); try{ ses.playbackRate= D.asama==='ar'? D.hiz : Math.min(1.25, D.hiz); }catch(e){} }
+        if(k==='takip'){ D.takip=!!v; yaz('zirve_tilavet_takip', v?'1':'0'); }
+        if(k==='uyku'){ D.uyku=+v; D.uykuBitis= v? Date.now()+(+v)*60000 : 0; clearTimeout(uykuZ); if(v) uykuZ=setTimeout(function(){ if(D.uykuBitis && Date.now()>=D.uykuBitis-500){ D.uyku=0; D.uykuBitis=0; duraklat(); try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('🌙 Uyku zamanlayıcısı: dinleme durduruldu','green'); }catch(e){} } }, (+v)*60000); }
+        yay();
+      }
+      function abone(f){ dinleyiciler.push(f); return function(){ dinleyiciler=dinleyiciler.filter(function(x){ return x!==f; }); }; }
+      // Tek bir metni (hadis, Esmâ, meal) seslendir — bildirim kartlarında kullanılır
+      function tekMetin(metin){ durdur(); var a={ no:0, tr:metin, audio:'' }; D.ayetler=[a]; D.idx=0; D.sure=0; D.sureAdi=''; D.aktif=true; D.caliyor=true; D.asama='tr'; D.tek=true; mealOku(a); yay(); }
+      window.ZTILAVET={ baslat:baslat, duraklat:duraklat, devam:devam, sonraki:sonraki, onceki:onceki, git:git, durdur:durdur, ayarla:ayarla, abone:abone, durum:durum, tekMetin:tekMetin, ses:ses };
+    })();
+    </script>
+
+    <!-- ===== 🎨 TECVİD + HARF RENKLERİ (v3.0) ===== -->
+    <script>
+    (function(){
+      "use strict";
+      // quran-tajweed (alquran.cloud) işaretleri: [x:sayı[metin] — harf koduna göre tecvid kuralı
+      var KURAL={
+        h:{ ad:'Hemze-i vasl (okunmaz)', renk:'#94a3b8' }, s:{ ad:'Okunmayan harf', renk:'#94a3b8' }, l:{ ad:'Lâm-ı şemsiyye (okunmaz)', renk:'#94a3b8' },
+        n:{ ad:'Medd-i tabiî (1 elif)', renk:'#7fb2ff' }, o:{ ad:'Medd-i muttasıl', renk:'#5a8dff' }, p:{ ad:'Medd-i munfasıl / câiz', renk:'#9b8cff' }, m:{ ad:'Medd-i lâzım', renk:'#c4b5fd' },
+        q:{ ad:'Kalkale', renk:'#ff5a67' }, g:{ ad:'Gunne', renk:'#ff9a3d' }, f:{ ad:'İhfâ', renk:'#d17bff' }, c:{ ad:'İhfâ-i şefevî', renk:'#ff6ad5' },
+        i:{ ad:'İklâb', renk:'#38c6ff' }, a:{ ad:'İdgâm-ı meal-gunne', renk:'#34d1a4' }, u:{ ad:'İdgâm-ı bilâ-gunne', renk:'#5fd45a' }, w:{ ad:'İdgâm-ı şefevî (misleyn)', renk:'#a3e635' },
+        d:{ ad:'İdgâm-ı mütecaniseyn', renk:'#a1a1aa' }, b:{ ad:'İdgâm-ı mütekaribeyn', renk:'#a1a1aa' }
+      };
+      var RE=/\[([a-z])(?::\d+)?\[([^\]]*)\]/g;
+      function temiz(t){ return String(t||'').replace(RE,'$2'); }
+      // Boşluktan kelimelere böl — tecvid işaretinin İÇİNDEKİ boşlukta bölme
+      function bol(t){ return String(t||'').replace(RE, function(m){ return m.replace(/\s/g,'\u0001'); }).trim().split(/\s+/).filter(Boolean).map(function(w){ return w.replace(/\u0001/g,' '); }); }
+      function iskelet(w){ return String(w||'').replace(/[ً-ٰٟۖ-ۭـ]/g,'').replace(/[ٱآأإ]/g,'ا'); }
+      // Besmele (Fâtiha ve Tevbe dışında) 1. ayetin parçası değildir: ayır
+      function besmeleAyir(ham, sure, ayet){
+        if(ayet!==1 || sure===1 || sure===9) return ham;
+        var k=bol(ham), h=['بسم','الله','الرحمن','الرحيم'];
+        if(k.length>4 && h.every(function(w,i){ return iskelet(temiz(k[i]))===w; })) return k.slice(4).join(' ');
+        return ham;
+      }
+      // Bir kelimeyi parçalara ayır: [{t:'metin', k:'kural harfi'|null}]
+      function kelimeParca(kelime){
+        var out=[], son=0, m; RE.lastIndex=0;
+        while((m=RE.exec(kelime))){ if(m.index>son) out.push({ t:kelime.slice(son,m.index), k:null }); out.push({ t:m[2], k:m[1] }); son=RE.lastIndex; }
+        if(son<kelime.length) out.push({ t:kelime.slice(son), k:null });
+        return out.filter(function(x){ return x.t; });
+      }
+      // Durak işaretleri ve süsler (kelime değil): ۖ ۗ ۚ ۛ ۘ ۙ ۜ ۞ ۩
+      function durakMi(w){ return /^[ۖ-ۭ۞۩\s]+$/.test(w); }
+      // Kelimenin okunma süresi ağırlığı (yaklaşık): harf sayısı + uzatma işaretleri
+      function agirlik(w){
+        var t=temiz(w); if(durakMi(t)) return 0.9;
+        var harf=(iskelet(t).match(/[ء-يٱ]/g)||[]).length;
+        var medd=(t.match(/[ٰٓ]/g)||[]).length + ((w.match(/\[[nopm]/g)||[]).length);
+        return Math.max(1, harf) + medd*1.6;
+      }
+      // Elif-Ba harf renkleri: her harfe sabit bir renk (harfleri tanımaya yardım)
+      var HARFLER='اأإآٱبتثجحخدذرزسشصضطظعغفقكلمنهوؤيئىةء';
+      var PALET=['#f87171','#fb923c','#fbbf24','#a3e635','#4ade80','#34d399','#2dd4bf','#22d3ee','#38bdf8','#60a5fa','#818cf8','#a78bfa','#c084fc','#e879f9','#f472b6','#fb7185','#fca5a5','#fdba74','#fde047','#bef264','#86efac','#6ee7b7','#5eead4','#67e8f9','#7dd3fc','#93c5fd','#a5b4fc','#c4b5fd'];
+      var KOK={'أ':'ا','إ':'ا','آ':'ا','ٱ':'ا','ؤ':'و','ئ':'ي','ى':'ي','ة':'ه','ء':'ا'};
+      var SIRA='ابتثجحخدذرزسشصضطظعغفقكلمنهوي';
+      var ADLAR={'ا':'Elif','ب':'Be','ت':'Te','ث':'Se','ج':'Cîm','ح':'Hâ','خ':'Hı','د':'Dâl','ذ':'Zel','ر':'Râ','ز':'Ze','س':'Sîn','ش':'Şîn','ص':'Sâd','ض':'Dâd','ط':'Tı','ظ':'Zı','ع':'Ayn','غ':'Ğayn','ف':'Fe','ق':'Kâf','ك':'Kef','ل':'Lâm','م':'Mîm','ن':'Nûn','ه':'He','و':'Vâv','ي':'Ye'};
+      function harfRengi(h){ var k=KOK[h]||h; var i=SIRA.indexOf(k); return i<0?null:PALET[i%PALET.length]; }
+      function harfAdi(h){ return ADLAR[KOK[h]||h]||''; }
+      // Kelimeyi harf+harekeleri bir arada tutan kümelere böl (hareke ayrı span'e düşmesin)
+      function harfKumeleri(w){ var out=[], cur=''; for(var i=0;i<w.length;i++){ var c=w[i]; if(/[ً-ٰٟۖ-ۭـ]/.test(c) && cur){ cur+=c; } else { if(cur) out.push(cur); cur=c; } } if(cur) out.push(cur); return out; }
+      window.ZTECVID={ KURAL:KURAL, temiz:temiz, bol:bol, besmeleAyir:besmeleAyir, kelimeParca:kelimeParca, durakMi:durakMi, agirlik:agirlik, harfRengi:harfRengi, harfAdi:harfAdi, harfKumeleri:harfKumeleri };
+    })();
+    </script>
+
     <script type="text/babel">
         // --- ICONLAR ---
         const Icons = {
             BookOpen: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
             Search: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
             Heart: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M19 14c1.49-1.28 3.6-2.34 3.6-5.36a4.83 4.83 0 0 0-5.5-5.36C15.22 3.79 15 5.79 15 6h-3.17A4.62 4.62 0 0 0 9.5 2.5 5.25 5.25 0 0 0 2.5 7.5c0 3.09 3.06 4.7 5.1 6.5l6.4 6z"/></svg>,
+            ChevronRight: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m9 18 6-6-6-6"/></svg>,
             ChevronLeft: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m15 18-6-6 6-6"/></svg>,
             ChevronUp: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m18 15-6-6-6 6"/></svg>,
             Moon: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
@@ -2970,6 +3234,330 @@ Kullanıcının isteği: `;
             );
         };
 
+        // ===== 📚 DOĞRULANMIŞ İÇERİK HAVUZLARI (v3.0) =====
+        // Hadisler: Kütüb-i Sitte'den, künyeleri iki ayrı denetimden geçti (Kitap, Bölüm, Bab). Meal sade, Diyanet diline yakındır.
+        const HADIS_HAVUZU = [{"t": "Ameller ancak niyetlere göredir. Herkese niyet ettiği şey vardır.", "k": "Buhârî, Bed'ü'l-vahy, 1; Müslim, İmâre, 155"}, {"t": "Kolaylaştırınız, zorlaştırmayınız; müjdeleyiniz, nefret ettirmeyiniz.", "k": "Buhârî, İlim, 11"}, {"t": "Sizin en hayırlınız Kur'an'ı öğrenen ve öğretendir.", "k": "Buhârî, Fedâilü'l-Kur'ân, 21"}, {"t": "Müslüman, dilinden ve elinden Müslümanların emin olduğu kimsedir.", "k": "Buhârî, Îmân, 4; Müslim, Îmân, 64"}, {"t": "Sizden biriniz kendisi için istediğini kardeşi için de istemedikçe (gerçek) iman etmiş olmaz.", "k": "Buhârî, Îmân, 7; Müslim, Îmân, 71"}, {"t": "Allah'a ve ahiret gününe iman eden ya hayır söylesin ya da sussun.", "k": "Buhârî, Edeb, 31; Müslim, Îmân, 74"}, {"t": "Temizlik imanın yarısıdır.", "k": "Müslim, Tahâret, 1"}, {"t": "Kardeşinin yüzüne tebessüm etmen sadakadır.", "k": "Tirmizî, Birr, 36"}, {"t": "Merhamet etmeyene merhamet olunmaz.", "k": "Buhârî, Edeb, 18; Müslim, Fezâil, 65"}, {"t": "Güçlü kimse güreşte rakibini yenen değil, öfke anında kendine hâkim olandır.", "k": "Buhârî, Edeb, 76; Müslim, Birr, 107"}, {"t": "Allah sizin suretlerinize ve mallarınıza bakmaz; fakat kalplerinize ve amellerinize bakar.", "k": "Müslim, Birr, 34"}, {"t": "Amellerin Allah'a en sevimli olanı, az da olsa devamlı olanıdır.", "k": "Buhârî, Rikak, 18; Müslim, Müsâfirîn, 218"}, {"t": "Din nasihattir (samimiyettir).", "k": "Müslim, Îmân, 95"}, {"t": "Bir hayra vesile olan kimseye, o hayrı yapanın sevabı kadar sevap vardır.", "k": "Müslim, İmâre, 133"}, {"t": "Güzel söz sadakadır.", "k": "Buhârî, Cihâd, 128; Müslim, Zekât, 56"}, {"t": "İnsanlara teşekkür etmeyen, Allah'a da şükretmez.", "k": "Tirmizî, Birr, 35; Ebû Dâvûd, Edeb, 11"}, {"t": "Yumuşak huydan mahrum olan kimse, bütün hayırlardan mahrum olur.", "k": "Müslim, Birr, 74"}, {"t": "Sizin en hayırlılarınız, ahlakı en güzel olanlarınızdır.", "k": "Buhârî, Edeb, 38; Müslim, Fezâil, 68"}, {"t": "Kişi sevdiği ile beraberdir.", "k": "Buhârî, Edeb, 96; Müslim, Birr, 165"}, {"t": "Sizden biriniz beni anne babasından, çocuğundan ve bütün insanlardan daha çok sevmedikçe (gerçek) iman etmiş olmaz.", "k": "Buhârî, Îmân, 8; Müslim, Îmân, 70"}, {"t": "Yarım hurma ile de olsa ateşten korunun.", "k": "Buhârî, Zekât, 10; Müslim, Zekât, 66"}, {"t": "Sadaka malı eksiltmez. Allah affeden kulun ancak izzetini artırır.", "k": "Müslim, Birr, 69"}, {"t": "Kim Allah için alçakgönüllü olursa Allah onu yüceltir.", "k": "Müslim, Birr, 69"}, {"t": "Cebrail bana komşu hakkında o kadar çok tavsiyede bulundu ki, komşuyu komşuya mirasçı kılacak sandım.", "k": "Buhârî, Edeb, 28; Müslim, Birr, 140"}, {"t": "Allah'a ve ahiret gününe iman eden komşusuna eziyet etmesin; misafirine ikram etsin.", "k": "Buhârî, Edeb, 31; Müslim, Îmân, 74"}, {"t": "Allah'ım! Senden hidayet, takva, iffet ve gönül zenginliği isterim.", "k": "Müslim, Zikir, 72"}, {"t": "Zenginlik mal çokluğu değildir; asıl zenginlik gönül zenginliğidir.", "k": "Buhârî, Rikak, 15; Müslim, Zekât, 120"}, {"t": "Müminin durumu ne hoştur! Sevindiğinde şükreder, bu onun için hayır olur; başına sıkıntı gelince sabreder, bu da hayır olur.", "k": "Müslim, Zühd, 64"}, {"t": "Sabır, ancak musibetin ilk geldiği andadır.", "k": "Buhârî, Cenâiz, 31; Müslim, Cenâiz, 15"}, {"t": "Kim sabretmeye çalışırsa Allah ona sabır verir. Hiç kimseye sabırdan daha hayırlı ve geniş bir nimet verilmemiştir.", "k": "Buhârî, Zekât, 50; Müslim, Zekât, 124"}, {"t": "Namaz nurdur, sadaka burhandır (delildir), sabır ise ışıktır.", "k": "Müslim, Tahâret, 1"}, {"t": "Allah güzeldir, güzelliği sever.", "k": "Müslim, Îmân, 147"}, {"t": "Hayâ imandandır.", "k": "Buhârî, Îmân, 16; Müslim, Îmân, 59"}, {"t": "Hayâ ancak hayır getirir.", "k": "Buhârî, Edeb, 77; Müslim, Îmân, 60"}, {"t": "İman yetmiş küsur şubedir; en üstünü 'Lâ ilâhe illallah' sözü, en aşağısı yoldan eziyet veren şeyi kaldırmaktır.", "k": "Müslim, Îmân, 58; krş. Buhârî, Îmân, 3"}, {"t": "Kim ilim öğrenmek için bir yola girerse, Allah ona cennete giden yolu kolaylaştırır.", "k": "Müslim, Zikir, 38"}, {"t": "Allah kimin hakkında hayır dilerse onu dinde derin anlayış sahibi kılar.", "k": "Buhârî, İlim, 13; Müslim, Zekât, 98"}, {"t": "İnsan ölünce ameli kesilir; ancak üç şey hariç: sadaka-i câriye, faydalanılan ilim ve kendisine dua eden hayırlı evlat.", "k": "Müslim, Vasiyyet, 14"}, {"t": "Benden (öğrendiklerinizi) bir ayet de olsa tebliğ ediniz.", "k": "Buhârî, Enbiyâ, 50"}, {"t": "Kur'an okuyunuz. Çünkü o, kıyamet günü kendisini okuyanlara şefaatçi olarak gelecektir.", "k": "Müslim, Müsâfirîn, 252"}, {"t": "Kur'an'ı güzel okuyan, değerli meleklerle beraberdir. Zorlanarak okuyana ise iki sevap vardır.", "k": "Müslim, Müsâfirîn, 244"}, {"t": "Kim Allah'ın Kitabı'ndan bir harf okursa ona bir iyilik vardır; her iyilik de on misliyle karşılık görür.", "k": "Tirmizî, Fedâilü'l-Kur'ân, 16"}, {"t": "Evlerinizi kabirlere çevirmeyin. Şeytan, içinde Bakara suresi okunan evden kaçar.", "k": "Müslim, Müsâfirîn, 212"}, {"t": "Kur'an'ı (okuyarak) koruyun. Ondan uzak kalınırsa, ipinden kurtulan deveden daha çabuk kaçar.", "k": "Buhârî, Fedâilü'l-Kur'ân, 23; Müslim, Müsâfirîn, 231"}, {"t": "Kim Kehf suresinin başından on ayet ezberlerse Deccal'in fitnesinden korunur.", "k": "Müslim, Müsâfirîn, 257"}, {"t": "Kur'an'ı seslerinizle güzelleştirin.", "k": "Ebû Dâvûd, Vitir, 20; Nesâî, İftitâh, 83"}, {"t": "İhlâs suresi Kur'an'ın üçte birine denktir.", "k": "Buhârî, Fedâilü'l-Kur'ân, 13"}, {"t": "İki kelime vardır ki dile hafif, mizanda ağır, Rahmân'a sevimlidir: Sübhânallâhi ve bi-hamdihî, Sübhânallâhi'l-azîm.", "k": "Buhârî, Daavât, 65; Müslim, Zikir, 31"}, {"t": "Rabbini anan ile anmayanın durumu, diri ile ölünün durumu gibidir.", "k": "Buhârî, Daavât, 66"}, {"t": "'Lâ havle ve lâ kuvvete illâ billâh' cennet hazinelerinden bir hazinedir.", "k": "Buhârî, Daavât, 50; Müslim, Zikir, 44"}, {"t": "Ben kulumun beni zannı üzereyim. Beni andığında onunla beraberim.", "k": "Buhârî, Tevhîd, 15; Müslim, Zikir, 2"}, {"t": "Dua ibadetin ta kendisidir.", "k": "Tirmizî, Daavât, 1; Ebû Dâvûd, Vitir, 23"}, {"t": "Kulun Rabbine en yakın olduğu an secde hâlidir. Öyleyse secdede çokça dua edin.", "k": "Müslim, Salât, 215"}, {"t": "Sizden biriniz 'Dua ettim de kabul olunmadı' diye acele etmedikçe duası kabul olunur.", "k": "Buhârî, Daavât, 22; Müslim, Zikir, 90"}, {"t": "Müslümanın, yanında olmayan kardeşine yaptığı dua kabul olunur; yanındaki melek 'Âmin, sana da' der.", "k": "Müslim, Zikir, 88"}, {"t": "Rabbimiz! Bize dünyada da iyilik ver, ahirette de iyilik ver ve bizi ateş azabından koru.", "k": "Buhârî, Daavât, 55; Müslim, Zikir, 26"}, {"t": "Ey kalpleri çeviren Allah'ım! Kalbimi dinin üzere sabit kıl.", "k": "Tirmizî, Kader, 7"}, {"t": "Allah'ım! Seni anmak, sana şükretmek ve sana güzelce ibadet etmek için bana yardım et.", "k": "Ebû Dâvûd, Vitir, 26; Nesâî, Sehv, 60"}, {"t": "Ezan ile kamet arasında yapılan dua geri çevrilmez.", "k": "Ebû Dâvûd, Salât, 35; Tirmizî, Salât, 44"}, {"t": "Kapısının önünden akan nehirde günde beş kez yıkanan kişide kir kalır mı? Beş vakit namaz da böyledir; Allah onlarla günahları siler.", "k": "Buhârî, Mevâkît, 6; Müslim, Mesâcid, 283"}, {"t": "Cemaatle kılınan namaz, tek başına kılınan namazdan yirmi yedi derece daha faziletlidir.", "k": "Buhârî, Ezân, 30; Müslim, Mesâcid, 249"}, {"t": "Allah'a en sevimli yerler mescitlerdir.", "k": "Müslim, Mesâcid, 288"}, {"t": "Sabah namazını kılan kimse Allah'ın koruması altındadır.", "k": "Müslim, Mesâcid, 261"}, {"t": "Oruç bir kalkandır.", "k": "Buhârî, Savm, 2"}, {"t": "Kim inanarak ve sevabını Allah'tan umarak Ramazan orucunu tutarsa geçmiş günahları bağışlanır.", "k": "Buhârî, Îmân, 28; Müslim, Müsâfirîn, 175"}, {"t": "Kim bir oruçluya iftar ettirirse, oruçlunun sevabından hiçbir şey eksilmeden onun kadar sevap kazanır.", "k": "Tirmizî, Savm, 82"}, {"t": "Kim güzelce abdest alırsa, günahları vücudundan, hatta tırnaklarının altından bile çıkar.", "k": "Müslim, Tahâret, 33"}, {"t": "Ümmetime zorluk vermeyecek olsaydım, her namazda misvak kullanmalarını emrederdim.", "k": "Buhârî, Cuma, 8; Müslim, Tahâret, 42"}, {"t": "Misvak ağzı temizler, Rabbi razı eder.", "k": "Nesâî, Tahâret, 5"}, {"t": "İnsanlar arasında iyi davranılmaya en layık olan kimdir? 'Annen, sonra annen, sonra annen, sonra baban.'", "k": "Buhârî, Edeb, 2; Müslim, Birr, 1"}, {"t": "Anne babasından birinin ya da ikisinin yaşlılığına erişip de cennete giremeyenin burnu yere sürtülsün.", "k": "Müslim, Birr, 9"}, {"t": "Rızkının bollaşmasını ve ömrünün bereketlenmesini isteyen, akrabasını gözetsin.", "k": "Buhârî, Edeb, 12; Müslim, Birr, 20"}, {"t": "Akrabalık bağını koparan cennete giremez.", "k": "Buhârî, Edeb, 11; Müslim, Birr, 18"}, {"t": "Sizin en hayırlınız, ailesine karşı en hayırlı olanınızdır.", "k": "Tirmizî, Menâkıb, 63; İbn Mâce, Nikâh, 50"}, {"t": "Küçüğümüze merhamet etmeyen ve büyüğümüze saygı göstermeyen bizden değildir.", "k": "Tirmizî, Birr, 15"}, {"t": "Merhamet edenlere Rahmân da merhamet eder. Yeryüzündekilere merhamet edin ki göktekiler de size merhamet etsin.", "k": "Ebû Dâvûd, Edeb, 58; Tirmizî, Birr, 16"}, {"t": "Rahmetim gazabımı geçti.", "k": "Buhârî, Tevhîd, 22; Müslim, Tevbe, 14"}, {"t": "Her canlıya yapılan iyilikte sevap vardır.", "k": "Buhârî, Mezâlim, 23; Müslim, Selâm, 153"}, {"t": "Allah her şeye iyilik etmeyi (ihsanı) yazmıştır.", "k": "Müslim, Sayd, 57"}, {"t": "Yetimi koruyup gözeten kimse ile ben cennette şöyle (yan yana) olacağız.", "k": "Buhârî, Talâk, 25; Müslim, Zühd, 42"}, {"t": "Dul ve yoksul için çalışan kimse, Allah yolunda cihad eden gibidir.", "k": "Buhârî, Nafakât, 1; Müslim, Zühd, 41"}, {"t": "Müminler birbirlerini sevmede ve birbirlerine merhamet etmede bir vücut gibidir; bir organ hastalanınca diğerleri de ona ortak olur.", "k": "Buhârî, Edeb, 27; Müslim, Birr, 66"}, {"t": "Mümin mümin için, parçaları birbirini kenetleyen bir bina gibidir.", "k": "Buhârî, Salât, 88; Müslim, Birr, 65"}, {"t": "Birbirinize haset etmeyin, buğzetmeyin, sırt çevirmeyin. Ey Allah'ın kulları, kardeş olun.", "k": "Buhârî, Edeb, 57; Müslim, Birr, 23"}, {"t": "Bir Müslümanın, din kardeşine üç günden fazla küsmesi helal değildir.", "k": "Buhârî, Edeb, 62; Müslim, Birr, 25"}, {"t": "Müslüman Müslümanın kardeşidir; ona zulmetmez, onu yardımsız bırakmaz. Kim kardeşinin ihtiyacını görürse Allah da onun ihtiyacını görür.", "k": "Buhârî, Mezâlim, 3; Müslim, Birr, 58"}, {"t": "İman etmedikçe cennete giremezsiniz, birbirinizi sevmedikçe de iman etmiş olmazsınız. Aranızda selamı yayın.", "k": "Müslim, Îmân, 93"}, {"t": "Müslümanın Müslüman üzerindeki hakkı beştir: selamı almak, hastayı ziyaret etmek, cenazeye katılmak, davete icabet etmek ve aksırana dua etmek.", "k": "Buhârî, Cenâiz, 2; Müslim, Selâm, 4"}, {"t": "Hiçbir iyiliği küçük görme; kardeşini güler yüzle karşılamak bile olsa.", "k": "Müslim, Birr, 144"}, {"t": "Her iyilik sadakadır.", "k": "Buhârî, Edeb, 33; Müslim, Zekât, 52"}, {"t": "Bir Müslüman ağaç diker veya ekin eker de ondan kuş, insan ya da hayvan yerse, bu onun için sadaka olur.", "k": "Buhârî, Hars, 1; Müslim, Müsâkât, 12"}, {"t": "Kim bir iyilik yapmaya niyet eder de yapamazsa, Allah ona tam bir iyilik sevabı yazar.", "k": "Buhârî, Rikak, 31; Müslim, Îmân, 207"}, {"t": "Veren el, alan elden daha hayırlıdır.", "k": "Buhârî, Zekât, 18; Müslim, Zekât, 94"}, {"t": "Hiç kimse, kendi elinin emeğinden daha hayırlı bir yemek yememiştir.", "k": "Buhârî, Büyû', 15"}, {"t": "Doğruluk iyiliğe, iyilik de cennete götürür.", "k": "Buhârî, Edeb, 69; Müslim, Birr, 103"}, {"t": "Münafığın alameti üçtür: Konuşunca yalan söyler, söz verince sözünden döner, kendisine güvenilince hıyanet eder.", "k": "Buhârî, Îmân, 24; Müslim, Îmân, 107"}, {"t": "Helal de bellidir, haram da bellidir; ikisinin arasında şüpheli şeyler vardır.", "k": "Buhârî, Îmân, 39; Müslim, Müsâkât, 107"}, {"t": "Seni şüpheye düşüren şeyi bırak, şüphe vermeyene bak.", "k": "Tirmizî, Kıyâmet, 60; Nesâî, Eşribe, 50"}, {"t": "Nerede olursan ol Allah'tan kork. Kötülüğün ardından bir iyilik yap ki onu silsin. İnsanlara güzel ahlakla davran.", "k": "Tirmizî, Birr, 55"}, {"t": "Allah'ı(n emirlerini) gözet ki O da seni gözetsin. İstediğinde Allah'tan iste, yardım dilediğinde Allah'tan dile.", "k": "Tirmizî, Kıyâmet, 59"}, {"t": "Kişinin kendisini ilgilendirmeyen şeyi terk etmesi, Müslümanlığının güzelliğindendir.", "k": "Tirmizî, Zühd, 11; İbn Mâce, Fiten, 12"}, {"t": "Müminlerin iman bakımından en olgunu, ahlakı en güzel olanıdır.", "k": "Tirmizî, Radâ, 11; Ebû Dâvûd, Sünnet, 15"}, {"t": "Kıyamet günü müminin terazisinde güzel ahlaktan daha ağır bir şey yoktur.", "k": "Tirmizî, Birr, 62"}, {"t": "İyilik güzel ahlaktır. Günah ise içini tırmalayan ve insanların bilmesinden hoşlanmadığın şeydir.", "k": "Müslim, Birr, 14"}, {"t": "Allah yumuşaktır, her işte yumuşaklığı sever.", "k": "Buhârî, Edeb, 35; Müslim, Birr, 77"}, {"t": "Yumuşaklık bulunduğu her şeyi güzelleştirir; bulunmadığı şeyi de çirkinleştirir.", "k": "Müslim, Birr, 78"}, {"t": "Öfkelenme!", "k": "Buhârî, Edeb, 76"}, {"t": "Allah bana, birbirinize karşı alçakgönüllü olmanızı vahyetti; öyle ki kimse kimseye övünmesin, kimse kimseye zulmetmesin.", "k": "Müslim, Cennet, 64"}, {"t": "Kalbinde zerre kadar kibir bulunan kimse cennete giremez.", "k": "Müslim, Îmân, 147"}, {"t": "Gıybet, kardeşini hoşlanmayacağı bir şeyle anmandır.", "k": "Müslim, Birr, 70"}, {"t": "Söz taşıyan (koğuculuk yapan) cennete giremez.", "k": "Buhârî, Edeb, 50; Müslim, Îmân, 168"}, {"t": "Zandan sakının; çünkü zan sözlerin en yalanıdır.", "k": "Müslim, Birr, 28"}, {"t": "Zulüm, kıyamet gününde karanlıklardır.", "k": "Buhârî, Mezâlim, 8; Müslim, Birr, 57"}, {"t": "Mazlumun bedduasından sakın; çünkü onunla Allah arasında perde yoktur.", "k": "Buhârî, Zekât, 63; Müslim, Îmân, 29"}, {"t": "Kardeşine, zalim de olsa mazlum da olsa yardım et. Zalime yardım, onu zulümden alıkoymaktır.", "k": "Buhârî, Mezâlim, 4"}, {"t": "Sizden kim bir kötülük görürse onu eliyle düzeltsin; buna gücü yetmezse diliyle, ona da gücü yetmezse kalbiyle (karşı çıksın).", "k": "Müslim, Îmân, 78"}, {"t": "Kuvvetli mümin, Allah katında zayıf müminden daha hayırlı ve daha sevimlidir. Sana fayda verene sarıl, Allah'tan yardım iste, acizlik gösterme.", "k": "Müslim, Kader, 34"}, {"t": "Mümin bir delikten iki defa sokulmaz.", "k": "Buhârî, Edeb, 83; Müslim, Zühd, 63"}, {"t": "İki nimet vardır ki insanların çoğu onlarda aldanmıştır: Sağlık ve boş vakit.", "k": "Buhârî, Rikak, 1"}, {"t": "Dünyada bir garip ya da bir yolcu gibi ol.", "k": "Buhârî, Rikak, 3"}, {"t": "Kendinizden aşağıdakine bakın, üstünüzdekine bakmayın. Bu, Allah'ın size verdiği nimeti küçümsememeniz için daha uygundur.", "k": "Müslim, Zühd, 9"}, {"t": "Kul bir lokma yiyip ya da bir yudum içip Allah'a hamd ettiğinde, Allah ondan razı olur.", "k": "Müslim, Zikir, 89"}, {"t": "Size bir iyilik yapılır da iyilik yapana 'Allah seni hayırla mükâfatlandırsın' derseniz, onu en güzel şekilde övmüş olursunuz.", "k": "Tirmizî, Birr, 87"}, {"t": "Müslümana isabet eden hiçbir yorgunluk, hastalık, tasa ve keder yoktur ki Allah onu günahlarına kefaret kılmasın.", "k": "Buhârî, Merdâ, 1; Müslim, Birr, 52"}, {"t": "Allah, gündüz günah işleyenin tövbe etmesi için gece, gece günah işleyenin tövbe etmesi için gündüz elini açar.", "k": "Müslim, Tevbe, 31"}, {"t": "Allah'ın adını an, sağ elinle ye ve önünden ye.", "k": "Buhârî, Et'ime, 2; Müslim, Eşribe, 108"}, {"t": "Bir kişinin yemeği iki kişiye, iki kişinin yemeği dört kişiye yeter.", "k": "Müslim, Eşribe, 179"}, {"t": "Âdemoğlu, midesinden daha kötü bir kap doldurmamıştır. Belini doğrultacak birkaç lokma ona yeter.", "k": "Tirmizî, Zühd, 47"}, {"t": "İyi arkadaş ile kötü arkadaşın örneği, misk taşıyan ile körük çeken kimsenin örneği gibidir.", "k": "Buhârî, Büyû', 38; Müslim, Birr, 146"}, {"t": "Kişi dostunun dini üzeredir. Öyleyse her biriniz kiminle dost olduğuna baksın.", "k": "Tirmizî, Zühd, 45"}];
+        // Esmâ-ül Hüsnâ: Tirmizî (Daavât, 82) rivayetindeki sırayla 99 isim; anlamlar TDV İslâm Ansiklopedisi "Esmâ-i Hüsnâ" maddesinden.
+        const ESMA_99 = [{"n": "Allah", "ar": "اللَّهُ", "d": "Varlığı zorunlu olan ve bütün övgülere lâyık bulunan zâtın özel kapsamlı adı"}, {"n": "Er-Rahmân", "ar": "الرَّحْمَنُ", "d": "Dünyada bütün yaratılmışlara merhamet eden"}, {"n": "Er-Rahîm", "ar": "الرَّحِيمُ", "d": "Âhirette müminlere sonsuz merhamet eden"}, {"n": "El-Melik", "ar": "الْمَلِكُ", "d": "Görünen ve görünmeyen âlemlerin sahibi"}, {"n": "El-Kuddûs", "ar": "الْقُدُّوسُ", "d": "Her eksikten münezzeh"}, {"n": "Es-Selâm", "ar": "السَّلَامُ", "d": "Esenlik veren"}, {"n": "El-Mü'min", "ar": "الْمُؤْمِنُ", "d": "Güven veren, vaadine güvenilen"}, {"n": "El-Müheymin", "ar": "الْمُهَيْمِنُ", "d": "Kâinatın bütün işlerini gözetip yöneten"}, {"n": "El-Azîz", "ar": "الْعَزِيزُ", "d": "Yenilemeyen yegâne galip"}, {"n": "El-Cebbâr", "ar": "الْجَبَّارُ", "d": "İradesini her durumda yürüten, yaratılmışların halini iyileştiren"}, {"n": "El-Mütekebbir", "ar": "الْمُتَكَبِّرُ", "d": "Azamet ve yüceliğini izhar eden"}, {"n": "El-Hâlik", "ar": "الْخَالِقُ", "d": "Takdirine uygun bir şekilde yaratan"}, {"n": "El-Bâri'", "ar": "الْبَارِئُ", "d": "Bir model olmaksızın canlıları yaratan"}, {"n": "El-Musavvir", "ar": "الْمُصَوِّرُ", "d": "Şekil ve özellik veren"}, {"n": "El-Gaffâr", "ar": "الْغَفَّارُ", "d": "Daima affeden, tekrarlanan günahları bağışlayan"}, {"n": "El-Kahhâr", "ar": "الْقَهَّارُ", "d": "Yenilmeyen, yegâne galip"}, {"n": "El-Vehhâb", "ar": "الْوَهَّابُ", "d": "Karşılık beklemeden bol bol veren"}, {"n": "Er-Rezzâk", "ar": "الرَّزَّاقُ", "d": "Bedenlerin ve ruhların gıdasını yaratıp veren"}, {"n": "El-Fettâh", "ar": "الْفَتَّاحُ", "d": "İyilik kapılarını açan, hakemlik yapan"}, {"n": "El-Alîm", "ar": "الْعَلِيمُ", "d": "Hakkıyla bilen"}, {"n": "El-Kābız", "ar": "الْقَابِضُ", "d": "Rızkı tutan, canlıların ruhunu alan"}, {"n": "El-Bâsıt", "ar": "الْبَاسِطُ", "d": "Rızkı genişleten, ruhları bedenlerine yayan"}, {"n": "El-Hâfıd", "ar": "الْخَافِضُ", "d": "Alçaltan, zillete düşüren"}, {"n": "Er-Râfi'", "ar": "الرَّافِعُ", "d": "Yücelten, izzet ve şeref veren"}, {"n": "El-Muizz", "ar": "الْمُعِزُّ", "d": "İzzet ve şeref veren, aziz kılan"}, {"n": "El-Müzil", "ar": "الْمُذِلُّ", "d": "Alçaltan, zillet veren"}, {"n": "Es-Semî'", "ar": "السَّمِيعُ", "d": "İşiten"}, {"n": "El-Basîr", "ar": "الْبَصِيرُ", "d": "Gören"}, {"n": "El-Hakem", "ar": "الْحَكَمُ", "d": "Son hükmü veren"}, {"n": "El-Adl", "ar": "الْعَدْلُ", "d": "Mutlak adalet sahibi, aşırılığa meyletmeyen"}, {"n": "El-Latîf", "ar": "اللَّطِيفُ", "d": "Yaratılmışların ihtiyacını en ince noktasına kadar bilip sezilmez yollarla karşılayan"}, {"n": "El-Habîr", "ar": "الْخَبِيرُ", "d": "Her şeyin iç yüzünden haberdar olan"}, {"n": "El-Halîm", "ar": "الْحَلِيمُ", "d": "Acele ile ve kızgınlıkla muamele etmeyen"}, {"n": "El-Azîm", "ar": "الْعَظِيمُ", "d": "Zâtının ve sıfatlarının mahiyeti anlaşılamayacak kadar ulu"}, {"n": "El-Gafûr", "ar": "الْغَفُورُ", "d": "Bütün günahları bağışlayan"}, {"n": "Eş-Şekûr", "ar": "الشَّكُورُ", "d": "Az iyiliğe çok mükâfat veren"}, {"n": "El-Alî", "ar": "الْعَلِيُّ", "d": "İzzet, şeref ve hükümranlık bakımından en yüce, aşkın"}, {"n": "El-Kebîr", "ar": "الْكَبِيرُ", "d": "Büyüklükte eşi benzeri olmayan"}, {"n": "El-Hafîz", "ar": "الْحَفِيظُ", "d": "Koruyup gözeten ve dengede tutan"}, {"n": "El-Mukīt", "ar": "الْمُقِيتُ", "d": "Bedenlerin ve ruhların gıdasını yaratıp veren, bilip gücü yeten ve koruyan"}, {"n": "El-Hasîb", "ar": "الْحَسِيبُ", "d": "Kullarına yeten, onları hesaba çeken"}, {"n": "El-Celîl", "ar": "الْجَلِيلُ", "d": "Azamet sahibi"}, {"n": "El-Kerîm", "ar": "الْكَرِيمُ", "d": "Fazilet türlerinin hepsine sahip"}, {"n": "Er-Rakīb", "ar": "الرَّقِيبُ", "d": "Gözetleyip kontrol eden"}, {"n": "El-Mücîb", "ar": "الْمُجِيبُ", "d": "Dileklere karşılık veren"}, {"n": "El-Vâsi'", "ar": "الْوَاسِعُ", "d": "İlmi ve merhameti her şeyi kuşatan"}, {"n": "El-Hakîm", "ar": "الْحَكِيمُ", "d": "Bütün emirleri ve işleri yerli yerinde olan"}, {"n": "El-Vedûd", "ar": "الْوَدُودُ", "d": "Çok seven, çok sevilen"}, {"n": "El-Mecîd", "ar": "الْمَجِيدُ", "d": "Şanlı, şerefli"}, {"n": "El-Bâis", "ar": "الْبَاعِثُ", "d": "Ölümden sonra dirilten"}, {"n": "Eş-Şehîd", "ar": "الشَّهِيدُ", "d": "Her şeyi gözlemiş olarak bilen"}, {"n": "El-Hak", "ar": "الْحَقُّ", "d": "Fiilen var olan, mevcudiyeti ve ulûhiyyeti gerçek olan"}, {"n": "El-Vekîl", "ar": "الْوَكِيلُ", "d": "Güvenilip dayanılan"}, {"n": "El-Kavî", "ar": "الْقَوِيُّ", "d": "Her şeye gücü yeten, kudretli"}, {"n": "El-Metîn", "ar": "الْمَتِينُ", "d": "Kuvveti sonsuz ve sarsılmaz olan"}, {"n": "El-Velî", "ar": "الْوَلِيُّ", "d": "Yardımcı ve dost"}, {"n": "El-Hamîd", "ar": "الْحَمِيدُ", "d": "Övülmeye lâyık"}, {"n": "El-Muhsî", "ar": "الْمُحْصِي", "d": "Her şeyi tek tek ve bütün ayrıntılarıyla bilen"}, {"n": "El-Mübdi'", "ar": "الْمُبْدِئُ", "d": "İlkin yaratan"}, {"n": "El-Muîd", "ar": "الْمُعِيدُ", "d": "Tekrar yaratan"}, {"n": "El-Muhyî", "ar": "الْمُحْيِي", "d": "Can veren"}, {"n": "El-Mümît", "ar": "الْمُمِيتُ", "d": "Öldüren"}, {"n": "El-Hay", "ar": "الْحَيُّ", "d": "Ebedî hayatla diri"}, {"n": "El-Kayyûm", "ar": "الْقَيُّومُ", "d": "Her şeyin varlığı kendisine bağlı olup kâinatı idare eden"}, {"n": "El-Vâcid", "ar": "الْوَاجِدُ", "d": "Dilediğini dilediği zaman bulan bir müstağni"}, {"n": "El-Mâcid", "ar": "الْمَاجِدُ", "d": "Şanı yüce, keremi ve ihsanı bol"}, {"n": "El-Vâhid", "ar": "الْوَاحِدُ", "d": "Bölünüp parçalara ayrılmaması ve benzerinin bulunmaması anlamında tek"}, {"n": "Es-Samed", "ar": "الصَّمَدُ", "d": "Arzu ve ihtiyaçları sebebiyle herkesin yöneldiği ulular ulusu bir müstağni"}, {"n": "El-Kādir", "ar": "الْقَادِرُ", "d": "Her şeye gücü yeten, kudretli"}, {"n": "El-Muktedir", "ar": "الْمُقْتَدِرُ", "d": "Kudretini dilediği gibi kullanan, her şeye hükmeden"}, {"n": "El-Mukaddim", "ar": "الْمُقَدِّمُ", "d": "Öne alan"}, {"n": "El-Muahhir", "ar": "الْمُؤَخِّرُ", "d": "Geriye bırakan"}, {"n": "El-Evvel", "ar": "الْأَوَّلُ", "d": "Varlığının başlangıcı olmayan"}, {"n": "El-Âhir", "ar": "الْآخِرُ", "d": "Varlığının sonu olmayan"}, {"n": "Ez-Zâhir", "ar": "الظَّاهِرُ", "d": "Varlığını ve birliğini belgeleyen birçok delilinin bulunması açısından âşikâr"}, {"n": "El-Bâtın", "ar": "الْبَاطِنُ", "d": "Zâtının görülmesi ve mahiyetinin bilinmesi açısından gizli"}, {"n": "El-Vâlî", "ar": "الْوَالِي", "d": "Kâinata hâkim olup onu yöneten"}, {"n": "El-Müteâlî", "ar": "الْمُتَعَالِي", "d": "İzzet, şeref ve hükümranlık bakımından en yüce, aşkın"}, {"n": "El-Ber", "ar": "الْبَرُّ", "d": "İyilik eden, vaadini yerine getiren"}, {"n": "Et-Tevvâb", "ar": "التَّوَّابُ", "d": "Kullarını tövbeye sevkeden ve tövbelerini kabul eden"}, {"n": "El-Müntakım", "ar": "الْمُنْتَقِمُ", "d": "Suçluları cezalandıran"}, {"n": "El-Afüv", "ar": "الْعَفُوُّ", "d": "Hiçbir sorumluluk kalmayacak şekilde günahları affeden"}, {"n": "Er-Raûf", "ar": "الرَّءُوفُ", "d": "Şefkatli"}, {"n": "Mâlikü'l-Mülk", "ar": "مَالِكُ الْمُلْكِ", "d": "Mülkün sahibi"}, {"n": "Zü'l-Celâli ve'l-İkrâm", "ar": "ذُو الْجَلَالِ وَالْإِكْرَامِ", "d": "Azamet ve kerem sahibi"}, {"n": "El-Muksit", "ar": "الْمُقْسِطُ", "d": "Adaletle hükmeden"}, {"n": "El-Câmi'", "ar": "الْجَامِعُ", "d": "Toplayıp düzenleyen, kıyamet günü hesaba çekmek için mahlûkatı toplayan"}, {"n": "El-Ganî", "ar": "الْغَنِيُّ", "d": "Her şeyden müstağni, kendi dışındaki her şey O'na muhtaç"}, {"n": "El-Muğnî", "ar": "الْمُغْنِي", "d": "Zenginlik verip tatmin eden"}, {"n": "El-Mâni'", "ar": "الْمَانِعُ", "d": "Dilemediği şeyin gerçekleşmesine müsaade etmeyen, kötü şeylere engel olan"}, {"n": "Ed-Dârr", "ar": "الضَّارُّ", "d": "Zarar veren"}, {"n": "En-Nâfi'", "ar": "النَّافِعُ", "d": "Fayda veren"}, {"n": "En-Nûr", "ar": "النُّورُ", "d": "Nurlandıran, nur kaynağı"}, {"n": "El-Hâdî", "ar": "الْهَادِي", "d": "Yol gösteren, murada erdiren"}, {"n": "El-Bedî'", "ar": "الْبَدِيعُ", "d": "Eşi ve örneği olmayan, sanatkârane yaratan"}, {"n": "El-Bâkī", "ar": "الْبَاقِي", "d": "Varlığının sonu olmayan"}, {"n": "El-Vâris", "ar": "الْوَارِثُ", "d": "Her şey yok olduktan sonra bâki kalan, her şeyin gerçek sahibi"}, {"n": "Er-Reşîd", "ar": "الرَّشِيدُ", "d": "Bütün işleri isabetli ve hedefine ulaşıcı, irşad edici"}, {"n": "Es-Sabûr", "ar": "الصَّبُورُ", "d": "Çok sabırlı"}];
+        // Mübarek gün ve geceler: Diyanet İşleri Başkanlığı dinî günler takvimi (kandillerde tarih, o gecenin akşamıdır).
+        const MUBAREK_GUNLER = [{"ad": "Mirac Kandili", "tarih": "2026-01-15", "not": "gece"}, {"ad": "Berat Kandili", "tarih": "2026-02-02", "not": "gece"}, {"ad": "Ramazan Başlangıcı", "tarih": "2026-02-19", "not": "gün"}, {"ad": "Kadir Gecesi", "tarih": "2026-03-16", "not": "gece"}, {"ad": "Ramazan Bayramı Arifesi", "tarih": "2026-03-19", "not": "gün"}, {"ad": "Ramazan Bayramı (1. gün)", "tarih": "2026-03-20", "not": "gün"}, {"ad": "Kurban Bayramı Arifesi", "tarih": "2026-05-26", "not": "gün"}, {"ad": "Kurban Bayramı (1. gün)", "tarih": "2026-05-27", "not": "gün"}, {"ad": "Hicri Yılbaşı", "tarih": "2026-06-16", "not": "gün"}, {"ad": "Aşure Günü", "tarih": "2026-06-25", "not": "gün"}, {"ad": "Mevlid Kandili", "tarih": "2026-08-24", "not": "gece"}, {"ad": "Üç Ayların Başlangıcı", "tarih": "2026-12-10", "not": "gün"}, {"ad": "Regaib Kandili", "tarih": "2026-12-10", "not": "gece"}, {"ad": "Mirac Kandili", "tarih": "2027-01-04", "not": "gece"}, {"ad": "Berat Kandili", "tarih": "2027-01-22", "not": "gece"}, {"ad": "Ramazan Başlangıcı", "tarih": "2027-02-08", "not": "gün"}, {"ad": "Kadir Gecesi", "tarih": "2027-03-05", "not": "gece"}, {"ad": "Ramazan Bayramı Arifesi", "tarih": "2027-03-08", "not": "gün"}, {"ad": "Ramazan Bayramı (1. gün)", "tarih": "2027-03-09", "not": "gün"}, {"ad": "Kurban Bayramı Arifesi", "tarih": "2027-05-15", "not": "gün"}, {"ad": "Kurban Bayramı (1. gün)", "tarih": "2027-05-16", "not": "gün"}, {"ad": "Hicri Yılbaşı", "tarih": "2027-06-06", "not": "gün"}, {"ad": "Aşure Günü", "tarih": "2027-06-15", "not": "gün"}, {"ad": "Mevlid Kandili", "tarih": "2027-08-13", "not": "gece"}, {"ad": "Üç Ayların Başlangıcı", "tarih": "2027-11-29", "not": "gün"}, {"ad": "Regaib Kandili", "tarih": "2027-12-02", "not": "gece"}, {"ad": "Mirac Kandili", "tarih": "2027-12-24", "not": "gece"}];
+        const AYET_REFLERI = "2:152,2:153,2:155,2:156,2:186,2:201,2:286,3:8,3:26,3:92,3:103,3:134,3:139,3:159,3:173,3:190,3:191,3:200,4:36,5:2,5:8,6:162,7:23,7:56,7:199,8:46,9:51,9:119,10:62,11:88,11:114,12:87,13:11,13:28,14:7,14:40,14:41,15:99,16:90,16:97,16:125,16:128,17:23,17:24,17:36,17:37,17:80,18:10,18:46,20:25,20:114,21:35,21:87,23:1,23:2,24:22,25:63,25:74,28:77,29:45,29:69,31:17,31:18,31:19,33:41,35:15,39:10,39:53,40:60,41:34,42:30,47:7,49:10,49:12,49:13,50:16,51:56,55:13,57:4,59:18,64:16,65:2,65:3,67:2,93:4,93:5,94:5,94:6,112:1".split(",").map(x => x.split(":").map(Number));
+
+        // ===== 🔔 DİNAMİK BİLDİRİM İÇERİĞİ (v3.0) =====
+        // Kasa, kayıtlı listedeki metni gönderir. İçeriğin her gün değişmesi için uygulama sahibinin cihazı listeyi
+        // her gün (uygulama açılınca, şifre hatırlanıyorsa) önümüzdeki 7 gün için YENİ içerikle yeniden kurar.
+        // Ayet mealleri Diyanet Vakfı mealinden (alquran.cloud tr.vakfi) o an çekilir; ulaşılamazsa gömülü kısa ayetler kullanılır.
+        const otoHash = (s) => { let x = 2166136261; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; };
+        const tarihAnahtar = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const yilinGunu = (d) => Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
+        const AY_ADLARI = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+        const GUN_ADLARI = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+        const BASLIK_CESIT = {
+            sabah: ['🌅 Hayırlı sabahlar', '☀️ Güne bir ayetle başla', '🌤️ Sabahın ilk ayeti', '🕊️ Günaydın, bugünün ayeti', '🌄 Yeni bir gün, yeni bir ayet', '📖 Sabah tefekkürü', '💫 Güne nur ile başla'],
+            saatAyet: ['⏰ Bu saatin ayeti', '📖 Bir ayet molası', '🌿 Kalbe bir ayet', '💡 Şimdi bir ayet', '🕰️ Saat başı tefekkür', '✨ Ayetle bir nefes'],
+            saatHadis: ['📜 Bu saatin hadisi', '🌹 Peygamberimizden bir söz', '💬 Bir hadis-i şerif', '🕌 Nebevî bir öğüt', '📿 Hadisle bir mola'],
+            esma: ["✨ Günün Esmâ'sı", '🌟 Bugün bu isimle an', "💠 Esmâ-ül Hüsnâ'dan", '🤲 Allah\'ın güzel isimlerinden'],
+            ogle: ['☀️ Öğle tefekkürü', '🌿 Beş dakikalık mola', '🕊️ Öğle arası bir ayet'],
+            aksam: ["🌙 Akşam Kur'an saati", '🌌 Günün son ayeti', '🕯️ Yatmadan önce', '🌙 Hayırlı akşamlar'],
+            cuma: ['🕌 Hayırlı Cumalar', '🌹 Cuma\'n mübarek olsun', '🕌 Cuma vakti']
+        };
+        const CUMA_METIN = ["Cuman mübarek olsun. Bugün Kehf Suresi'ni okumayı unutma.", "Cuma; dua, salavat ve Kur'an günü. Kehf Suresi'ni okumaya ne dersin?", 'Cumanın bereketiyle: bugün sevdiklerine bir dua bırak, Kehf Suresi\'ni oku.', 'Haftanın en güzel günü. Bir sayfa Kur\'an, bir dua, bir tebessüm.'];
+        const AKSAM_MULK = 'Peygamberimiz Secde ve Mülk surelerini okumadan uyumazdı (Tirmizî, Fedâilü\'l-Kur\'ân, 9). Bu akşam Mülk Suresi\'ni okumaya ne dersin?';
+        const kisaMeal = (t) => String(t || '').replace(/\s+/g, ' ').trim();
+        const bildirimPlaniUret = (mealMap, simdi = new Date()) => {
+            const B = (x) => `📖 Kur'an ve Siyer Atlası · ${x}`;
+            const taban = window.ZBILDIRIM ? window.ZBILDIRIM.taban() : '';
+            const url = (h) => taban + '#' + h;
+            // Kullanılabilir ayetler: meali 200 karakteri aşmayanlar (anlam yarıda kalmasın diye kesilmez, uzunlar atlanır)
+            let ayetler = AYET_REFLERI.map(([s, a]) => ({ s, a, t: mealMap ? kisaMeal(mealMap[s + ':' + a]) : '' })).filter(x => x.t && x.t.length <= 200);
+            if (ayetler.length < 20) ayetler = BILDIRIM_AYETLERI.map(v => ({ s: v.s, a: v.a, t: v.t }));
+            const plan = { kssabah: [], kssaatayet: [], kssaathadis: [], ksesma: [], ksogle: [], kscuma: [], ksaksam: [], kshatim: [], mubarek: [] };
+            for (let k = 0; k < 7; k++) {
+                const d = new Date(simdi.getFullYear(), simdi.getMonth(), simdi.getDate() + k);
+                const g = d.getDay(), ta = tarihAnahtar(d), tohum = otoHash(ta);
+                const kullanilan = new Set();
+                const ayetSec = (slot) => { let i = otoHash(ta + '|' + slot) % ayetler.length, n = 0; while (kullanilan.has(i) && n++ < ayetler.length) i = (i + 1) % ayetler.length; kullanilan.add(i); return ayetler[i]; };
+                const bas = (tur, slot) => { const l = BASLIK_CESIT[tur]; return l[otoHash(ta + tur + slot) % l.length]; };
+                const ayetGovde = (v) => `${v.t} (${getTurkishName(v.s)}, ${v.a})`;
+                const v0 = ayetSec('sabah');
+                plan.kssabah.push({ id: `oto-sabah-${g}`, saat: '07:00', gunler: [g], baslik: B(bas('sabah', 0)), govde: ayetGovde(v0), url: url(`ayet-${v0.s}-${v0.a}`) });
+                for (let i = 0; i < 13; i++) {
+                    const v = ayetSec('sa' + i);
+                    plan.kssaatayet.push({ id: `oto-sa-${g}-${i}`, saat: String(9 + i).padStart(2, '0') + ':00', gunler: [g], baslik: B(bas('saatAyet', i)), govde: ayetGovde(v), url: url(`ayet-${v.s}-${v.a}`) });
+                    const hi = (otoHash(ta + 'h') + i * 7) % HADIS_HAVUZU.length, hd = HADIS_HAVUZU[hi];
+                    plan.kssaathadis.push({ id: `oto-sh-${g}-${i}`, saat: String(9 + i).padStart(2, '0') + ':30', gunler: [g], baslik: B(bas('saatHadis', i)), govde: `"${hd.t}" (${hd.k})`, url: url(`hadis-${hi}`) });
+                }
+                const ei = (yilinGunu(d) - 1) % ESMA_99.length, es = ESMA_99[ei]; // 99 günde 99 isim
+                plan.ksesma.push({ id: `oto-esma-${g}`, saat: '08:30', gunler: [g], baslik: B(bas('esma', 0)), govde: `${es.n} (${es.ar}): ${es.d}.`, url: url(`esma-${ei}`) });
+                if (g >= 1 && g <= 5) { const v = ayetSec('ogle'); plan.ksogle.push({ id: `oto-ogle-${g}`, saat: '13:00', gunler: [g], baslik: B(bas('ogle', 0)), govde: `Beş dakikalığına dur ve düşün: ${ayetGovde(v)}`, url: url(`ayet-${v.s}-${v.a}`) }); }
+                if (g === 5) plan.kscuma.push({ id: 'oto-cuma', saat: '12:30', gunler: [5], baslik: B(bas('cuma', 0)), govde: CUMA_METIN[tohum % CUMA_METIN.length], url: url('sure-18') });
+                if (tohum % 3 === 0) plan.ksaksam.push({ id: `oto-aksam-${g}`, saat: '21:00', gunler: [g], baslik: B(bas('aksam', 0)), govde: AKSAM_MULK, url: url('sure-67') });
+                else { const v = ayetSec('aksam'); plan.ksaksam.push({ id: `oto-aksam-${g}`, saat: '21:00', gunler: [g], baslik: B(bas('aksam', 0)), govde: `Yatmadan önce bir ayet: ${ayetGovde(v)}`, url: url(`ayet-${v.s}-${v.a}`) }); }
+                if (g === 0) { const hafta = Math.floor(yilinGunu(d) / 7), cuz = (hafta % 30) + 1; plan.kshatim.push({ id: 'oto-hatim', saat: '10:00', gunler: [0], baslik: B('📿 Haftalık hatim'), govde: `Bu hafta ${cuz}. cüzü okumaya ne dersin? ${JUZ_CONTENT[cuz - 1] ? '(' + JUZ_CONTENT[cuz - 1] + ')' : ''} Hatim planından işaretleyebilirsin.`, url: url('hatim') }); }
+                // Mübarek gün ve geceler (tarih metinde yazılı)
+                // Kasa listeyi HAFTALIK tekrarlar: yanlış haftada yinelenmesin diye yalnız önümüzdeki 3 gün eklenir (cihaz her gün tazeler), saati geçmiş olan bugüne eklenmez
+                const saatGecti = (hhmm) => k === 0 && (simdi.getHours() * 60 + simdi.getMinutes()) >= (+hhmm.slice(0, 2) * 60 + +hhmm.slice(3));
+                if (k <= 2) MUBAREK_GUNLER.filter(x => x.tarih === ta && !saatGecti(x.not === 'gece' ? '18:30' : '09:00')).forEach((x, j) => {
+                    const tarihYazi = `${d.getDate()} ${AY_ADLARI[d.getMonth()]} ${GUN_ADLARI[g]}`;
+                    if (x.not === 'gece') plan.mubarek.push({ id: `oto-mub-${g}-${j}`, saat: '18:30', gunler: [g], baslik: B(`🌙 Bu gece ${x.ad}`), govde: `${tarihYazi} akşamı ${x.ad}. ${/Kandil/i.test(x.ad) ? 'Hayırlı kandiller' : 'Hayırlı geceler'}; dua, Kur'an ve tefekkürle değerlendirelim.`, url: url('anasayfa') });
+                    else plan.mubarek.push({ id: `oto-mub-${g}-${j}`, saat: '09:00', gunler: [g], baslik: B(`🌹 ${x.ad}`), govde: `Bugün ${tarihYazi}: ${x.ad}. ${/Bayram/.test(x.ad) && !/Arife/.test(x.ad) ? 'Bayramın mübarek olsun.' : 'Hayırlı ve bereketli olsun.'}`, url: url('anasayfa') });
+                });
+            }
+            const son = (l) => l.map(x => ({ ...x, hedef: { sube: 'acik' }, aktif: true }));
+            const herkese = (l) => l.map(x => ({ ...x, hedef: {}, aktif: true }));
+            return { kanallar: Object.fromEntries(Object.entries(plan).filter(([k]) => k !== 'mubarek').map(([k, v]) => [k, son(v)])), temel: herkese([...plan.kssabah, ...plan.ksogle, ...plan.kscuma, ...plan.ksaksam, ...plan.kshatim]), mubarek: herkese(plan.mubarek) };
+        };
+        try { window.ZIRVE_bildirimPlani = bildirimPlaniUret; } catch(e){}
+        // Diyanet Vakfı mealini toplu çek (sahip cihazında, tazeleme sırasında)
+        const vakfiMealHaritasi = async () => {
+            const r = await fetch('https://api.alquran.cloud/v1/quran/tr.vakfi'); const j = await r.json();
+            const m = {}; (j && j.data && j.data.surahs || []).forEach(su => (su.ayahs || []).forEach(a => { m[su.number + ':' + a.numberInSurah] = a.text; }));
+            return Object.keys(m).length > 1000 ? m : null;
+        };
+        // Bütün kanalları + genel listeyi yeni içerikle yeniden kur (yalnız uygulama sahibi, şifreyle)
+        const bildirimleriTazele = async (sifre, ilerleme) => {
+            const ZB = window.ZBILDIRIM; if (!ZB) throw new Error('Bildirim modülü yok');
+            let mealMap = null; try { ilerleme && ilerleme('Diyanet Vakfı meali alınıyor…'); mealMap = await vakfiMealHaritasi(); } catch (e) {}
+            const plan = bildirimPlaniUret(mealMap);
+            let n = 0;
+            for (const k of KONU_KATALOG) { ilerleme && ilerleme(`${++n}/${KONU_KATALOG.length} · ${k.ad}`); await ZB.hKaydet(sifre, plan.kanallar[k.uyg] || [], k.uyg); }
+            let destek = null; try { destek = await ZB.kanalDestek(); } catch (x) {}
+            const r = await ZB.hListe(sifre);
+            const mevcut = kasaListeBul(r);
+            const elle = mevcut.filter(x => x && x.id && !String(x.id).startsWith('oto-') && !HAZIR_HATIRLATMALAR.some(hz => hz.id === x.id));
+            const yeni = [...elle, ...plan.mubarek, ...(destek === true ? [] : plan.temel)];
+            await ZB.hKaydet(sifre, yeni);
+            try { localStorage.setItem('zks_tazele_t', String(Date.now())); localStorage.setItem('zks_hatirlatma', JSON.stringify({ sayi: KONU_KATALOG.length, t: Date.now(), katalog: true })); } catch(e){}
+            return { destek, meal: !!mealMap, mubarek: plan.mubarek.length, genel: yeni.length };
+        };
+        const otoTazeleGerekli = () => {
+            try {
+                if (localStorage.getItem('zirve_sahip') !== '1' || !localStorage.getItem('zkasa_sifre') || localStorage.getItem('zks_oto_tazele') === '0') return false;
+                return Date.now() - (+(localStorage.getItem('zks_tazele_t') || 0)) > 18 * 3600e3;
+            } catch(e){ return false; }
+        };
+        const useOtoTazele = () => {
+            React.useEffect(() => {
+                let calisiyor = false;
+                const dene = () => { if (calisiyor || !otoTazeleGerekli() || !navigator.onLine) return; calisiyor = true; bildirimleriTazele(localStorage.getItem('zkasa_sifre')).catch(() => {}).finally(() => { calisiyor = false; }); };
+                const t = setTimeout(dene, 6000);
+                const g = () => { if (document.visibilityState === 'visible') setTimeout(dene, 3000); };
+                document.addEventListener('visibilitychange', g);
+                return () => { clearTimeout(t); document.removeEventListener('visibilitychange', g); };
+            }, []);
+        };
+        // Sahip kartı: elle tazele + otomatik tazeleme anahtarı
+        const TazeleKarti = ({ showToast }) => {
+            const [mesgul, setMesgul] = React.useState('');
+            const [mesaj, setMesaj] = React.useState(null);
+            const [oto, setOto] = React.useState(() => { try { return localStorage.getItem('zks_oto_tazele') !== '0'; } catch(e){ return true; } });
+            const sifreVar = (() => { try { return !!localStorage.getItem('zkasa_sifre'); } catch(e){ return false; } })();
+            const sonT = (() => { try { return +(localStorage.getItem('zks_tazele_t') || 0); } catch(e){ return 0; } })();
+            const tazele = async () => {
+                let s = ''; try { s = localStorage.getItem('zkasa_sifre') || ''; } catch(e){}
+                if (!s) s = (window.prompt('Kasa şifresi:') || '').trim();
+                if (!s) return;
+                setMesaj(null); setMesgul('…');
+                try {
+                    const r = await bildirimleriTazele(s, setMesgul);
+                    setMesaj({ tip: 'ok', metin: `✅ Önümüzdeki 7 günün bildirimleri yeni içerikle kuruldu${r.meal ? ' (Diyanet Vakfı meali)' : ''}.${r.mubarek ? ` ${r.mubarek} mübarek gün/gece bildirimi eklendi.` : ''} ${r.destek === true ? 'Kullanıcılar kanalları kendisi seçiyor.' : 'Temel hatırlatmalar herkese gidiyor.'}` });
+                    showToast && showToast('🔄 Bildirimler tazelendi');
+                } catch (e) { setMesaj({ tip: 'hata', metin: '⛔ ' + e.message }); }
+                setMesgul('');
+            };
+            return (
+                <AyarKart ikon="🔄" baslik="Bildirimler her gün değişsin" aciklama="Kasa kayıtlı metni gönderir. Bu cihaz, uygulama her açıldığında (günde bir kez) önümüzdeki 7 günün bildirimlerini YENİ ayet, hadis ve Esmâ ile yeniden kurar. Böylece bildirimler hep farklı olur. Kandil ve mübarek gün bildirimleri yalnız önümüzdeki 3 gün için kurulur; bu cihaz haftada en az bir kez açılmalı.">
+                    <label className="flex items-center gap-2.5 text-[13px] text-slate-200 mb-2"><input type="checkbox" checked={oto} onChange={e => { setOto(e.target.checked); try { localStorage.setItem('zks_oto_tazele', e.target.checked ? '1' : '0'); } catch(x){} }} className="accent-emerald-500 w-5 h-5"/> Her gün kendiliğinden tazele (bu cihaz)</label>
+                    {!sifreVar && <p className="text-[11px] text-amber-200/90 mb-2">Otomatik tazeleme için yukarıdaki kartlardan birinde şifreyi yazıp "şifreyi hatırla"yı işaretle.</p>}
+                    <button onClick={tazele} disabled={!!mesgul} className={`${ayarBtn('ana')} w-full py-3`}>{mesgul ? `Tazeleniyor… ${mesgul}` : '🔄 Şimdi tazele'}</button>
+                    <p className="text-[11px] text-slate-500 mt-1.5">Son tazeleme: {sonT ? new Date(sonT).toLocaleString('tr-TR') : 'henüz yok'} · Bu cihaz 7 günden uzun açılmazsa bildirimler o haftanın içeriğiyle tekrar eder.</p>
+                    <Mesaj m={mesaj} />
+                </AyarKart>
+            );
+        };
+
+        // ===== 🔔➡️📖 BİLDİRİM KARTI: bildirime dokununca açılan etkileşimli kart (ayet · hadis · Esmâ) =====
+        const AnKarti = ({ kart, setKart, mealSource, reciterSource, toggleFavorite, favorites, surahs, sureAc, showToast }) => {
+            const [veri, setVeri] = React.useState(null);
+            const [hata, setHata] = React.useState('');
+            const [gorunum] = useMushafGorunum();
+            const tilavet = useTilavet();
+            React.useEffect(() => {
+                setVeri(null); setHata('');
+                if (!kart || kart.tur !== 'ayet') return;
+                let iptal = false;
+                const ed = ['quran-uthmani', mealSource || 'tr.yazir', reciterSource || 'ar.alafasy'].concat(gorunum === 'tecvid' ? ['quran-tajweed'] : []);
+                fetch(`https://api.alquran.cloud/v1/ayah/${kart.s}:${kart.a}/editions/${ed.join(',')}`).then(r => r.json()).then(j => {
+                    if (iptal) return;
+                    const d = (j && j.data) || [];
+                    const bul = (id) => d.find(x => x.edition && x.edition.identifier === id) || {};
+                    const ar = bul('quran-uthmani'), tr = bul(mealSource || 'tr.yazir'), au = bul(reciterSource || 'ar.alafasy'), tj = bul('quran-tajweed');
+                    if (!ar.text) throw new Error('yok');
+                    setVeri({ ar: besmeleAyir(ar.text, kart.s, kart.a), tr: tr.text || '', audio: au.audio || ar.audio || '', tj: tj.text ? window.ZTECVID.besmeleAyir(tj.text, kart.s, kart.a) : null, number: ar.number });
+                }).catch(() => !iptal && setHata('Ayet yüklenemedi. İnternet bağlantını kontrol et.'));
+                return () => { iptal = true; };
+            }, [kart && kart.tur, kart && kart.s, kart && kart.a, mealSource, reciterSource, gorunum]);
+            if (!kart) return null;
+            const kapat = () => { setKart(null); try { window.ZTILAVET && window.ZTILAVET.durum().sure === 0 && window.ZTILAVET.durdur(); } catch(e){} };
+            const rastgele = () => {
+                if (kart.tur === 'ayet') { const [s, a] = AYET_REFLERI[Math.floor(Math.random() * AYET_REFLERI.length)]; setKart({ tur: 'ayet', s, a }); }
+                else if (kart.tur === 'hadis') setKart({ tur: 'hadis', i: Math.floor(Math.random() * HADIS_HAVUZU.length) });
+                else setKart({ tur: 'esma', i: Math.floor(Math.random() * ESMA_99.length) });
+            };
+            const paylas = async (metin) => { try { if (navigator.share) await navigator.share({ text: metin }); else { await navigator.clipboard.writeText(metin); showToast && showToast('📋 Kopyalandı'); } } catch(e){} };
+            const btn = 'flex items-center justify-center gap-1.5 min-h-[46px] rounded-xl text-[13px] font-bold border transition-colors';
+            const sure = kart.tur === 'ayet' ? (surahs.find(x => x.number === kart.s) || { number: kart.s, name: getTurkishName(kart.s), englishName: getTurkishName(kart.s) }) : null;
+            const isFav = kart.tur === 'ayet' && favorites.some(f => f.uid === `${kart.s}:${kart.a}`);
+            const ayetCaliyor = kart.tur === 'ayet' && tilavet.sure === kart.s && tilavet.ayet === kart.a && tilavet.caliyor;
+            let govde = null;
+            if (kart.tur === 'ayet') {
+                govde = (
+                    <>
+                        <p className="text-[11px] font-bold tracking-widest uppercase text-emerald-400 mb-2">📖 {getTurkishName(kart.s)} Suresi · {kart.a}. ayet</p>
+                        {!veri && !hata && <div className="py-10 text-center text-slate-400 text-sm">Ayet getiriliyor…</div>}
+                        {hata && <p className="py-6 text-center text-rose-300 text-sm">{hata}</p>}
+                        {veri && (
+                            <>
+                                <p className="font-amiri text-[30px] leading-[2.3] text-right text-emerald-300 mb-3" dir="rtl" data-zk-kap={`kart-${kart.s}-${kart.a}`}><ArapcaMetin metin={veri.ar} tecvidHam={veri.tj} gorunum={gorunum} /></p>
+                                <p className="text-[17px] leading-relaxed text-slate-100 font-serif mb-1">{veri.tr}</p>
+                                <p className="text-[11px] text-slate-500 mb-4">Meal: {(MEAL_SOURCES.find(m => m.id === mealSource) || {}).name || mealSource}</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button onClick={() => { if (ayetCaliyor) { window.ZTILAVET.duraklat(); return; } window.ZTILAVET.baslat({ sure: kart.s, sureAdi: getTurkishName(kart.s), ayet: kart.a, ayetler: [{ no: kart.a, audio: veri.audio, ar: veri.ar, tr: veri.tr }] }); }} className={`${btn} bg-emerald-500 text-emerald-950 border-emerald-400 hover:bg-emerald-400 col-span-2`}>{ayetCaliyor ? '⏸ Duraklat' : '▶ Dinle (Arapça + meal)'}</button>
+                                    <button onClick={() => { if (sure) toggleFavorite({ number: veri.number, numberInSurah: kart.a, text: veri.tr, arabic: veri.ar }, sure); }} className={`${btn} ${isFav ? 'bg-rose-500/20 border-rose-500/40 text-rose-200' : 'bg-slate-800 border-slate-700 text-slate-100'}`}>{isFav ? '❤️ Favoride' : '🤍 Favoriye ekle'}</button>
+                                    <button onClick={() => { kapat(); sureAc(kart.s, kart.a); }} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>📖 Surede aç</button>
+                                    <button onClick={() => paylas(`${veri.ar}\n\n${veri.tr}\n(${getTurkishName(kart.s)}, ${kart.a})`)} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
+                                    <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🎲 Başka bir ayet</button>
+                                </div>
+                            </>
+                        )}
+                    </>
+                );
+            } else if (kart.tur === 'hadis') {
+                const hd = HADIS_HAVUZU[kart.i] || HADIS_HAVUZU[0];
+                govde = (
+                    <>
+                        <p className="text-[11px] font-bold tracking-widest uppercase text-amber-400 mb-3">📜 Hadis-i şerif</p>
+                        <p className="text-[19px] leading-relaxed text-slate-100 font-serif mb-2">“{hd.t}”</p>
+                        <p className="text-[12px] text-amber-200/80 mb-4">{hd.k}</p>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button onClick={() => window.ZTILAVET.tekMetin(hd.t)} className={`${btn} bg-amber-500 text-amber-950 border-amber-400 col-span-2`}>🔊 Dinle</button>
+                            <button onClick={() => paylas(`“${hd.t}” (${hd.k})`)} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
+                            <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🎲 Başka bir hadis</button>
+                        </div>
+                    </>
+                );
+            } else {
+                const es = ESMA_99[kart.i] || ESMA_99[0];
+                govde = (
+                    <>
+                        <p className="text-[11px] font-bold tracking-widest uppercase text-yellow-400 mb-3">✨ Esmâ-ül Hüsnâ · {kart.i + 1}/99</p>
+                        <p className="font-amiri text-5xl text-yellow-200 text-center mb-2" dir="rtl">{es.ar}</p>
+                        <p className="text-2xl font-bold text-center text-slate-100 mb-1">{es.n}</p>
+                        <p className="text-[16px] text-center text-slate-300 mb-4">{es.d}</p>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button onClick={() => window.ZTILAVET.tekMetin(`${es.n}. ${es.d}.`)} className={`${btn} bg-yellow-500 text-yellow-950 border-yellow-400 col-span-2`}>🔊 Dinle</button>
+                            <button onClick={() => paylas(`${es.ar} · ${es.n}: ${es.d}`)} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
+                            <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🎲 Başka bir isim</button>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-3">Sıra ve isimler Tirmizî'nin (Daavât, 82) rivayetine, anlamlar TDV İslâm Ansiklopedisi'ne dayanır.</p>
+                    </>
+                );
+            }
+            return (
+                <div className="fixed inset-0 z-[70] bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={kapat}>
+                    <div onClick={e => e.stopPropagation()} className="w-full sm:max-w-xl max-h-[92dvh] overflow-y-auto bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700 rounded-t-3xl sm:rounded-3xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl animate-fade-in">
+                        <div className="flex justify-end -mt-1 -mr-1"><button onClick={kapat} aria-label="Kartı kapat" className="p-2.5 rounded-full hover:bg-white/5 text-slate-300"><Icons.X size={20}/></button></div>
+                        {govde}
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== 🕌 NAMAZ VAKİTLERİ + 🌙 MÜBAREK GÜNLER (ana ekran) =====
+        const ILLER = ['Adana','Adıyaman','Afyonkarahisar','Ağrı','Aksaray','Amasya','Ankara','Antalya','Ardahan','Artvin','Aydın','Balıkesir','Bartın','Batman','Bayburt','Bilecik','Bingöl','Bitlis','Bolu','Burdur','Bursa','Çanakkale','Çankırı','Çorum','Denizli','Diyarbakır','Düzce','Edirne','Elazığ','Erzincan','Erzurum','Eskişehir','Gaziantep','Giresun','Gümüşhane','Hakkari','Hatay','Iğdır','Isparta','İstanbul','İzmir','Kahramanmaraş','Karabük','Karaman','Kars','Kastamonu','Kayseri','Kilis','Kırıkkale','Kırklareli','Kırşehir','Kocaeli','Konya','Kütahya','Malatya','Manisa','Mardin','Mersin','Muğla','Muş','Nevşehir','Niğde','Ordu','Osmaniye','Rize','Sakarya','Samsun','Şanlıurfa','Siirt','Sinop','Şırnak','Sivas','Tekirdağ','Tokat','Trabzon','Tunceli','Uşak','Van','Yalova','Yozgat','Zonguldak'];
+        const VAKITLER = [['Fajr', 'İmsak'], ['Sunrise', 'Güneş'], ['Dhuhr', 'Öğle'], ['Asr', 'İkindi'], ['Maghrib', 'Akşam'], ['Isha', 'Yatsı']];
+        const sonrakiMubarek = (bugun = new Date()) => {
+            const b = tarihAnahtar(bugun);
+            const x = MUBAREK_GUNLER.find(g => g.tarih >= b);
+            if (!x) return null;
+            const [y, m, d] = x.tarih.split('-').map(Number);
+            const gun = Math.round((new Date(y, m - 1, d) - new Date(bugun.getFullYear(), bugun.getMonth(), bugun.getDate())) / 864e5);
+            return { ...x, gun, yazi: `${d} ${AY_ADLARI[m - 1]} ${GUN_ADLARI[new Date(y, m - 1, d).getDay()]}` };
+        };
+        const NamazKarti = () => {
+            const [sehir, setSehir] = React.useState(() => { try { return localStorage.getItem('zirve_sehir') || ''; } catch(e){ return ''; } });
+            const [v, setV] = React.useState(null);
+            const [hata, setHata] = React.useState('');
+            const [secim, setSecim] = React.useState(false);
+            const [simdi, setSimdi] = React.useState(Date.now());
+            React.useEffect(() => { const t = setInterval(() => setSimdi(Date.now()), 30000); return () => clearInterval(t); }, []);
+            const gunAnahtari = tarihAnahtar(new Date(simdi));
+            React.useEffect(() => {
+                if (!sehir) return;
+                const bugun = new Date(), ta = tarihAnahtar(bugun), k = 'zirve_vakit_' + sehir + '_' + ta;
+                setHata(''); setV(null);
+                try { Object.keys(localStorage).forEach(x => { if (x.startsWith('zirve_vakit_') && !x.endsWith('_' + ta)) localStorage.removeItem(x); }); } catch(e){}
+                try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c) { setV(c); return; } } catch(e){}
+                const dmy = `${String(bugun.getDate()).padStart(2, '0')}-${String(bugun.getMonth() + 1).padStart(2, '0')}-${bugun.getFullYear()}`;
+                const konum = sehir.startsWith('@') ? sehir.slice(1).split(',') : null;
+                const u = konum ? `https://api.aladhan.com/v1/timings/${dmy}?latitude=${konum[0]}&longitude=${konum[1]}&method=13` : `https://api.aladhan.com/v1/timingsByCity/${dmy}?city=${encodeURIComponent(sehir)}&country=Turkey&method=13`;
+                setHata('');
+                fetch(u).then(r => r.json()).then(j => {
+                    const t = j && j.data && j.data.timings; if (!t) throw new Error();
+                    const o = {}; VAKITLER.forEach(([en]) => { o[en] = String(t[en] || '').slice(0, 5); });
+                    setV(o); try { localStorage.setItem(k, JSON.stringify(o)); } catch(e){}
+                }).catch(() => setHata('Vakitler alınamadı'));
+            }, [sehir, gunAnahtari]);
+            const mub = sonrakiMubarek();
+            const sehirSec = (s) => { setSehir(s); setSecim(false); try { localStorage.setItem('zirve_sehir', s); } catch(e){} };
+            const konumKullan = () => { if (!navigator.geolocation) return; navigator.geolocation.getCurrentPosition(p => sehirSec(`@${p.coords.latitude.toFixed(3)},${p.coords.longitude.toFixed(3)}`), () => setHata('Konum izni verilmedi')); };
+            let siradaki = null;
+            if (v) {
+                const d = new Date(simdi), dk = d.getHours() * 60 + d.getMinutes();
+                for (const [en, tr] of VAKITLER) { const [h, m] = (v[en] || '0:0').split(':').map(Number); const t = h * 60 + m; if (t > dk) { siradaki = { en, tr, kalan: t - dk }; break; } }
+                if (!siradaki) { const [h, m] = (v.Fajr || '0:0').split(':').map(Number); siradaki = { en: 'Fajr', tr: 'İmsak', kalan: 24 * 60 - dk + h * 60 + m }; }
+            }
+            const kalanYazi = (n) => n >= 60 ? `${Math.floor(n / 60)} sa ${n % 60} dk` : `${n} dk`;
+            const sehirAdi = sehir.startsWith('@') ? 'Konumum' : sehir;
+            return (
+                <div className="mb-4 rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/60 to-slate-900/60 p-3.5">
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                            <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-400">🕌 Namaz vakitleri{sehir ? ` · ${sehirAdi}` : ''}</p>
+                            {!sehir && <p className="text-[13px] text-slate-300 mt-0.5">Şehrini seç, sıradaki vakti göstereyim.</p>}
+                            {sehir && siradaki && <p className="text-[15px] font-bold text-slate-100 mt-0.5">{siradaki.tr} vaktine <span className="text-emerald-300">{kalanYazi(siradaki.kalan)}</span></p>}
+                            {sehir && !v && !hata && <p className="text-[13px] text-slate-400 mt-0.5">Yükleniyor…</p>}
+                            {hata && <p className="text-[12px] text-rose-300 mt-0.5">{hata}</p>}
+                        </div>
+                        <button onClick={() => setSecim(!secim)} className="shrink-0 text-[11px] font-bold text-emerald-200 bg-black/30 border border-emerald-500/30 rounded-full px-3 min-h-[36px]">{sehir ? 'Değiştir' : 'Şehir seç'}</button>
+                    </div>
+                    {v && (
+                        <div className="grid grid-cols-6 gap-1 mt-2.5">
+                            {VAKITLER.map(([en, tr]) => (
+                                <div key={en} className={`rounded-lg text-center py-1.5 ${siradaki && siradaki.en === en ? 'bg-emerald-500/25 ring-1 ring-emerald-400/60' : 'bg-black/25'}`}>
+                                    <p className="text-[9px] text-slate-400 font-bold">{tr}</p>
+                                    <p className="text-[12px] font-bold text-slate-100 tabular-nums">{v[en]}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {secim && (
+                        <div className="mt-2.5">
+                            <button onClick={konumKullan} className="w-full mb-2 text-[12px] font-bold text-slate-100 bg-slate-800 border border-slate-700 rounded-xl min-h-[40px]">📍 Konumumu kullan</button>
+                            <div className="max-h-48 overflow-y-auto grid grid-cols-3 gap-1">
+                                {ILLER.map(il => <button key={il} onClick={() => sehirSec(il)} className={`text-[12px] rounded-lg px-2 py-2 border ${sehir === il ? 'bg-emerald-500 text-emerald-950 border-emerald-400' : 'bg-black/25 border-slate-700 text-slate-200'}`}>{il}</button>)}
+                            </div>
+                        </div>
+                    )}
+                    {mub && (
+                        <p className="mt-2.5 text-[12px] text-amber-100/90 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">🌙 {mub.gun === 0 ? 'Bugün' : mub.gun === 1 ? 'Yarın' : `${mub.gun} gün sonra`}: <b>{mub.ad}</b> <span className="text-amber-200/60">({mub.yazi}{mub.not === 'gece' ? ' akşamı' : ''})</span></p>
+                    )}
+                    {v && <p className="mt-1.5 text-[10px] text-slate-500">Vakitler Diyanet hesaplama yöntemiyle (aladhan.com) hesaplanır; birkaç dakikalık fark olabilir, kesin vakit için Diyanet'i esas al.</p>}
+                </div>
+            );
+        };
+
+
         const HAZIR_HATIRLATMALAR = [
             { id: 'sabah-ayet',   saat: '07:00', gunler: [],              baslik: "📖 Kur'an ve Siyer Atlası · Sabah ayeti",        govde: "Güne bir ayetle başla: kaldığın yerden birkaç ayet oku, birini Ayet Anatomisi'yle incele.", bolum: 'kaldigim' },
             { id: 'ogle-tefekkur',saat: '13:00', gunler: [1, 2, 3, 4, 5], baslik: "📖 Kur'an ve Siyer Atlası · Öğle tefekkürü",     govde: "Beş dakikalık mola: günün ayetini oku, bir cümlesini gün boyu aklında tut.", bolum: 'anasayfa' },
@@ -3017,26 +3605,14 @@ Kullanıcının isteği: `;
                 const s = sifreAl(); if (!s) return;
                 setMesgul('kur'); setMesaj(null);
                 try {
-                    let n = 0;
-                    for (const k of KONU_KATALOG) {
-                        setKurIlerleme(`${++n}/${KONU_KATALOG.length} · ${k.ad}`);
-                        await ZB.hKaydet(s, konuGirdileri(k), k.uyg);
-                    }
-                    // Kasa bir cihazı birden çok kanala kaydedebiliyor mu? (sahibin kendi cihazından denetlenir)
-                    let destek = null; try { destek = await ZB.kanalDestek(); } catch (x) {}
-                    const r = await ZB.hListe(s);
-                    const mevcut = kasaListeBul(r).map(normal);
-                    let yeni;
-                    if (destek === true) yeni = mevcut.filter(x => !HAZIR_HATIRLATMALAR.some(hz => hz.id === x.id)); // temel hatırlatmalar artık kanallardan, isteyene
-                    else yeni = mevcut.concat(HAZIR_HATIRLATMALAR.filter(hz => !mevcut.some(x => x.id === hz.id)).map((x, i) => normal({ ...x, url: urlYap(x.bolum) }, i))); // güvence: herkese temel 5 hatırlatma
-                    await ZB.hKaydet(s, yeni);
-                    setListe(yeni); setYuklendi(true);
-                    try { localStorage.setItem('zks_hatirlatma', JSON.stringify({ sayi: KONU_KATALOG.length, t: Date.now(), katalog: true })); } catch(e){}
-                    setMesaj({ tip: destek === false ? 'hata' : 'ok', metin: destek === true
-                        ? `⭐ ${KONU_KATALOG.length} bildirim kanalı kuruldu ve kasa seçmeli bildirimi destekliyor. Kullanıcılar "📬 Hangi bildirimler gelsin?" kartından istediklerini şifresiz açar. Bunu bir daha yapman gerekmez.`
-                        : destek === false
-                        ? `⚠️ Kanallar kuruldu ama kasa bir cihazı yalnız tek kanala kaydediyor; seçmeli bildirim için kasada küçük bir ekleme gerekiyor. Şimdilik 5 temel hatırlatma (sabah, öğle, Cuma, akşam, hatim) bildirimi açık herkese gidiyor.`
-                        : `⭐ Kanallar kuruldu. Kasanın seçmeli bildirimi destekleyip desteklemediği bu cihazdan denetlenemedi (önce burada 🔔 Bildirimleri aç). O zamana kadar 5 temel hatırlatma herkese gidiyor; bildirimleri açıp bu düğmeye bir kez daha basarsan ayar tamamlanır.` });
+                    const r = await bildirimleriTazele(s, setKurIlerleme);
+                    const l = kasaListeBul(await ZB.hListe(s)).map(normal);
+                    setListe(l); setYuklendi(true);
+                    setMesaj({ tip: r.destek === false ? 'hata' : 'ok', metin: r.destek === true
+                        ? `⭐ ${KONU_KATALOG.length} bildirim kanalı her gün değişen içerikle kuruldu ve kasa seçmeli bildirimi destekliyor. Kullanıcılar "📬 Hangi bildirimler gelsin?" kartından istediklerini şifresiz açar.`
+                        : r.destek === false
+                        ? `⚠️ Kanallar kuruldu ama kasa bir cihazı yalnız tek kanala kaydediyor. Şimdilik temel hatırlatmalar (sabah, öğle, Cuma, akşam, hatim) her gün değişen içerikle bildirimi açık herkese gidiyor.`
+                        : `⭐ Kanallar her gün değişen içerikle kuruldu. Kasanın seçmeli bildirimi destekleyip desteklemediği bu cihazdan denetlenemedi (önce burada 🔔 Bildirimleri aç); o zamana kadar temel hatırlatmalar herkese gidiyor.` });
                     showToast && showToast('📬 Bildirim kanalları kuruldu');
                 } catch (e) { setMesaj({ tip: 'hata', metin: '⛔ ' + e.message }); }
                 setKurIlerleme(''); setMesgul('');
@@ -3424,6 +4000,7 @@ Kullanıcının isteği: `;
 
                         {sekme === 'okuma' && (
                         <div className="space-y-4 animate-fade-in">
+                            <OkumaSesKarti />
                             <div>
                                 <label className="text-xs font-bold text-emerald-400 mb-2 block flex items-center gap-1"><Icons.BookOpen size={14}/> Meal Kaynağı (Çeviri)</label>
                                 <select value={tempMeal} onChange={(e) => setTempMeal(e.target.value)} className="w-full p-3 rounded-xl bg-black/30 border border-slate-700 text-sm focus:border-emerald-500 outline-none text-white">
@@ -3583,6 +4160,7 @@ Kullanıcının isteği: `;
                             <BildirimKarti showToast={showToast} />
                             <BildirimKonulari showToast={showToast} />
                             <SahipBolumu not="Hatırlatmaları SEN bir kez kurarsın; kasa onları bildirimi açık olan herkese kendisi gönderir. Kullanıcılar yalnız '🔔 Bildirimleri aç'a dokunur, şifre girmez.">
+                                <TazeleKarti showToast={showToast} />
                                 <HatirlatmaKarti showToast={showToast} />
                             </SahipBolumu>
                         </div>
@@ -4207,6 +4785,183 @@ JSON ŞEMASI:
             );
         };
 
+        // ===== 🎨 ARAPÇA METİN: kelime kelime (okunan kelime vurgulanır) · Normal / Tecvidli / Harf harf =====
+        const mushafGorunumOku = () => { try { return localStorage.getItem('zirve_mushaf_gorunum') || 'normal'; } catch(e){ return 'normal'; } };
+        const useMushafGorunum = () => {
+            const [g, setG] = React.useState(mushafGorunumOku);
+            React.useEffect(() => { const f = () => setG(mushafGorunumOku()); window.addEventListener('zirve-mushaf', f); return () => window.removeEventListener('zirve-mushaf', f); }, []);
+            const ayarla = (v) => { try { localStorage.setItem('zirve_mushaf_gorunum', v); } catch(e){} window.dispatchEvent(new Event('zirve-mushaf')); };
+            return [g, ayarla];
+        };
+        const GORUNUMLER = [
+            { id: 'normal', ad: 'Normal', ikon: '📖' },
+            { id: 'tecvid', ad: 'Tecvidli', ikon: '🎨' },
+            { id: 'harf', ad: 'Harf harf', ikon: '🔤' }
+        ];
+        const ArapcaMetin = React.memo(({ metin, tecvidHam, gorunum }) => {
+            const T = window.ZTECVID;
+            if (!T) return metin;
+            const tecvid = gorunum === 'tecvid' && !!tecvidHam;
+            const kaynak = tecvid ? tecvidHam : metin;
+            const kelimeler = window.ZTECVID && window.ZTECVID.bol ? window.ZTECVID.bol(kaynak) : String(kaynak || '').trim().split(/\s+/).filter(Boolean);
+            return kelimeler.map((w, i) => {
+                const duz = T.temiz(w);
+                const durak = T.durakMi(duz);
+                let icerik = duz;
+                if (tecvid) icerik = T.kelimeParca(w).map((p, j) => (p.k && T.KURAL[p.k]) ? <span key={j} style={{ color: T.KURAL[p.k].renk }} title={T.KURAL[p.k].ad}>{p.t}</span> : <React.Fragment key={j}>{p.t}</React.Fragment>);
+                else if (gorunum === 'harf') icerik = T.harfKumeleri(duz).map((k, j) => { const c = T.harfRengi(k[0]); return c ? <span key={j} style={{ color: c }} title={T.harfAdi(k[0])}>{k}</span> : <React.Fragment key={j}>{k}</React.Fragment>; });
+                return <React.Fragment key={i}>{i > 0 ? ' ' : ''}<span className={`zk-kelime${durak ? ' zk-durak' : ''}`} data-w={T.agirlik(w)}>{icerik}</span></React.Fragment>;
+            });
+        });
+
+        // Tecvid rengi açıklaması
+        const TecvidRehberi = ({ onClose, gorunum }) => {
+            const T = window.ZTECVID || { KURAL: {} };
+            const gruplar = [
+                { b: 'Okunmayan harfler', k: ['h', 's', 'l'] },
+                { b: 'Medler (uzatmalar)', k: ['n', 'o', 'p', 'm'] },
+                { b: 'Gunne ve ihfâ', k: ['g', 'f', 'c', 'i'] },
+                { b: 'İdgâmlar', k: ['a', 'u', 'w', 'd', 'b'] },
+                { b: 'Kalkale', k: ['q'] }
+            ];
+            const HARF = 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي';
+            return (
+                <div className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+                    <div onClick={e => e.stopPropagation()} className="w-full sm:max-w-lg max-h-[88dvh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-t-3xl sm:rounded-3xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-slate-100">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-bold text-lg">{gorunum === 'harf' ? '🔤 Harf renkleri' : '🎨 Tecvid renkleri'}</h3>
+                            <button onClick={onClose} aria-label="Kapat" className="p-2.5 rounded-full hover:bg-white/5"><Icons.X size={20}/></button>
+                        </div>
+                        {gorunum === 'harf' ? (
+                            <>
+                                <p className="text-[12px] text-slate-400 mb-3 leading-relaxed">Her harf hep aynı renkte görünür; Elif-Bâ öğrenirken harfleri metin içinde tanımaya yardım eder. Harfin üzerinde durunca adı görünür.</p>
+                                <div className="grid grid-cols-4 sm:grid-cols-7 gap-2" dir="rtl">
+                                    {HARF.split('').map(h => (
+                                        <div key={h} className="rounded-xl bg-black/30 border border-slate-700 p-2 text-center">
+                                            <div className="font-amiri text-3xl leading-tight" style={{ color: window.ZTECVID ? window.ZTECVID.harfRengi(h) : undefined }}>{h}</div>
+                                            <div className="text-[10px] text-slate-400" dir="ltr">{window.ZTECVID ? window.ZTECVID.harfAdi(h) : ''}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-[12px] text-slate-400 mb-3 leading-relaxed">Renkler, tecvid kuralı uygulanan harfleri gösterir (alquran.cloud tecvid işaretlemesi). Kurallar Türkiye'deki tecvid derslerindeki terimlerle yazılmıştır. Tecvid en doğru şekilde bir hocadan dinleyerek öğrenilir; renkler yardımcıdır.</p>
+                                {gruplar.map(g => (
+                                    <div key={g.b} className="mb-3">
+                                        <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider mb-1.5">{g.b}</p>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                            {g.k.map(k => T.KURAL[k] && (
+                                                <div key={k} className="flex items-center gap-2.5 rounded-lg bg-black/25 px-3 py-2">
+                                                    <span className="w-4 h-4 rounded-full shrink-0" style={{ background: T.KURAL[k].renk }}></span>
+                                                    <span className="text-[13px]">{T.KURAL[k].ad}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
+                        )}
+                        <p className="text-[11px] text-slate-500 mt-3">Dinlerken okunan kelime sarı zeminle izlenir. Bu takip yaklaşıktır: kelime süreleri harf uzunluğuna göre tahmin edilir.</p>
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== 🎧 TİLAVET ÇUBUĞU (yalnız dinlerken görünür) =====
+        const useTilavet = () => {
+            const [d, setD] = React.useState(() => (window.ZTILAVET ? window.ZTILAVET.durum() : { aktif: false }));
+            React.useEffect(() => (window.ZTILAVET ? window.ZTILAVET.abone(setD) : undefined), []);
+            return d;
+        };
+        const TILAVET_MODLARI = [
+            { id: 'ar', ad: 'Arapça', ikon: '🕋' },
+            { id: 'armeal', ad: 'Arapça + Meal', ikon: '🕋🇹🇷' },
+            { id: 'meal', ad: 'Yalnız meal', ikon: '🇹🇷' }
+        ];
+        const TilavetCubugu = () => {
+            const d = useTilavet();
+            const [genis, setGenis] = React.useState(false);
+            const Z = window.ZTILAVET;
+            const [kalan, setKalan] = React.useState('');
+            React.useEffect(() => {
+                if (!d.uykuBitis) { setKalan(''); return; }
+                const f = () => { const s = Math.max(0, d.uykuBitis - Date.now()); setKalan(`${Math.ceil(s / 60000)} dk`); };
+                f(); const t = setInterval(f, 15000); return () => clearInterval(t);
+            }, [d.uykuBitis]);
+            const gorunur = !!(Z && (d.aktif || d.toplam) && d.sure);
+            React.useEffect(() => { try { document.body.classList.toggle('zk-tilavet', gorunur); } catch(e){} }, [gorunur]);
+            if (!gorunur) return null;
+            const cip = (on) => `px-3 min-h-[34px] rounded-full text-[11px] font-bold border transition-colors ${on ? 'bg-emerald-500 text-emerald-950 border-emerald-400' : 'bg-black/30 text-slate-300 border-slate-700 hover:bg-white/10'}`;
+            const ilerleme = d.toplam ? Math.round(((d.ayet) / Math.max(1, d.son)) * 100) : 0;
+            return (
+                <div className="fixed left-0 right-0 z-[45] px-2 sm:px-4 pointer-events-none" style={{ bottom: 'calc(4.6rem + env(safe-area-inset-bottom, 0px))' }}>
+                    <div className="pointer-events-auto max-w-3xl mx-auto rounded-2xl border border-emerald-500/30 bg-slate-950/95 backdrop-blur-md shadow-2xl shadow-black/60 overflow-hidden" role="region" aria-label="Tilavet oynatıcı">
+                        <div className="h-1 bg-slate-800"><div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: `${ilerleme}%` }}></div></div>
+                        <div className="flex items-center gap-2 px-3 py-2">
+                            <button onClick={() => setGenis(!genis)} className="flex-1 min-w-0 text-left" aria-label="Oynatıcı ayarlarını aç/kapat">
+                                <p className="text-[13px] font-bold text-slate-100 truncate">{d.sureAdi} · {d.ayet}. ayet <span className="text-slate-500 font-semibold">/ {d.son}</span></p>
+                                <p className="text-[11px] text-emerald-300/80 truncate">{d.asama === 'tr' ? '🇹🇷 Meal okunuyor' : '🕋 Tilavet'} · {(TILAVET_MODLARI.find(m => m.id === d.mod) || {}).ad}{d.tekrar !== 1 ? ` · ${d.tekrar === 0 ? '∞' : d.tekrar + '×'} tekrar` : ''}{kalan ? ` · 🌙 ${kalan}` : ''} <span className="text-slate-500">▾</span></p>
+                            </button>
+                            <button onClick={() => Z.onceki()} aria-label="Önceki ayet" className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-200"><Icons.ChevronLeft size={22}/></button>
+                            <button onClick={() => d.caliyor ? Z.duraklat() : Z.devam()} aria-label={d.caliyor ? 'Duraklat' : 'Devam et'} className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-emerald-950 flex items-center justify-center shadow-lg">
+                                {d.caliyor ? <Icons.Pause size={22}/> : <Icons.Play size={22}/>}
+                            </button>
+                            <button onClick={() => Z.sonraki()} aria-label="Sonraki ayet" className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-200"><Icons.ChevronRight size={22}/></button>
+                            <button onClick={() => Z.durdur()} aria-label="Dinlemeyi kapat" className="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-400"><Icons.X size={18}/></button>
+                        </div>
+                        {genis && (
+                            <div className="px-3 pb-3 space-y-2.5 border-t border-white/5 pt-2.5 animate-fade-in">
+                                <div className="flex flex-wrap gap-1.5 items-center"><span className="text-[10px] text-slate-500 w-14">Dinle</span>
+                                    {TILAVET_MODLARI.map(m => <button key={m.id} onClick={() => Z.ayarla('mod', m.id)} className={cip(d.mod === m.id)}>{m.ikon} {m.ad}</button>)}
+                                </div>
+                                <div className="flex flex-wrap gap-1.5 items-center"><span className="text-[10px] text-slate-500 w-14">Tekrar</span>
+                                    {[1, 3, 5, 7, 0].map(n => <button key={n} onClick={() => Z.ayarla('tekrar', n)} className={cip(d.tekrar === n)} aria-label={n === 0 ? 'Sürekli tekrar' : `${n} kez tekrar`}>{n === 0 ? '∞' : n + '×'}</button>)}
+                                    <span className="text-[10px] text-slate-500">ezber için</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1.5 items-center"><span className="text-[10px] text-slate-500 w-14">Hız</span>
+                                    {[0.75, 0.9, 1, 1.15, 1.3].map(n => <button key={n} onClick={() => Z.ayarla('hiz', n)} className={cip(d.hiz === n)}>{n}×</button>)}
+                                </div>
+                                <div className="flex flex-wrap gap-1.5 items-center"><span className="text-[10px] text-slate-500 w-14">Uyku</span>
+                                    {[0, 15, 30, 60].map(n => <button key={n} onClick={() => Z.ayarla('uyku', n)} className={cip((d.uyku || 0) === n)}>{n === 0 ? 'Kapalı' : n + ' dk'}</button>)}
+                                </div>
+                                <label className="flex items-center gap-2 text-[12px] text-slate-300"><input type="checkbox" checked={d.takip} onChange={e => Z.ayarla('takip', e.target.checked)} className="accent-emerald-500 w-4 h-4"/> Okunan ayeti ekranda takip et</label>
+                                <p className="text-[10px] text-slate-500">Meal sesi: {window.ZTTS && window.ZTTS.yzSesAcik() ? 'yapay zekâ sesi (Charon); olmazsa cihazın sesi' : 'cihazın Türkçe sesi'} · Kilit ekranından da yönetebilirsin.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Ayarlar → Okuma: Mushaf görünümü + meal sesi
+        const OkumaSesKarti = () => {
+            const [g, ayarla] = useMushafGorunum();
+            const [ses, setSes] = React.useState(() => { try { return localStorage.getItem('zirve_meal_ses') || 'yz'; } catch(e){ return 'yz'; } });
+            const [rehber, setRehber] = React.useState(null);
+            const sesAyarla = (v) => { try { localStorage.setItem('zirve_meal_ses', v); } catch(e){} setSes(v); };
+            const cip = (on) => `flex-1 min-h-[44px] rounded-xl text-[12px] font-bold border transition-colors ${on ? 'bg-emerald-500 text-emerald-950 border-emerald-400' : 'bg-black/30 text-slate-300 border-slate-700 hover:bg-white/5'}`;
+            return (
+                <div className="space-y-3">
+                    <div>
+                        <label className="text-xs font-bold text-emerald-400 mb-2 block">🎨 Mushaf görünümü</label>
+                        <div className="flex gap-1.5">{GORUNUMLER.map(x => <button key={x.id} onClick={() => ayarla(x.id)} className={cip(g === x.id)}>{x.ikon} {x.ad}</button>)}</div>
+                        {g !== 'normal' && <button onClick={() => setRehber(g)} className="mt-1.5 text-[11px] text-emerald-300 underline underline-offset-2">Renkler ne anlama geliyor?</button>}
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-emerald-400 mb-2 block">🗣️ Meal sesi (dinlerken)</label>
+                        <div className="flex gap-1.5">
+                            <button onClick={() => sesAyarla('yz')} className={cip(ses !== 'cihaz')}>✨ Yapay zekâ sesi</button>
+                            <button onClick={() => sesAyarla('cihaz')} className={cip(ses === 'cihaz')}>📱 Cihazın sesi</button>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-1.5">Yapay zekâ sesi daha doğal okur; ulaşılamazsa kendiliğinden cihazın Türkçe sesine geçer.</p>
+                    </div>
+                    {rehber && <TecvidRehberi gorunum={rehber} onClose={() => setRehber(null)} />}
+                </div>
+            );
+        };
+
+
         const SurahDetail = ({ surah, setView, handleAiRequest, handleImageRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, annotations, setAnnotation, fontSize, arabicFont, mealFont, mealColor, lastRead, setLastRead, setPrevRead, highlightedSearch, setJumpModalOpen, mealSource, reciterSource, showToast }) => {
             const [ayahs, setAyahs] = React.useState([]);
             const [translation, setTranslation] = React.useState([]);
@@ -4339,6 +5094,34 @@ JSON ŞEMASI:
                 }
             };
 
+            // 🎨 Mushaf görünümü + 🎧 tilavet
+            const [gorunum, gorunumAyarla] = useMushafGorunum();
+            const [tecvidAyet, setTecvidAyet] = React.useState({}); // {surahNo: [ham metinler]}
+            const [rehber, setRehber] = React.useState(null);
+            const tilavet = useTilavet();
+            React.useEffect(() => {
+                if (gorunum !== 'tecvid' || tecvidAyet[surah.number]) return;
+                let iptal = false;
+                const anahtarS = 'zirve_tecvid_' + surah.number;
+                try { const s = sessionStorage.getItem(anahtarS); if (s) { setTecvidAyet(p => ({ ...p, [surah.number]: JSON.parse(s) })); return; } } catch(e){}
+                fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/quran-tajweed`).then(r => r.json()).then(j => {
+                    if (iptal || !j || !j.data || !Array.isArray(j.data.ayahs)) return;
+                    const liste = j.data.ayahs.map(a => window.ZTECVID ? window.ZTECVID.besmeleAyir(a.text, surah.number, a.numberInSurah) : a.text);
+                    try { sessionStorage.setItem(anahtarS, JSON.stringify(liste)); } catch(e){}
+                    setTecvidAyet(p => ({ ...p, [surah.number]: liste }));
+                }).catch(() => { showToast && showToast('🎨 Tecvidli metin şu an alınamadı; normal görünüm gösteriliyor'); });
+                return () => { iptal = true; };
+            }, [gorunum, surah.number]);
+            const tecvidListe = (gorunum === 'tecvid' && tecvidAyet[surah.number] && tecvidAyet[surah.number].length === ayahs.length) ? tecvidAyet[surah.number] : null;
+            const okuyucuAdi = (RECITER_SOURCES.find(r => r.id === reciterSource) || {}).name || '';
+            const tilavetBuSure = tilavet.sure === surah.number && (tilavet.aktif || tilavet.toplam);
+            const tilavetBaslat = (no) => {
+                const Z = window.ZTILAVET; if (!Z || !ayahs.length) return;
+                if (tilavetBuSure && tilavet.ayet === no) { tilavet.caliyor ? Z.duraklat() : Z.devam(); return; }
+                if (tilavetBuSure && tilavet.aktif) { Z.git(no); return; }
+                Z.baslat({ sure: surah.number, sureAdi: getTurkishName(surah.number), okuyucu: okuyucuAdi, ayet: no,
+                    ayetler: ayahs.map((a, i) => ({ no: a.numberInSurah, audio: a.audio, ar: a.text, tr: translation[i] ? translation[i].text : '' })) });
+            };
             if (detailLoading) return <Loading />;
             const trName = getTurkishName(surah.number);
             const timelineData = getSurahTimelineData(surah);
@@ -4346,20 +5129,26 @@ JSON ŞEMASI:
             return (
                 <div className="min-h-screen pb-24 text-slate-100 relative">
                     <div className="sticky top-0 z-30 shadow-lg px-4 py-3 flex items-center justify-between bg-slate-900/95 backdrop-blur-md border-b border-white/5 zs-ust" style={{ "--zs-ust": "0.75rem", paddingLeft: "max(1rem, calc((100% - 64rem) / 2))", paddingRight: "max(1rem, calc((100% - 64rem) / 2))" }}>
-                        <button onClick={() => setView('home')} className="p-2 rounded-full hover:bg-slate-800"><Icons.ChevronLeft size={24} /></button>
-                        <div className="text-center flex-1">
-                            <h2 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} title="Başa dön" className="text-lg font-bold font-serif text-emerald-400 cursor-pointer">{trName} Suresi</h2>
-                            <p className="text-[10px] opacity-60 uppercase tracking-widest">{surah.number}. Sure • {surah.revelationType === 'Meccan' ? 'Mekke' : 'Medine'} • {surah.numberOfAyahs} Ayet</p>
+                        <button onClick={() => setView('home')} className="p-1.5 sm:p-2 rounded-full hover:bg-slate-800"><Icons.ChevronLeft size={24} /></button>
+                        <div className="text-center flex-1 min-w-0 px-1">
+                            <h2 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} title="Başa dön" className="text-base sm:text-lg font-bold font-serif text-emerald-400 cursor-pointer truncate">{trName} Suresi</h2>
+                            <p className="text-[10px] opacity-60 uppercase tracking-wider truncate">{surah.number}. Sure • {surah.revelationType === 'Meccan' ? 'Mekke' : 'Medine'} • {surah.numberOfAyahs} Ayet</p>
                             {SURE_ANLAMLARI[surah.number] && <p className="text-[11px] text-slate-400 italic">“{SURE_ANLAMLARI[surah.number]}”</p>}
                         </div>
-                        <div className="flex gap-1">
-                            <button onClick={() => { setEzberMode(!ezberMode); setAcikAyetler({}); }} className={`p-2 rounded-full transition-colors ${ezberMode ? 'bg-amber-500/20 text-amber-400' : 'hover:bg-slate-800 text-slate-300'}`} title="Ezber Modu (Arapçayı gizle, kendini sına)">
+                        <div className="flex gap-0.5 sm:gap-1 shrink-0">
+                            <button onClick={() => tilavetBaslat(tilavetBuSure ? tilavet.ayet : (ayahs[0] && ayahs[0].numberInSurah))} className={`p-1.5 sm:p-2 rounded-full transition-colors ${tilavetBuSure && tilavet.caliyor ? 'bg-emerald-500/25 text-emerald-300' : 'hover:bg-slate-800 text-slate-300'}`} title="Sureyi dinle (Arapça + meal)" aria-label="Sureyi dinle">
+                                <Icons.Headphones size={20}/>
+                            </button>
+                            <button onClick={() => { const s = GORUNUMLER[(GORUNUMLER.findIndex(x => x.id === gorunum) + 1) % GORUNUMLER.length]; gorunumAyarla(s.id); showToast && showToast(`${s.ikon} ${s.ad} görünüm`); }} className={`p-1.5 sm:p-2 rounded-full transition-colors text-lg leading-none ${gorunum !== 'normal' ? 'bg-fuchsia-500/20' : 'hover:bg-slate-800'}`} title="Mushaf görünümü: Normal / Tecvidli / Harf harf" aria-label="Mushaf görünümünü değiştir">
+                                {(GORUNUMLER.find(x => x.id === gorunum) || GORUNUMLER[0]).ikon}
+                            </button>
+                            <button onClick={() => { setEzberMode(!ezberMode); setAcikAyetler({}); }} className={`p-1.5 sm:p-2 rounded-full transition-colors ${ezberMode ? 'bg-amber-500/20 text-amber-400' : 'hover:bg-slate-800 text-slate-300'}`} title="Ezber Modu (Arapçayı gizle, kendini sına)">
                                 <Icons.Brain size={20}/>
                             </button>
-                            <button onClick={() => setFocusMode(!focusMode)} className={`p-2 rounded-full transition-colors ${focusMode ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-slate-800 text-slate-300'}`} title="Odaklanma Modu">
+                            <button onClick={() => setFocusMode(!focusMode)} className={`p-1.5 sm:p-2 rounded-full transition-colors ${focusMode ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-slate-800 text-slate-300'}`} title="Odaklanma Modu">
                                 {focusMode ? <Icons.EyeOff size={20}/> : <Icons.Eye size={20}/>}
                             </button>
-                            <button onClick={() => setJumpModalOpen(true)} className="p-2 rounded-full hover:bg-slate-800 hidden sm:block" title="Hızlı Git"><Icons.Compass size={20}/></button>
+                            <button onClick={() => setJumpModalOpen(true)} className="p-1.5 sm:p-2 rounded-full hover:bg-slate-800 hidden sm:block" title="Hızlı Git"><Icons.Compass size={20}/></button>
                             <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-slate-800 rounded-full"><Icons.Settings size={20}/></button>
                         </div>
                     </div>
@@ -4388,6 +5177,16 @@ JSON ŞEMASI:
                     )}
 
                     <div className={`px-4 space-y-8 max-w-5xl mx-auto ${focusMode ? 'pt-6' : 'pt-2'}`}>
+                        {gorunum !== 'normal' && (
+                            <div className="flex items-center justify-between gap-2 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/25 px-3 py-2 mt-2">
+                                <span className="text-[12px] text-fuchsia-100">{gorunum === 'tecvid' ? (tecvidListe ? '🎨 Tecvidli görünüm açık' : '🎨 Tecvidli metin yükleniyor…') : '🔤 Harf harf renkli görünüm açık'}</span>
+                                <span className="flex gap-1.5 shrink-0">
+                                    <button onClick={() => setRehber(gorunum)} className="text-[11px] font-bold text-fuchsia-200 bg-black/30 rounded-lg px-2.5 min-h-[32px]">Renkler</button>
+                                    <button onClick={() => gorunumAyarla('normal')} className="text-[11px] font-bold text-slate-300 bg-black/30 rounded-lg px-2.5 min-h-[32px]">Normal</button>
+                                </span>
+                            </div>
+                        )}
+                        {rehber && <TecvidRehberi gorunum={rehber} onClose={() => setRehber(null)} />}
                         {surah.number !== 1 && surah.number !== 9 && ayahs.length > 0 && (
                             <div className="text-center pt-2" aria-label="Besmele">
                                 <p className={`${arabicFont} text-3xl md:text-4xl text-emerald-300 leading-loose`} dir="rtl">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
@@ -4402,7 +5201,8 @@ JSON ŞEMASI:
                             const uid = `${surah.number}:${ayah.numberInSurah}`;
                             const ann = annotations[uid];
                             const isFav = favorites.some(f => f.uid === `${surah.number}:${ayah.numberInSurah}`);
-                            const isPlaying = playingAyah?.id === ayah.number;
+                            const tilavetteBu = tilavetBuSure && tilavet.ayet === ayah.numberInSurah;
+                            const isPlaying = playingAyah?.id === ayah.number || tilavetteBu;
                             const isLastRead = lastRead?.surahNo === surah.number && lastRead?.ayahNo === ayah.numberInSurah;
                             const contextData = remoteContexts[String(ayah.numberInSurah)] || DETAILED_CONTEXTS[`${surah.number}:${ayah.numberInSurah}`];
 
@@ -4423,7 +5223,7 @@ JSON ŞEMASI:
                             }
 
                             return (
-                                <div key={ayah.number} id={`ayah-${ayah.numberInSurah}`}>
+                                <div key={ayah.number} id={`ayah-${ayah.numberInSurah}`} data-zk-kap={`sure-${surah.number}-${ayah.numberInSurah}`}>
                                     {(!focusMode && contextData) && <NuzulTimelineCard data={contextData} isRemote={!!remoteContexts[String(ayah.numberInSurah)]} />}
                                     <div className={`relative p-4 md:p-6 rounded-2xl transition-all mt-2 ${ayahBgClass} ${isLastRead ? 'ring-2 ring-emerald-500/50' : ''}`}>
                                         {ann && ann.cizim && drawAyah !== ayah.numberInSurah && <AyahDrawOverlay cizim={ann.cizim} />}
@@ -4437,11 +5237,12 @@ JSON ŞEMASI:
                                         {specialBadge}
                                         
                                         <div className="flex justify-between items-center mb-5 border-b border-slate-700/50 pb-3">
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
                                                 <span className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-xs font-bold ${isLastRead ? 'bg-emerald-500' : 'bg-slate-700'}`}>{ayah.numberInSurah}</span>
-                                                <button onClick={() => toggleAudio(ayah.audio, ayah.number)} className="p-2 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
-                                                    {isPlaying ? <Icons.Pause size={16} /> : <Icons.Play size={16} />}
+                                                <button onClick={() => tilavetBaslat(ayah.numberInSurah)} aria-label={`${ayah.numberInSurah}. ayetten itibaren dinle`} className="p-2 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
+                                                    {tilavetteBu && tilavet.caliyor ? <Icons.Pause size={16} /> : <Icons.Play size={16} />}
                                                 </button>
+                                                {tilavetteBu && <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/15 rounded-full px-2 py-0.5">{tilavet.asama === 'tr' ? '🇹🇷' : '🕋'}<span className="hidden sm:inline">{tilavet.asama === 'tr' ? ' meal' : ' okunuyor'}</span></span>}
                                                 <button onClick={() => handleBookmark(ayah.numberInSurah)} className={`p-2 rounded-full hover:bg-slate-700 transition-all ${isLastRead ? 'text-emerald-400' : 'text-slate-500'}`} title="Kaldığım Yer">
                                                     <Icons.BookOpen size={16} />
                                                 </button>
@@ -4460,7 +5261,7 @@ JSON ŞEMASI:
                                         </div>
                                         
                                         <div className="relative mb-6">
-                                            <p onClick={() => { if (!ezberMode && drawAyah === null) setAnatomi({ ayah, trText }); }} title="Dokun: Ayet Anatomisi" className={`text-right ${arabicFont} leading-[2.6] text-emerald-400 dir-rtl transition-all duration-300 ${ezberMode && !acikAyetler[ayah.numberInSurah] ? 'blur-md select-none' : 'cursor-pointer hover:text-emerald-300'}`} style={{fontSize: `${fontSize + 6}px`}}>{ayah.text}</p>
+                                            <p onClick={() => { if (!ezberMode && drawAyah === null) setAnatomi({ ayah, trText }); }} title="Dokun: Ayet Anatomisi" className={`text-right ${arabicFont} leading-[2.6] text-emerald-400 dir-rtl transition-all duration-300 ${ezberMode && !acikAyetler[ayah.numberInSurah] ? 'blur-md select-none' : 'cursor-pointer hover:text-emerald-300'}`} style={{fontSize: `${fontSize + 6}px`}}><ArapcaMetin metin={ayah.text} tecvidHam={tecvidListe ? tecvidListe[index] : null} gorunum={gorunum} /></p>
                                             {ezberMode && !acikAyetler[ayah.numberInSurah] && (
                                                 <button onClick={() => setAcikAyetler(p => ({ ...p, [ayah.numberInSurah]: true }))} className="absolute inset-0 flex items-center justify-center gap-2 text-amber-300 font-bold text-sm rounded-xl active:scale-95 transition-transform" title="Ayeti göster">
                                                     <Icons.Eye size={16}/> Ezberden oku, sonra göster
@@ -5006,6 +5807,7 @@ JSON ŞEMASI:
                             <h1 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-3xl md:text-4xl font-amiri text-white drop-shadow-md cursor-pointer inline-flex items-center justify-center gap-2.5">{window.ZIRVE_E && window.ZIRVE_E.ikon() && <img src={window.ZIRVE_E.ikon()} alt="" aria-hidden="true" className="w-9 h-9 md:w-11 md:h-11 rounded-xl shadow-lg ring-1 ring-amber-300/30" />}<span>Kur'an ve Siyer Atlası</span></h1>
                         </div>
 
+                        <NamazKarti />
                         <KartAkisi>
                             
                             {/* GÜNÜN MANEVİ GÖREVİ */}
@@ -5408,6 +6210,8 @@ JSON ŞEMASI:
         const KuranSiyerApp = () => {
             const [user, setUser] = React.useState(null);
             const [view, setView] = React.useState('home'); 
+            const [anKart, setAnKart] = React.useState(null); // bildirimden açılan ayet/hadis/Esmâ kartı
+            useOtoTazele();
             const [surahs, setSurahs] = React.useState([]);
             const [currentSurah, setCurrentSurah] = React.useState(null);
             const [favorites, setFavorites] = React.useState([]);
@@ -5450,7 +6254,7 @@ JSON ŞEMASI:
             React.useEffect(() => { const f = () => setHashTik(t => t + 1); window.addEventListener('hashchange', f); return () => window.removeEventListener('hashchange', f); }, []);
             React.useEffect(() => {
                 const h = (location.hash || '').replace(/^#/, '');
-                if (!h || !surahs.length) return;
+                if (!h || (!surahs.length && !/^(ayet|hadis|esma)-/.test(h))) return;
                 const sureAc = (no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) sessionStorage.setItem('jumpToAyah', ayet); } };
                 let m = null;
                 if (h === 'kaldigim') { if (lastRead) sureAc(lastRead.surahNo, lastRead.ayahNo); else setView('home'); }
@@ -5459,6 +6263,9 @@ JSON ŞEMASI:
                 else if (h === 'notlar') setView('notes');
                 else if (h === 'anasayfa') setView('home');
                 else if ((m = h.match(/^sure-(\d{1,3})(?:-(\d{1,3}))?$/))) sureAc(+m[1], m[2] ? +m[2] : null);
+                else if ((m = h.match(/^ayet-(\d{1,3})-(\d{1,3})$/)) && +m[1] >= 1 && +m[1] <= 114 && +m[2] >= 1 && +m[2] <= AYET_SAYILARI[+m[1]]) setAnKart({ tur: 'ayet', s: +m[1], a: +m[2] });
+                else if ((m = h.match(/^hadis-(\d{1,4})$/)) && HADIS_HAVUZU[+m[1]]) setAnKart({ tur: 'hadis', i: +m[1] });
+                else if ((m = h.match(/^esma-(\d{1,3})$/)) && ESMA_99[+m[1]]) setAnKart({ tur: 'esma', i: +m[1] });
                 else return;
                 try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
             }, [hashTik, surahs, lastRead]);
@@ -5917,6 +6724,9 @@ JSON ŞEMASI:
                         error={aiImageError}
                     />
                     
+                    <AnKarti kart={anKart} setKart={setAnKart} mealSource={mealSource} reciterSource={reciterSource} toggleFavorite={toggleFavorite} favorites={favorites} surahs={surahs} showToast={showToast}
+                        sureAc={(no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) sessionStorage.setItem('jumpToAyah', ayet); } }} />
+                    <TilavetCubugu />
                     <div className="fixed bottom-0 left-0 right-0 py-3 px-6 flex justify-around items-center border-t border-slate-800 bg-slate-900/95 backdrop-blur-lg z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))", paddingLeft: "max(1.5rem, calc((100% - 52rem) / 2))", paddingRight: "max(1.5rem, calc((100% - 52rem) / 2))" }}>
                         <button onClick={() => setView('home')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'home' ? 'text-emerald-500' : 'text-slate-500 hover:text-emerald-400'}`}><Icons.BookOpen size={24} /><span className="text-[10px] font-bold">Kuran</span></button>
                         <button onClick={() => setView('hatim')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'hatim' ? 'text-emerald-500' : 'text-slate-500 hover:text-emerald-400'}`}><Icons.Grid size={24} /><span className="text-[10px] font-bold">Hatim</span></button>
