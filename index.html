@@ -1359,9 +1359,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v3.3', tarih:'19.11.2026', satir:8134, kb:866,
-        onceki:{ surum:'v3.2', satir:7711, kb:806 },
-        yenilikler:['📚 Not Külliyatı: renkli, altı çizili, fosforlu notlar; konulara göre kendiliğinden düzen','✏️ Ekran kalemi: ayetlerin üzerine yaz, otomatik nota kaydet, el yazını yazıya çevir','📌 Yapay zekâ cevaplarını Notlarıma ekle','🪶 Risale-i Nur vecizeleri ve 🎓 âlimlerden eğitim sözleri bildirimi','📊 Çalışma takibi, 9 meal, 21:00 kaldığın yer bildirimi'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v3.4', tarih:'20.11.2026', satir:8463, kb:935,
+        onceki:{ surum:'v3.3', satir:8134, kb:866 },
+        yenilikler:['🔍 Kur\'an\'da Ara: bir kelime Kur\'an\'da gerçekte kaç kez geçiyor, hangi ayetlerde — renkli','📊 Sayım, Kur\'an\'ın kelime kelime dil çözümlemesinden (Quranic Arabic Corpus)','📜 Ayet ↔ Hadis haritası: 37 sahih iniş sebebi bağlantısı','✏️ Ekran kalemi, renkli not külliyatı, konulara göre düzen','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1556,7 +1556,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='3.3';
+    const SURUM='3.4';
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -2212,6 +2212,117 @@
       window.ZCALISMA={ AYET:AYET, SURE:SURE, ayetById:ayetById, ayetByTitle:ayetByTitle, ayetByMod:ayetByMod, sureById:sureById,
         isaretle:isaretle, kaldir:kaldir, degistir:degistir, ayetDurum:ayetDurum, ayetYapilan:ayetYapilan, sureDurum:sureDurum, eksikler:eksikler, sureOzet:sureOzet, genelOzet:genelOzet,
         seri:seri, son:son, abone:abone, notKaynak:notKaynak, ad:ad, adYaz:adYaz, uyari:uyari, gun:gun, ham:function(){ return yukle(); } };
+    })();
+</script>
+<!-- ===== 🔍 KUR'AN'DA ARA (v3.4): gerçek sayım — Quranic Arabic Corpus morfolojisi + meal metni ===== -->
+<script type="application/json" id="zk-kavramlar">[{"ad":"Akıl, akletmek","t":["akıl","akl","akletmek","aklet","akıllı"],"kok":["عقل"],"meal":["akıl","akl"]},{"ad":"“Akletmez misiniz?” (e-fe lâ ta'kılûn)","t":["akletmez misiniz","efela takilun","e fe la takilun","afala taqilun","akıl erdirmez misiniz"],"ifade":"أفلا تعقلون"},{"ad":"Tefekkür, düşünmek","t":["tefekkür","düşünmek","düşün","fikir","tefekkur"],"kok":["فكر"]},{"ad":"Sabır","t":["sabır","sabr","sabret","sabırlı"],"kok":["صبر"],"meal":["sabır","sabr"]},{"ad":"Şükür","t":["şükür","şükr","şükret","şükreden"],"kok":["شكر"],"meal":["şükr","şükür"]},{"ad":"Rahmet, merhamet","t":["rahmet","merhamet","esirge"],"kok":["رحم"],"meal":["rahmet","merhamet"],"not":"Rahmân ve Rahîm isimleri de bu köktendir; sayıma dahildir."},{"ad":"Evlilik, nikâh","t":["evlilik","evlenmek","evlen","nikah","nikâh"],"kok":["نكح","زوج"],"meal":["evlen","evlil","nikâh","nikah"],"not":"Kur'an evliliği iki kökle anlatır: nikâh (ن ك ح, evlenmek) ve zevc (ز و ج, eş/çift). Zevc kökü bitki ve hayvan çiftleri için de kullanılır."},{"ad":"Eş, zevc, çift","t":["zevc","zevce","eşler","eşi","eşim","çift","ezvac","zevcat"],"kok":["زوج"],"meal":["zevc","eşler","eşi","eşin","eşleri","eşiniz","eşlerin"]},{"ad":"Mutluluk, saadet","t":["mutluluk","mutlu","saadet","saîd"],"kok":["سعد"],"ek":[{"ad":"Felâh (kurtuluş, başarı)","kok":["فلح"]}],"not":"Saadet kökü (س ع د) yalnız 2 kez geçer (Hûd 105 ve 108). Kur'an'ın daha sık kullandığı karşılık kurtuluş ve başarı anlamındaki felâhtır (ف ل ح)."},{"ad":"Felâh, kurtuluş","t":["felah","felâh","kurtuluş","müflih","kurtuluşa"],"kok":["فلح"]},{"ad":"İlim, bilgi","t":["ilim","bilgi","alim","âlim","bilmek","ilm"],"kok":["علم"]},{"ad":"Hikmet","t":["hikmet"],"lem":["حِكْمَة"]},{"ad":"Namaz (salât)","t":["namaz","salat","salât"],"lem":["صَلاة"],"meal":["namaz"]},{"ad":"Zekât","t":["zekat","zekât"],"lem":["زَكاة"],"meal":["zekât","zekat"]},{"ad":"Oruç","t":["oruç","savm","sıyam"],"kok":["صوم"],"meal":["oruç"]},{"ad":"Hac","t":["hac","hacc"],"lem":["حَجّ","حِجّ"]},{"ad":"Cennet","t":["cennet","cennetler"],"lem":["جَنَّة"],"not":"Cennet (جَنَّة) kelimesi dünyadaki bahçeler için de kullanılır; sayıma dahildir."},{"ad":"Cehennem","t":["cehennem"],"lem":["جَهَنَّم"]},{"ad":"Âhiret","t":["ahiret","âhiret","ahret"],"bicim":{"lem":"آخِر","son":"ه"},"haric":["38:7"],"not":"“Âhire” kelimesi 116 kez geçer; Sâd 7'deki “son din” anlamındaki kullanım çıkarılınca âhiret anlamında 115 kez kalır."},{"ad":"Dünya","t":["dünya"],"lem":["دُنْيا"]},{"ad":"Melek","t":["melek","melekler","melaike"],"lem":["مَلَك"]},{"ad":"Şeytan","t":["şeytan","şeytanlar"],"lem":["شَيْطان"]},{"ad":"İblis","t":["iblis"],"lem":["إِبْلِيس"]},{"ad":"Nebî, peygamber","t":["peygamber","nebi","nebî"],"lem":["نَبِيّ"]},{"ad":"Resul, elçi","t":["resul","resûl","elçi"],"lem":["رَسُول"]},{"ad":"Kitap","t":["kitap","kitab"],"lem":["كِتاب"]},{"ad":"Kur'an","t":["kur'an","kuran","kur an","kuran-ı"],"lem":["قُرْءان"]},{"ad":"Tövbe","t":["tövbe","tevbe","tevbe et"],"kok":["توب"]},{"ad":"Mağfiret, bağışlama","t":["mağfiret","bağışla","affet","gufran","istiğfar"],"kok":["غفر"]},{"ad":"Dua","t":["dua","dua et"],"kok":["دعو"],"not":"Bu kök çağırmak, davet etmek anlamlarını da kapsar."},{"ad":"Adalet","t":["adalet","adil","âdil","adl"],"kok":["عدل"]},{"ad":"Zulüm","t":["zulüm","zalim","zâlim","zulm"],"kok":["ظلم"]},{"ad":"Takva","t":["takva","muttaki","sakın"],"kok":["وقي"]},{"ad":"İman","t":["iman","mümin","mü'min","inanmak","güven"],"kok":["أمن"],"not":"Bu kök güven ve emniyet anlamlarını da kapsar."},{"ad":"İhsan, iyilik, güzellik","t":["ihsan","iyilik","güzellik","hasene","muhsin"],"kok":["حسن"]},{"ad":"Kalp","t":["kalp","kalb","kalpler","gönül"],"lem":["قَلْب"]},{"ad":"Ruh","t":["ruh","rûh"],"lem":["رُوح"]},{"ad":"Nefis","t":["nefis","nefs","can"],"lem":["نَفْس"]},{"ad":"Ölüm","t":["ölüm","ölmek","mevt","ölü"],"kok":["موت"]},{"ad":"Hayat, diriltmek","t":["hayat","diri","diriltmek","yaşam","hayy"],"kok":["حيي"]},{"ad":"Gün (yevm)","t":["gün","yevm"],"lem":["يَوْم"]},{"ad":"Ay (şehr, zaman)","t":["şehr","aylar","haram aylar","ay (zaman)"],"lem":["شَهْر"]},{"ad":"Deniz","t":["deniz","bahr"],"lem":["بَحْر"]},{"ad":"Güneş","t":["güneş","şems"],"lem":["شَمْس"]},{"ad":"Ay (kamer)","t":["ay","kamer"],"lem":["قَمَر"]},{"ad":"Yıldız","t":["yıldız","necm"],"lem":["نَجْم"]},{"ad":"Anne (ümm)","t":["anne","ana","ümm"],"lem":["أُمّ"],"not":"Ümm kelimesi “ümmü'l-kitâb” gibi “asıl, ana” anlamlarında da geçer."},{"ad":"Baba (eb)","t":["baba","eb"],"lem":["أَب"],"not":"Çoğulu (âbâ, atalar) ayrı kelime olarak sayılır."},{"ad":"Anne-baba (vâlid)","t":["anne baba","anne-baba","valideyn","vâlid"],"lem":["والِد"]},{"ad":"Çocuk, evlat","t":["çocuk","evlat","veled"],"lem":["وَلَد"]},{"ad":"Yetim","t":["yetim"],"lem":["يَتِيم"]},{"ad":"Kadınlar (nisâ)","t":["kadın","kadınlar","nisa","nisâ"],"lem":["نِساء"]},{"ad":"İnsan","t":["insan","insanlık"],"lem":["إِنسان"]},{"ad":"Faiz (ribâ)","t":["faiz","riba","ribâ","tefecilik"],"lem":["رِبا"]},{"ad":"Borç (deyn)","t":["borç","deyn","borçlu"],"lem":["دَيْن"]},{"ad":"Din","t":["din"],"lem":["دِين"]},{"ad":"Rızık","t":["rızık","rızk","rezzak","geçim"],"kok":["رزق"]},{"ad":"Sadaka","t":["sadaka"],"lem":["صَدَقَة"]},{"ad":"İnfak","t":["infak","harcamak","infak et"],"lem":["أَنفَقَ"]},{"ad":"Hidayet","t":["hidayet","doğru yol","hüda"],"kok":["هدي"]},{"ad":"Nur","t":["nur","nûr","ışık"],"lem":["نُور"]},{"ad":"Korku (havf)","t":["korku","korkmak","havf"],"kok":["خوف"]},{"ad":"Ümit (recâ)","t":["ümit","umut","reca","recâ"],"kok":["رجو"]},{"ad":"Sevgi (hubb)","t":["sevgi","sevmek","muhabbet","hubb"],"kok":["حبب"]},{"ad":"Cihad, gayret","t":["cihad","cihat","gayret","mücahede"],"kok":["جهد"]},{"ad":"Kıyamet","t":["kıyamet"],"lem":["قِيامَة"]},{"ad":"Mekke","t":["mekke","bekke"],"lem":["مَكَّة","بَكَّة"]},{"ad":"Kâbe","t":["kabe","kâbe"],"lem":["كَعْبَة"]},{"ad":"Ramazan","t":["ramazan"],"lem":["رَمَضان"]},{"ad":"Kadir Gecesi","t":["kadir gecesi","leyletül kadr"],"ifade":"ليلة القدر"},{"ad":"Allah lafzı","t":["allah"],"lem":["اللَّه"]},{"ad":"Rab","t":["rab","rabb","rabbim"],"lem":["رَبّ"]},{"ad":"Hz. Muhammed","t":["muhammed","hz muhammed","peygamberimiz"],"lem":["مُحَمَّد"],"not":"İsmen 4 yerde geçer; Ahmed ismi Saf 6'da ayrıca geçer."},{"ad":"Hz. İsa","t":["isa","îsâ"],"lem":["عِيسَى"]},{"ad":"Hz. Musa","t":["musa","mûsâ"],"lem":["مُوسَى"]},{"ad":"Hz. İbrahim","t":["ibrahim"],"lem":["إِبْراهِيم"]},{"ad":"Hz. Meryem","t":["meryem"],"lem":["مَرْيَم"]},{"ad":"Hz. Yusuf","t":["yusuf"],"lem":["يُوسُف"]},{"ad":"Hz. Nuh","t":["nuh","nûh"],"lem":["نُوح"]},{"ad":"Hz. Âdem","t":["adem","âdem"],"lem":["آدَم"]},{"ad":"Su","t":["su","mâ"],"lem":["ماء"]},{"ad":"Ağaç","t":["ağaç","şecer"],"lem":["شَجَرَة"]},{"ad":"Bal","t":["bal"],"lem":["عَسَل"]},{"ad":"Arı","t":["arı","nahl"],"lem":["نَحْل"]},{"ad":"Kalem","t":["kalem"],"lem":["قَلَم"]},{"ad":"Okumak (kırâat)","t":["okumak","oku","kıraat","kırâat"],"kok":["قرأ"],"not":"Kur'an kelimesi de bu köktendir."},{"ad":"Secde","t":["secde","secde et"],"kok":["سجد"]}]</script>
+<script>
+    (function(){
+      var VERI_URL=['kuran-veri.json?v=2','https://cdn.jsdelivr.net/gh/baris-ogretmen/kuran-siyer-atlasi@main/kuran-veri.json','https://cdn.jsdelivr.net/gh/baris-ogretmen/kuran-siyer-atlasi@master/kuran-veri.json'];
+      var CACHE='zirve-kuran-veri';
+      var veri=null, veriSoz=null, refs=null, sk=null, mealler={};
+      // Arapça iskelet: harekeler, hemze ve elif yazım farkları yok sayılır (yalnız ifade/biçim aramasında)
+      function iskelet(x){
+        x=String(x||'').replace(/[ً-ٰٟۖ-ۭـ]/g,'');
+        x=x.replace(/[ٱأإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ء/g,'');
+        return x.replace(/ا/g,'');
+      }
+      function katla(t){ return String(t||'').toLocaleLowerCase('tr').replace(/[âàá]/g,'a').replace(/[îıì]/g,'i').replace(/[ûü]/g,'u').replace(/ş/g,'s').replace(/ç/g,'c').replace(/ğ/g,'g').replace(/ö/g,'o').replace(/[’'`]/g,"'").replace(/\s+/g,' ').trim(); }
+      function arapcaMi(t){ return /[؀-ۿ]/.test(t); }
+      function cekJSON(url){
+        return (('caches' in window) ? caches.open(CACHE).then(function(c){ return c.match(url).then(function(r){ if(r) return r.json(); return fetch(url).then(function(r2){ if(!r2.ok) throw new Error('HTTP '+r2.status); var k=r2.clone(); c.put(url,k).catch(function(){}); return r2.json(); }); }); })
+          : fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }));
+      }
+      function veriYukle(){
+        if(veri) return Promise.resolve(veri);
+        if(veriSoz) return veriSoz;
+        var i=0;
+        function dene(){ if(i>=VERI_URL.length) return Promise.reject(new Error('Kur\'an kelime verisi (kuran-veri.json) bulunamadı.')); var u=VERI_URL[i++]; return cekJSON(u).catch(function(){ return dene(); }); }
+        veriSoz=dene().then(function(d){
+          var w=[], k=[], l=[], r=[];
+          for(var vi=0; vi<d.a.length; vi++){ w.push(d.a[vi].split(' ')); k.push(d.k[vi].split(',').map(function(t){ return t? parseInt(t,36): -1; })); l.push(d.l[vi].split(',').map(function(t){ return t? parseInt(t,36): -1; })); }
+          for(var s=1; s<=114; s++) for(var a=1; a<=d.n[s-1]; a++) r.push([s,a]);
+          veri={ ham:d, w:w, k:k, l:l, kok:d.kok, lem:d.lem, kaynak:d.kaynak }; refs=r;
+          return veri;
+        }).catch(function(e){ veriSoz=null; throw e; });
+        return veriSoz;
+      }
+      function iskeletler(){ if(sk) return sk; sk=veri.w.map(function(ws){ return ws.map(iskelet); }); return sk; }
+      function mealYukle(id){
+        id=id||'tr.vakfi'; if(mealler[id]) return Promise.resolve(mealler[id]);
+        return cekJSON('https://api.alquran.cloud/v1/quran/'+id).then(function(j){
+          var m=[]; (j.data && j.data.surahs || []).forEach(function(s){ s.ayahs.forEach(function(a){ m.push(a.text); }); });
+          if(m.length!==6236) throw new Error('Meal eksik geldi');
+          mealler[id]={ id:id, ad:(j.data.edition && j.data.edition.name) || id, metin:m, katli:m.map(katla) }; return mealler[id];
+        });
+      }
+      var KAVRAM=(function(){ try{ return JSON.parse(document.getElementById('zk-kavramlar').textContent); }catch(e){ return []; } })();
+      function kavramBul(q){
+        var f=katla(q).replace(/^(hz|hazreti|hazret)\.?\s+/,''); if(!f) return [];
+        var sonuc=[];
+        KAVRAM.forEach(function(e){
+          var p=0; (e.t||[]).forEach(function(k){ var kf=katla(k); if(kf===f) p=Math.max(p,3); else if(f.length>=3 && kf.indexOf(f)===0 && kf.length-f.length<=4) p=Math.max(p,2); else if(kf.length>=4 && f.indexOf(kf)===0 && f.length-kf.length<=4) p=Math.max(p,1); });
+          if(p) sonuc.push({ e:e, p:p });
+        });
+        return sonuc.sort(function(a,b){ return b.p-a.p; }).map(function(x){ return x.e; });
+      }
+      // Sayım çekirdeği: koşulu sağlayan her kelime 1 sayılır
+      function say(kosul, haric){
+        var top=0, ayetler=[], lemDag={}, sureDag={};
+        for(var vi=0; vi<veri.w.length; vi++){
+          var ref=refs[vi]; if(haric && haric.indexOf(ref[0]+':'+ref[1])>=0) continue;
+          var pos=[]; for(var wi=0; wi<veri.w[vi].length; wi++){ if(kosul(vi,wi)){ pos.push(wi); var li=veri.l[vi][wi]; var ad= li>=0? veri.lem[li] : veri.w[vi][wi]; lemDag[ad]=(lemDag[ad]||0)+1; } }
+          if(pos.length){ top+=pos.length; ayetler.push({ vi:vi, s:ref[0], a:ref[1], pos:pos }); sureDag[ref[0]]=(sureDag[ref[0]]||0)+pos.length; }
+        }
+        return { sayi:top, ayetSayi:ayetler.length, ayetler:ayetler, lemDag:lemDag, sureDag:sureDag };
+      }
+      function idxler(liste, hedef){ var n={}; hedef.forEach(function(x){ var nx=x.normalize? x.normalize('NFD'):x; liste.forEach(function(y,i){ if(y===x || (y.normalize && y.normalize('NFD')===nx)) n[i]=1; }); }); return n; }
+      function kavramSay(e){
+        var ki=idxler(veri.kok, e.kok||[]), li=idxler(veri.lem, e.lem||[]);
+        var bl= e.bicim ? idxler(veri.lem,[e.bicim.lem]) : null, S= e.bicim ? iskeletler() : null;
+        if(e.ifade) return ifadeSay(e.ifade);
+        return say(function(vi,wi){ if(ki[veri.k[vi][wi]]||li[veri.l[vi][wi]]) return true; if(bl && bl[veri.l[vi][wi]] && S[vi][wi].slice(-e.bicim.son.length)===e.bicim.son) return true; return false; }, e.haric);
+      }
+      // Arapça ifade (birden çok kelime) ya da tek kelime biçimi
+      var ONEKLER=['','و','ف','ب','ك','ل','ول','فل','وب','فب','لل','ولل','فلل','بل','وبل','فبل','كل','س','وس','فس','ا','وا','فا'];
+      function ifadeSay(t){
+        var q=iskelet(t).split(/\s+/).filter(Boolean); if(!q.length) return say(function(){ return false; });
+        var S=iskeletler();
+        if(q.length===1){ var h=q[0]; return say(function(vi,wi){ var w=S[vi][wi]; if(w===h) return true; if(w.length>h.length && w.slice(-h.length)===h) return ONEKLER.indexOf(w.slice(0,w.length-h.length))>=0; return false; }); }
+        var isaret={};
+        for(var vi=0; vi<S.length; vi++){ var ws=S[vi]; for(var i=0;i+q.length<=ws.length;i++){ var ok=true; for(var j=0;j<q.length;j++){ var w=ws[i+j], h=q[j]; if(!(w===h || (j===0 && w.slice(-h.length)===h && ONEKLER.indexOf(w.slice(0,w.length-h.length))>=0))){ ok=false; break; } } if(ok){ for(var j2=0;j2<q.length;j2++) isaret[vi+':'+(i+j2)]=(j2===0?2:1); } } }
+        var r=say(function(vi,wi){ return !!isaret[vi+':'+wi]; });
+        // ifade sayısı = ilk kelime eşleşmeleri
+        var ifSay=0; Object.keys(isaret).forEach(function(k){ if(isaret[k]===2) ifSay++; });
+        r.kelimeSayi=r.sayi; r.sayi=ifSay; r.ifade=true; return r;
+      }
+      function kokSay(kokAd){ var i=veri.kok.indexOf(kokAd); return say(function(vi,wi){ return veri.k[vi][wi]===i; }); }
+      // Kök karşılaştırması: hareke silinir, hemze biçimleri birleşir ama elif/hemze SİLİNMEZ (أمر ≠ مرأ)
+      function kokNorm(x){ return String(x||'').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640\s]/g,'').replace(/[ٱأإآءؤئ]/g,'ا').replace(/ى/g,'ي'); }
+      function kokBul(t){ var ham=String(t||'').replace(/\s+/g,''); var tam=veri.kok.filter(function(k){ return k===ham; }); if(tam.length) return tam[0]; var n=kokNorm(t); var es=veri.kok.filter(function(k){ return kokNorm(k)===n; }); return es.length===1 ? es[0] : (es[0]||null); }
+      function arapcaAra(t){
+        var q=iskelet(t).trim();
+        var bosluksuz=t.replace(/\s+/g,'');
+        if(t.trim().split(/\s+/).every(function(x){ return x.length===1; }) && bosluksuz.length>=2 && bosluksuz.length<=4){ var kb0=kokBul(bosluksuz); if(kb0){ var r0=kokSay(kb0); r0.tur='kok'; r0.etiket=kb0.split('').join(' '); return r0; } }
+        if(q.indexOf(' ')<0){
+          var kb=kokBul(t.trim()); var kokEs= kb ? [kb] : [];
+          if(kokEs.length){ var r=kokSay(kokEs[0]); r.tur='kok'; r.etiket=kokEs[0].split('').join(' '); return r; }
+          var lemEs=[], qn=kokNorm(t); veri.lem.forEach(function(l,i){ if(kokNorm(l)===qn) lemEs.push(i); });
+          if(lemEs.length){ var m={}; lemEs.forEach(function(i){ m[i]=1; }); var r2=say(function(vi,wi){ return !!m[veri.l[vi][wi]]; }); r2.tur='lem'; r2.etiket=lemEs.map(function(i){ return veri.lem[i]; }).join('، '); return r2; }
+        }
+        var r3=ifadeSay(t); r3.tur= r3.ifade? 'ifade':'bicim'; r3.etiket=t.trim();
+        // Tek kelimelik biçim (ör. الصبر): ön ekler soyulup kökü bulunursa kök sayımı asıl sonuç olur, biçim sayısı ek bilgi
+        if(q.indexOf(' ')<0){ var c=t.trim().replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/^(وال|فال|بال|كال|لل|ال|و|ف|ب)/,''); var kb2=c.length>=3? kokBul(c) : null; if(kb2){ var rk=kokSay(kb2); rk.tur='kok'; rk.etiket=kb2.split('').join(' '); rk.bicimNot='Yalnız “'+t.trim()+'” biçimi: '+r3.sayi+' kez'; return rk; } }
+        return r3;
+      }
+      function mealAra(meal, kokler){
+        var stem=kokler.map(katla).filter(function(x){ return x.length>=2; }); if(!stem.length) return { sayi:0, ayetSayi:0, ayetler:[] };
+        var top=0, ayetler=[];
+        meal.katli.forEach(function(m, vi){ var n=0; stem.forEach(function(s){ var es=s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); var re=new RegExp('(^|[^a-z0-9çğıöşü])'+es+(s.length<=3 ? '(?:ler|lar|leri|lari|lerin|larin|lerine|larina|lerini|larini|i|in|ini|ine|e|a|de|da|den|dan|im|imiz|iniz)?(?=$|[^a-z0-9çğıöşü])' : ''),'g'); var x=m.match(re); if(x) n+=x.length; }); if(n){ top+=n; ayetler.push({ vi:vi, s:refs? refs[vi][0]:0, a:refs? refs[vi][1]:0, n:n }); } });
+        return { sayi:top, ayetSayi:ayetler.length, ayetler:ayetler, kokler:stem };
+      }
+      window.ZARAMA={ veriYukle:veriYukle, mealYukle:mealYukle, kavramBul:kavramBul, kavramSay:kavramSay, kokSay:kokSay, arapcaAra:arapcaAra, ifadeSay:ifadeSay, mealAra:mealAra,
+        iskelet:iskelet, katla:katla, arapcaMi:arapcaMi, KAVRAM:KAVRAM, veri:function(){ return veri; }, refs:function(){ return refs; }, kokVarMi:function(k){ return !!veri && veri.kok.indexOf(k)>=0; } };
     })();
 </script>
 <script type="text/babel">
@@ -5865,6 +5976,221 @@ JSON ŞEMASI:
             );
         };
 
+        // ===== 🔍 KUR'AN'DA ARA — arayüz (v3.4) =====
+        // Ayet ↔ hadis (iniş sebebi) bağlantıları — kaynakları doğrulanmıştır
+        const AYET_HADIS = [{"s": 66, "a": "1-4", "baslik": "Tahrîm: Bal şerbeti olayı", "olay": "Peygamberimiz ﷺ Zeyneb bint Cahş'ın evinde bal şerbeti içip orada biraz fazla kalıyordu. Hz. Âişe ile Hz. Hafsa, yanlarına geldiğinde 'Senden meğâfîr (kötü kokulu bir zamk) kokusu geliyor' demek üzere anlaştılar. Bunun üzerine Peygamberimiz bir daha bal içmeyeceğine yemin etti. Âyetler, Allah'ın helal kıldığını kendine yasaklamamasını bildirdi ve iki hanıma tövbe çağrısı yaptı.", "kaynak": "Buhârî, Tefsîr (Tahrîm), no. 4912", "url": "https://sunnah.com/bukhari:4912", "not": "Nesâî (no. 3959, Enes) Peygamberimizin bir cariyesini kendine haram kılmasının sebep olduğunu rivayet eder. Bu rivayette isim geçmez; 'Mâriye' adı daha zayıf ya da mürsel tefsir rivayetlerinden gelir. Âlimlerin çoğu Sahîhayn'deki bal rivayetini daha kuvvetli kabul eder. Bazıları iki olayın birlikte sebep olmuş olabileceğini söyler."}, {"s": 9, "a": "84", "baslik": "Tevbe 84: Abdullah b. Übey'in cenaze namazı", "olay": "Münafıkların başı Abdullah b. Übey ölünce, Müslüman olan oğlu Peygamberimizden babasını kefenlemek için gömleğini ve cenaze namazını kıldırmasını istedi. Hz. Ömer itiraz etti. Peygamberimiz kendisine bir seçim hakkı tanındığını söyleyerek namazı kıldırdı. Ardından münafıklardan ölenlerin namazını kılmayı ve kabirleri başında durmayı yasaklayan 84. âyet indi.", "kaynak": "Buhârî, Tefsîr (Berâe), no. 4670, 4671, 4672; Müslim, Fezâilü's-sahâbe, no. 2400", "url": "https://sunnah.com/bukhari:4671", "not": "Hz. Ömer sonradan bu konudaki cesaretine kendisi de şaştığını söylemiştir (Buhârî 4671)."}, {"s": 9, "a": "80", "baslik": "Tevbe 80: 'Yetmiş kere de istiğfar etsen'", "olay": "Abdullah b. Übey'in cenazesinde Hz. Ömer itiraz edince, Peygamberimiz 80. âyeti kesin bir yasak olarak değil, bir seçim olarak anladığını söyledi: 'Yetmişten fazla istiğfar etmekle bağışlanacağını bilsem, daha fazlasını yapardım.' Bu âyetin anlamı daha sonra 84. âyetle açık bir yasağa dönüştü.", "kaynak": "Buhârî, Tefsîr (Berâe), no. 4670, 4671, 4672", "url": "https://sunnah.com/bukhari:4672", "not": "Bu kayıt âyetin iniş sebebi değildir. Peygamberimizin âyeti bir olayla doğrudan ilişkilendirmesidir."}, {"s": 24, "a": "11-20", "baslik": "Nûr: İfk (iftira) olayı", "olay": "Bir sefer dönüşü Hz. Âişe kaybolan gerdanlığını ararken kafileden geri kaldı. Onu Safvân b. Muattal bulup orduya ulaştırdı. Münafıklar bu olaydan bir iftira çıkardılar ve vahiy yaklaşık bir ay gecikti. Sonunda Nûr 11-20. âyetler indi. Âyetler Hz. Âişe'nin suçsuz olduğunu ilan etti, iftirayı yayanları kınadı ve duyulan söze hemen inanmamayı öğretti.", "kaynak": "Buhârî, Tefsîr (Nûr), no. 4750", "url": "https://sunnah.com/bukhari:4750"}, {"s": 24, "a": "22", "baslik": "Nûr 22: Hz. Ebû Bekir ve Mistah", "olay": "İftirayı yayanlar arasında Hz. Ebû Bekir'in geçimini sağladığı akrabası Mistah da vardı. Hz. Ebû Bekir ona bir daha yardım etmeyeceğine yemin etti. Bunun üzerine 22. âyet indi: Fazilet sahipleri akrabalara yardımı kesmesin, affetsin, hoş görsün. Allah'ın sizi bağışlamasını istemez misiniz? Hz. Ebû Bekir 'Elbette isterim' dedi ve yardımı yeniden başlattı.", "kaynak": "Buhârî, Tefsîr (Nûr), no. 4750", "url": "https://sunnah.com/bukhari:4750"}, {"s": 80, "a": "1-10", "baslik": "Abese: Âmâ sahabi İbn Ümmi Mektûm", "olay": "Peygamberimiz ﷺ Kureyş'in ileri gelenlerinden birine İslâm'ı anlatırken âmâ sahabi Abdullah b. Ümmi Mektûm gelip öğrenmek istediğini söyledi. Peygamberimiz onunla ilgilenmeyip konuştuğu kişiye döndü. Abese sûresinin ilk âyetleri bu olay üzerine indi. Âyetler, samimiyetle öğrenmeye gelen kişinin, kendini müstağni gören kişiden daha öncelikli olduğunu öğretir.", "kaynak": "Tirmizî, Tefsîr (Abese), no. 3331 (Âişe); Muvatta, Kur'ân, no. 8 (Urve, mürsel)", "url": "https://sunnah.com/tirmidhi:3331", "not": "Derece: Tirmizî 'hasen garîb' der; Elbânî 'sahîhu'l-isnâd' der. Muvatta'daki rivayet mürseldir. Olay tefsir âlimlerinin çoğunluğunca kabul edilir."}, {"s": 2, "a": "144", "baslik": "Bakara 144: Kıblenin Kâbe'ye çevrilmesi", "olay": "Hicretten sonra Müslümanlar on altı ya da on yedi ay boyunca Beytülmakdis'e doğru namaz kıldılar. Peygamberimiz ﷺ ise kıblenin Kâbe olmasını arzu ediyor ve yüzünü göğe çeviriyordu. 144. âyetle kıble Mescid-i Harâm'a çevrildi. Bu yöne kılınan ilk namaz ikindi namazıdır. Haberi alan bir topluluk namazın içinde Kâbe'ye döndü.", "kaynak": "Buhârî, Îmân, no. 40; Salât, no. 399; Tefsîr, no. 4486; Müslim, Mesâcid, no. 525", "url": "https://sunnah.com/bukhari:4486", "not": "Kubâ halkının sabah namazında döndüğü rivayet İbn Ömer'dendir (Buhârî, Salât, no. 403)."}, {"s": 2, "a": "187", "baslik": "Bakara 187: Ramazan gecelerinde yeme-içme", "olay": "İlk dönemde iftar vaktinde uyuyan kişi ertesi akşama kadar yemek yiyemiyordu. Ramazan gecelerinde eşlerle birlikte olmaktan da kaçınılıyordu. Ensar'dan Kays b. Sırme bütün gün çalıştıktan sonra iftar yemeği hazırlanırken uyuyakaldı ve ertesi gün öğleyin bayıldı. Bunun üzerine 187. âyet indi ve geceleri yemek, içmek ve eşlerle birlikte olmak fecre kadar serbest bırakıldı.", "kaynak": "Buhârî, Savm, no. 1915; Tefsîr, no. 4508 (Berâ b. Âzib)", "url": "https://sunnah.com/bukhari:1915"}, {"s": 5, "a": "90-91", "baslik": "İçki yasağının aşamaları", "olay": "Hz. Ömer 'Allah'ım, içki hakkında bize açık bir hüküm bildir' diye dua ediyordu. Önce Bakara 219 indi ve içkide büyük günah olduğunu bildirdi. Ardından Nisâ 43 ile sarhoşken namaza yaklaşmak yasaklandı. En sonunda Mâide 90-91 indi. Âyetin sonundaki 'Artık vazgeçiyor musunuz?' sorusunu duyan Hz. Ömer 'Vazgeçtik' dedi.", "kaynak": "Ebû Dâvûd, Eşribe, no. 3670; Nesâî, Eşribe, no. 5540", "url": "https://sunnah.com/abudawud:3670", "not": "Elbânî Ebû Dâvûd 3670'i 'sahih' olarak değerlendirir. Yasağın aşamalı gelmesi tefsir âlimlerince genel kabul görür."}, {"s": 4, "a": "43", "baslik": "Nisâ 43: Sarhoşken namaza yaklaşmamak", "olay": "İçki henüz yasaklanmamışken Ensar'dan biri Hz. Ali ile Abdurrahman b. Avf'ı yemeğe davet etti ve içki ikram etti. Akşam namazını kıldıran Hz. Ali Kâfirûn sûresini okurken âyetleri karıştırdı. Bunun üzerine 'Ne söylediğinizi bilinceye kadar sarhoşken namaza yaklaşmayın' âyeti indi.", "kaynak": "Ebû Dâvûd, Eşribe, no. 3671", "url": "https://sunnah.com/abudawud:3671", "not": "Elbânî Ebû Dâvûd 3671'i 'sahih' olarak değerlendirir. Tirmizî'deki rivayette namazı kimin kıldırdığı ve okunan sûre konusunda küçük lafız farkları vardır."}, {"s": 33, "a": "37", "baslik": "Ahzâb 37: Zeyd b. Hârise ve Zeyneb", "olay": "Evlatlık Zeyd b. Hârise, eşi Zeyneb bint Cahş'tan yakınıyordu. Peygamberimiz ona 'Eşini yanında tut, Allah'tan kork' diyordu. Âyet, Allah'ın açığa çıkaracağı bir şeyi Peygamberimizin insanlardan çekinip gizlediğini bildirdi. Bu evlilik, evlatlığın boşadığı eşle evlenmenin caiz olduğunu gösterdi. Hz. Âişe, Peygamberimiz vahiyden bir şey gizleseydi bu âyeti gizleyeceğini söyledi.", "kaynak": "Buhârî, Tefsîr (Ahzâb), no. 4787; Tevhîd, no. 7420 (Enes)", "url": "https://sunnah.com/bukhari:7420", "not": "Âyette gizlenen şeyin, Allah'ın Peygamberimize bildirdiği evlilik olduğu kabul edilir. Bunu bir duygu olarak açıklayan rivayetler âlimlerce zayıf sayılmıştır."}, {"s": 58, "a": "1-4", "baslik": "Mücâdele: Havle bint Sa'lebe ve zıhâr", "olay": "Evs b. Sâmit, eşi Havle'ye 'Sen bana annemin sırtı gibisin' diyerek zıhâr yaptı. Câhiliye'de bu söz ayrılık sayılırdı. Havle Peygamberimize gelip derdini anlattı. Bunun üzerine Mücâdele sûresinin ilk âyetleri indi. Zıhârın keffareti sırasıyla şöyle belirlendi: köle azat etmek, gücü yetmezse iki ay peş peşe oruç tutmak, ona da gücü yetmezse altmış fakiri doyurmak.", "kaynak": "Ebû Dâvûd, Talâk, no. 2214; İbn Mâce, Talâk, no. 2063; Buhârî, Tevhîd (ta'lîk)", "url": "https://sunnah.com/abudawud:2214", "not": "Kaynaklarda adı Havle ya da Huveyle olarak geçer. Elbânî Ebû Dâvûd 2214'ü 'hasen' sayar (sepetin altmış sa' olduğu kısmı hariç). İbn Mâce 2063 Dârüsselâm baskısında 'sahih' olarak geçer. Hz. Âişe'nin 'İşitmesi bütün sesleri kuşatan Allah'a hamd olsun' sözünü Buhârî senetsiz (ta'lîk) olarak aktarır."}, {"s": 93, "a": "1-3", "baslik": "Duhâ: Vahyin bir süre gelmemesi", "olay": "Peygamberimiz ﷺ hastalanıp iki üç gece gece namazına kalkamadı. Bir kadın 'Şeytanın seni bırakmış' diye alay etti. Bunun üzerine Duhâ sûresi indi: 'Rabbin seni terk etmedi ve sana darılmadı.'", "kaynak": "Buhârî, Tefsîr (Duhâ), no. 4950, 4951; Müslim, Cihâd, no. 1797 (Cündeb b. Süfyân)", "url": "https://sunnah.com/bukhari:4950", "not": "Alay eden kadının Ebû Leheb'in karısı Ümmü Cemîl olduğunu söyleyen rivayetler Sahîhayn dışındadır."}, {"s": 26, "a": "214", "baslik": "Şuarâ 214: 'Yakın akrabanı uyar'", "olay": "'En yakın akrabanı uyar' âyeti inince Peygamberimiz ﷺ Safâ tepesine çıktı ve Kureyş kabilelerini çağırdı. Onlara 'Size dağın ardında bir atlı birlik var desem bana inanır mısınız?' diye sordu. 'Senin yalan söylediğini hiç görmedik' dediler. Bunun üzerine onları yaklaşan çetin bir azaba karşı uyardı.", "kaynak": "Buhârî, Tefsîr (Şuarâ), no. 4770; Tefsîr (Tebbet), no. 4971; Müslim, Îmân, no. 208", "url": "https://sunnah.com/bukhari:4971"}, {"s": 111, "a": "1-5", "baslik": "Tebbet: Ebû Leheb'in tepkisi", "olay": "Safâ tepesindeki uyarıdan sonra amcası Ebû Leheb 'Yazıklar olsun sana, bizi bunun için mi topladın?' diyerek oradan ayrıldı. Bunun üzerine Tebbet sûresi indi. Sûre, tebliğe düşmanlık eden Ebû Leheb'in ve eşinin akıbetini bildirir.", "kaynak": "Buhârî, Tefsîr (Tebbet), no. 4971; Tefsîr (Şuarâ), no. 4770 (İbn Abbâs)", "url": "https://sunnah.com/bukhari:4971"}, {"s": 96, "a": "1-5", "baslik": "Alak: İlk vahiy", "olay": "Peygamberimiz ﷺ Hirâ mağarasında inzivadayken melek geldi ve 'Oku!' dedi. Peygamberimiz 'Ben okuma bilmem' diye cevap verdi. Bu üç kez tekrarlandı ve ardından Alak sûresinin ilk beş âyeti indi. Peygamberimiz titreyerek Hz. Hatice'nin yanına döndü. Hz. Hatice onu teselli etti ve Varaka b. Nevfel'e götürdü.", "kaynak": "Buhârî, Bed'ü'l-vahy, no. 3; Tefsîr (Alak), no. 4953; Müslim, Îmân, no. 160 (Âişe)", "url": "https://sunnah.com/bukhari:3", "not": "Âlimlerin çoğunluğuna göre ilk inen âyetler bunlardır."}, {"s": 74, "a": "1-5", "baslik": "Müddessir: Fetretten sonra 'Kalk ve uyar'", "olay": "Câbir b. Abdullah'ın aktardığına göre Peygamberimiz ﷺ Hirâ'dan inerken bir ses duydu. Başını kaldırınca Hirâ'da gelen meleği gök ile yer arasında bir kürsüde oturur gördü. Korkuyla Hz. Hatice'ye gelip 'Beni örtün' dedi. Ardından 'Ey örtüsüne bürünen! Kalk ve uyar' âyetleri indi ve tebliğ görevi başladı.", "kaynak": "Buhârî, Tefsîr (Müddessir), no. 4922-4926; Bed'ü'l-vahy, no. 4; Müslim, Îmân, no. 161", "url": "https://sunnah.com/bukhari:4922", "not": "Câbir'e göre ilk inen sûre Müddessir'dir. Âlimlerin çoğunluğu ise Alak'ın önce, Müddessir'in vahyin kesildiği dönemden (fetret) sonra indiğini kabul eder."}, {"s": 8, "a": "1", "baslik": "Enfâl 1: Bedir ganimetleri", "olay": "Bedir'de Sa'd b. Ebû Vakkâs ganimetten bir kılıç istedi. Peygamberimiz ﷺ önce 'Bu ne benim ne de senin' dedi. 'Sana ganimetleri soruyorlar; de ki ganimetler Allah'a ve Resûlü'ne aittir' âyeti inince kılıcı Sa'd'a verdi. Âyet, ganimetin taksiminde son sözün Allah ve Resûlü'ne ait olduğunu bildirdi.", "kaynak": "Ebû Dâvûd, Cihâd, no. 2740; Müslim, Cihâd, no. 1748 (Mus'ab b. Sa'd, babasından)", "url": "https://sunnah.com/abudawud:2740", "not": "Elbânî Ebû Dâvûd 2740'ı 'hasen sahih' sayar. Bedir'e katılanlar arasında ganimet konusunda çıkan anlaşmazlığı sebep gösteren başka rivayetler de vardır (Ubâde b. Sâmit, Ahmed). Bu rivayetler birbirini dışlamaz."}, {"s": 3, "a": "128", "baslik": "Âl-i İmrân 128: Uhud sonrası beddua", "olay": "Uhud'dan sonra Peygamberimiz ﷺ sabah namazının son rekâtında rükûdan doğrulunca bazı müşrik liderlere beddua etti. Bunun üzerine 'Bu işte senin yapacağın bir şey yoktur. Allah ya tövbelerini kabul eder ya da onlara azap eder' âyeti indi. Beddua edilen kişilerden bazıları daha sonra Müslüman oldu.", "kaynak": "Buhârî, Tefsîr (Âl-i İmrân), no. 4559; Meğâzî, no. 4069 (Abdullah b. Ömer)", "url": "https://sunnah.com/bukhari:4559", "not": "Buhârî 4069'un mürsel ekinde Safvân b. Ümeyye, Süheyl b. Amr ve Hâris b. Hişâm'ın adları geçer. Âyetin Uhud'da Peygamberimizin yaralanmasıyla ilgili olduğunu söyleyen rivayetler de vardır (Müslim, Cihâd, no. 1791)."}, {"s": 4, "a": "65", "baslik": "Nisâ 65: Zübeyr ile Ensârî'nin su davası", "olay": "Hz. Zübeyr ile Ensar'dan bir adam Harre'deki bir derenin sulama sırası yüzünden anlaşmazlığa düştü. Peygamberimiz ﷺ önce Zübeyr'den sulayıp suyu komşusuna bırakmasını istedi. Ensârî 'Halanın oğlu olduğu için mi?' deyince Peygamberimiz Zübeyr'e hakkının tamamını verdi. Zübeyr, 'Seni hakem kılmadıkça iman etmiş olmazlar' âyetinin bu olay hakkında indiğini düşündüğünü söyledi.", "kaynak": "Buhârî, Müsâkât, no. 2359; Tefsîr (Nisâ), no. 4585; Müslim, Fezâil, no. 2357", "url": "https://sunnah.com/bukhari:4585", "not": "Zübeyr bunu kesin olarak değil, 'zannederim' diyerek söyler."}, {"s": 4, "a": "95", "baslik": "Nisâ 95: Özür sahiplerinin istisnası", "olay": "Peygamberimiz ﷺ 'Müminlerden oturanlar ile Allah yolunda cihad edenler bir olmaz' âyetini Zeyd b. Sâbit'e yazdırıyordu. O sırada âmâ sahabi İbn Ümmi Mektûm gelip 'Gücüm olsaydı ben de cihada çıkardım' dedi. Hemen vahiy geldi ve âyete 'özür sahibi olanlar hariç' (gayru ülid-darar) ifadesi eklendi.", "kaynak": "Buhârî, Cihâd, no. 2832; Tefsîr (Nisâ), no. 4592, 4593; Müslim, İmâre, no. 1898", "url": "https://sunnah.com/bukhari:4592"}, {"s": 49, "a": "2", "baslik": "Hucurât 2: Peygamber'in huzurunda sesi yükseltmemek", "olay": "Benî Temîm heyeti geldiğinde Hz. Ebû Bekir ve Hz. Ömer, heyete kimin başkan olacağı konusunda Peygamberimizin huzurunda tartıştılar ve sesleri yükseldi. Bunun üzerine 'Seslerinizi Peygamber'in sesinin üstüne yükseltmeyin' âyeti indi. Bundan sonra Hz. Ömer Peygamberimizle o kadar alçak sesle konuştu ki, Peygamberimiz söylediğini tekrar etmesini isterdi.", "kaynak": "Buhârî, Tefsîr (Hucurât), no. 4845, 4847 (İbn Ebû Müleyke, İbnü'z-Zübeyr'den)", "url": "https://sunnah.com/bukhari:4845"}, {"s": 17, "a": "85", "baslik": "İsrâ 85: Ruh sorusu", "olay": "Abdullah b. Mes'ûd Peygamberimizle birlikte yürürken bir grup Yahudi ona ruhu sordu. Peygamberimiz ﷺ sustu ve vahiy bekledi. Ardından 'Ruh, Rabbimin bileceği bir iştir; size ise pek az ilim verilmiştir' âyeti indi.", "kaynak": "Buhârî, İlim, no. 125; Tefsîr (İsrâ), no. 4721; Müslim, Sıfâtü'l-münâfıkîn, no. 2794", "url": "https://sunnah.com/bukhari:4721", "not": "Bu sahih rivayet olayı Medine'de anlatır. Tirmizî'de (no. 3140, İbn Abbâs) sorunun Mekke'de Kureyş aracılığıyla sorulduğu bildirilir. Bazı âlimler âyetin tekrar indiğini ya da Medine'de hatırlatıldığını söyler."}, {"s": 2, "a": "222", "baslik": "Bakara 222: Hayızlı kadınla ilişki", "olay": "Yahudiler hayızlı kadınla aynı sofraya oturmaz, aynı evde kalmazlardı. Sahabe bunu sorunca 'Sana hayızı soruyorlar' âyeti indi. Peygamberimiz ﷺ cinsel birleşme dışında her şeyin serbest olduğunu açıkladı. Böylece kadını dışlayan bu uygulama kaldırıldı.", "kaynak": "Müslim, Hayz, no. 302 (Enes)", "url": "https://sunnah.com/muslim:302"}, {"s": 2, "a": "223", "baslik": "Bakara 223: 'Kadınlarınız sizin tarlanızdır'", "olay": "Yahudiler, eşiyle arkadan önüne doğru birleşen kişinin çocuğunun şaşı doğacağını söylüyorlardı. Bunun üzerine 'Kadınlarınız sizin tarlanızdır, tarlanıza dilediğiniz gibi gelin' âyeti indi. Âyet bu batıl inancı reddetti. Burada kastedilen meşru yoldur, yani çocuğun meydana geldiği yer.", "kaynak": "Müslim, Nikâh, no. 1435 (Câbir)", "url": "https://sunnah.com/muslim/16/138"}, {"s": 33, "a": "53", "baslik": "Ahzâb 53: Hicap âyeti (Zeyneb'in düğün yemeği)", "olay": "Peygamberimiz ﷺ Zeyneb bint Cahş ile evlendiğinde bir düğün yemeği verdi. Yemekten sonra bazı misafirler oturup sohbeti uzattılar. Peygamberimiz rahatsız olduğu halde utancından bir şey söylemedi. Misafirler gidince araya perde çekildi ve hicap âyeti indi. Âyet, Peygamber'in evine izinsiz girmemeyi, yemekten sonra dağılmayı ve hanımlarıyla perde arkasından konuşmayı emretti.", "kaynak": "Buhârî, Tefsîr (Ahzâb), no. 4791, 4792, 4793; Müslim, Nikâh, no. 1428 (Enes)", "url": "https://sunnah.com/bukhari:4791", "not": "Hz. Ömer'in daha önce hanımların örtünmesini temenni ettiği de sahih rivayetlerde geçer (Buhârî, Salât, 'Rabbime üç konuda muvafakat ettim')."}, {"s": 24, "a": "6-9", "baslik": "Nûr 6-9: Liân (karşılıklı lanetleşme)", "olay": "Hilâl b. Ümeyye karısını zina ile suçladı ama dört şahidi yoktu. Peygamberimiz ﷺ ona 'Ya delil getirirsin ya da sırtına had cezası vurulur' dedi. Hilâl doğru söylediğine yemin etti ve bunun üzerine liân âyetleri indi. Âyetlere göre şahidi olmayan koca dört kez yemin eder ve beşincide lanet diler. Kadın da aynı şekilde yemin ederse cezadan kurtulur.", "kaynak": "Buhârî, Tefsîr (Nûr), no. 4747 (İbn Abbâs)", "url": "https://sunnah.com/bukhari:4747", "not": "Buhârî ve Müslim'de Uveymir el-Aclânî'nin benzer olayı da anlatılır. Âlimler âyetin Hilâl için indiğini ve Uveymir'in olayına da uygulandığını söyleyerek iki rivayeti birleştirir."}, {"s": 9, "a": "113", "baslik": "Tevbe 113: Ebû Tâlib'in vefatı", "olay": "Ebû Tâlib ölüm döşeğindeyken Peygamberimiz ﷺ ondan kelime-i tevhidi söylemesini istedi. Ebû Cehil ve Abdullah b. Ebû Ümeyye ise 'Abdülmuttalib'in dinini mi bırakacaksın?' dediler. Ebû Tâlib eski dinde kalarak öldü. Peygamberimiz 'Yasaklanmadıkça senin için istiğfar edeceğim' dedi. Bunun üzerine müşrikler için istiğfarı yasaklayan âyet indi.", "kaynak": "Buhârî, Cenâiz, no. 1360; Tefsîr (Berâe), no. 4675; Müslim, Îmân, no. 24 (Müseyyeb b. Hazn)", "url": "https://sunnah.com/bukhari:4675", "not": "Âyetin Peygamberimizin annesi için istiğfar izni istemesiyle ilgili olduğunu söyleyen başka rivayetler daha zayıftır."}, {"s": 28, "a": "56", "baslik": "Kasas 56: 'Sen sevdiğini hidayete erdiremezsin'", "olay": "Ebû Tâlib ölürken Peygamberimiz ﷺ ona 'Lâ ilâhe illallah de, kıyamet günü sana şahitlik edeyim' dedi. Ebû Tâlib 'Kureyş ölüm korkusundan söyledi der diye korkuyorum' diyerek kabul etmedi. Bunun üzerine bu âyet indi: Hidayet Allah'ın elindedir, Peygamber'in görevi tebliğdir.", "kaynak": "Müslim, Îmân, no. 24, 25 (Ebû Hüreyre)", "url": "https://sunnah.com/muslim:25b"}, {"s": 48, "a": "1", "baslik": "Fetih 1: Hudeybiye dönüşü 'apaçık fetih'", "olay": "Hudeybiye Antlaşması'ndan dönerken Hz. Ömer bir gece yolculuğunda Peygamberimize üç kez bir şey sordu ama cevap alamadı. Hakkında âyet inmesinden korkup öne geçti. Sonra çağrıldı ve Peygamberimiz 'Bu gece bana, üzerine güneş doğan her şeyden daha sevimli bir sûre indi' diyerek Fetih sûresini okudu. Ağır şartlı görünen antlaşma böylece 'apaçık fetih' olarak müjdelendi.", "kaynak": "Buhârî, Meğâzî, no. 4177; Tefsîr (Fetih), no. 4833", "url": "https://sunnah.com/bukhari:4833", "not": "Buhârî 4833'te yolculuğun adı geçmez. Hudeybiye bağlamı Müslim 1786 ile Buhârî'nin Meğâzî bölümünden bilinir."}, {"s": 9, "a": "117-118", "baslik": "Tevbe 117-118: Ka'b b. Mâlik ve geri kalan üç kişi", "olay": "Ka'b b. Mâlik, Mürâre b. Rebî ve Hilâl b. Ümeyye geçerli bir mazeretleri olmadan Tebük seferine katılmadılar. Münafıklar gibi yalan bir özür uydurmadılar ve doğruyu söylediler. Elli gün boyunca kimse onlarla konuşmadı. Sonunda tövbelerinin kabul edildiğini bildiren âyetler indi. Ardından gelen 119. âyet 'doğrularla beraber olun' der.", "kaynak": "Buhârî, Meğâzî, no. 4418; Müslim, Tevbe, no. 2769", "url": "https://sunnah.com/bukhari:4418"}, {"s": 2, "a": "158", "baslik": "Bakara 158: Safâ ile Merve arasında sa'y", "olay": "Ensar, Câhiliye döneminde Menât putu için ihrama girdikleri için Safâ ile Merve arasında sa'y yapmayı günah sayıyorlardı. Müslüman olunca bunu Peygamberimize sordular. 'Safâ ile Merve Allah'ın nişanelerindendir' âyeti indi. Hz. Âişe, âyetteki 'günah yoktur' ifadesinin sa'yi isteğe bağlı kılmadığını, Peygamberimizin sa'yi sünnet kıldığını açıkladı.", "kaynak": "Buhârî, Hac, no. 1643; Tefsîr (Bakara), no. 4495; Müslim, Hac, no. 1277 (Urve, Âişe'den)", "url": "https://sunnah.com/bukhari:1643"}, {"s": 3, "a": "169", "baslik": "Âl-i İmrân 169: Şehitler ölü değildir", "olay": "Mesrûk'un aktardığına göre Abdullah b. Mes'ûd'a bu âyet soruldu. O da Peygamberimizin ﷺ bu âyeti açıklayan sözünü nakletti: Şehitlerin ruhları yeşil kuşların içinde Arş'a asılı kandillerde barınır ve cennette dolaşır. Bu hadis âyetin iniş sebebi değildir. Peygamberimizin âyetle doğrudan ilişkilendirdiği bir açıklamadır.", "kaynak": "Müslim, İmâre, no. 1887", "url": "https://sunnah.com/muslim:1887", "not": "Müslim 1887'de Uhud geçmez. Âyetin Uhud şehitleri hakkında indiğini bildiren rivayet Ebû Dâvûd'dadır (Cihâd, no. 2520, İbn Abbâs); bu çalışmada onun derecesi ayrıca doğrulanmadı."}, {"s": 4, "a": "59", "baslik": "Nisâ 59: Allah'a, Resûl'e ve emir sahiplerine itaat", "olay": "İbn Abbâs'a göre 'Allah'a itaat edin, Peygamber'e itaat edin ve sizden olan emir sahiplerine itaat edin' âyeti, Peygamberimizin küçük bir askerî birliğin başına komutan olarak gönderdiği Abdullah b. Huzâfe hakkında indi. Âyetin devamı, anlaşmazlık olursa meselenin Allah'a ve Resûl'e götürülmesini emreder.", "kaynak": "Buhârî, Tefsîr (Nisâ), no. 4584; Müslim, İmâre, no. 1834", "url": "https://sunnah.com/bukhari:4584", "not": "Bu bilgi İbn Abbâs'ın açıklamasıdır. Bir komutanın askerlerine ateşe girmelerini emrettiği ve Peygamberimizin 'İtaat ancak iyilikte olur' dediği olay ayrı rivayetlerde anlatılır."}, {"s": 5, "a": "101", "baslik": "Mâide 101: Gereksiz sorular", "olay": "Peygamberimiz ﷺ etkili bir hutbe okudu: 'Benim bildiğimi bilseydiniz az güler, çok ağlardınız.' Bunun üzerine bir adam 'Babam kim?' diye sordu ve Peygamberimiz babasının adını söyledi. Ardından, açıklanınca hoşunuza gitmeyecek şeyleri sormayın anlamındaki âyet indi.", "kaynak": "Buhârî, Tefsîr (Mâide), no. 4621, 4622; Müslim, Fezâil, no. 2359 (Enes)", "url": "https://sunnah.com/bukhari:4621", "not": "İbn Abbâs'ın rivayetine göre (Buhârî 4622) bazıları alay amacıyla da soru soruyordu."}, {"s": 22, "a": "19", "baslik": "Hac 19: Bedir'deki teke tek vuruşma", "olay": "Bedir'de savaş başlamadan önce Müslümanlardan Hz. Hamza, Hz. Ali ve Ubeyde b. Hâris, müşriklerden Utbe, Şeybe ve Velîd ile teke tek vuruştu. Ebû Zer, 'Şu iki hasım Rableri hakkında tartışmaya girdiler' âyetinin bu altı kişi hakkında indiğine yemin ederdi.", "kaynak": "Buhârî, Meğâzî, no. 3965-3969; Tefsîr (Hac), no. 4743; Müslim, Tefsîr, no. 3033 (Ebû Zer)", "url": "https://sunnah.com/bukhari:4743", "not": "Bu bilgi sahabi Ebû Zer'e aittir. Hz. Ali 'Kıyamet günü Rahmân'ın huzurunda davası için diz çökecek ilk kişi benim' demiştir (Buhârî 3965)."}, {"s": 110, "a": "1-3", "baslik": "Nasr: Vazifenin tamamlandığına işaret", "olay": "Hz. Ömer genç İbn Abbâs'ı Bedir'e katılmış yaşlı sahabilerle birlikte meclisine alıyordu. Bir gün onlara Nasr sûresinin anlamını sordu. Bazıları sûreyi 'Fetih gelince hamd ve istiğfar etmemiz emredildi' diye açıkladı. İbn Abbâs ise sûrenin Peygamberimizin vefatının yaklaştığına işaret ettiğini söyledi. Hz. Ömer de 'Ben de bundan başkasını bilmiyorum' dedi.", "kaynak": "Buhârî, Tefsîr (Nasr), no. 4970 (İbn Abbâs, Ömer'den)", "url": "https://sunnah.com/bukhari:4970", "not": "Bu kayıt âyetin iniş sebebi değildir. Sahabenin sûreyi nasıl yorumladığını gösterir."}];
+        const ayetHadisBul = (s, a) => AYET_HADIS.filter(x => { if (+x.s !== +s) return false; const p = String(x.a).split('-').map(Number); const b = p[0], e = p[1] || p[0]; return a >= b && a <= e; });
+        const AyetHadisKutusu = ({ s, a, kucuk }) => {
+            const [acik, setAcik] = React.useState(false);
+            const l = ayetHadisBul(s, a); if (!l.length) return null;
+            return (
+                <div className={kucuk ? 'mt-2' : 'mb-4'}>
+                    <button onClick={() => setAcik(!acik)} aria-expanded={acik} className="inline-flex items-center gap-1.5 px-3 min-h-[34px] rounded-full bg-cyan-500/10 border border-cyan-400/40 text-cyan-200 text-[12px] font-bold">📜 İniş sebebi · ilgili hadis{l.length > 1 ? ` (${l.length})` : ''} <Icons.ChevronLeft size={12} className={`transition-transform ${acik ? 'rotate-90' : '-rotate-90'}`}/></button>
+                    {acik && l.map((x, i) => (
+                        <div key={i} className="mt-2 rounded-2xl bg-cyan-950/40 border border-cyan-500/25 p-3.5 text-left">
+                            <p className="text-[13px] font-bold text-cyan-100 mb-1">{x.baslik} <span className="text-[11px] font-semibold text-cyan-300/70">· {getTurkishName(+x.s)} {x.a}</span></p>
+                            <p className="text-[13.5px] text-slate-200 leading-relaxed">{x.olay}</p>
+                            {x.not && <p className="text-[11.5px] text-slate-400 mt-1.5">ℹ️ {x.not}</p>}
+                            <p className="text-[11.5px] text-cyan-300/90 mt-2">📚 {x.kaynak}{x.url ? <> · <a href={x.url} target="_blank" rel="noopener" className="underline underline-offset-2">kaynağı aç</a></> : null}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+        const ARAMA_RENK = ['#34d399', '#fbbf24', '#60a5fa', '#f472b6', '#c084fc', '#fb923c', '#22d3ee', '#a3e635'];
+        const ARAMA_ONERI = ['Sabır', 'Akletmez misiniz', 'Dünya', 'Âhiret', 'Evlilik', 'Mutluluk', 'Rahmet', 'Şükür', 'Melek', 'Şeytan', 'Hz. Musa', 'Kadir Gecesi', 'Faiz', 'عقل', '2:255'];
+        const vurgulaTr = (metin, kokler) => {
+            if (!kokler || !kokler.length) return metin;
+            const parcalar = String(metin).split(/(\s+)/);
+            return parcalar.map((p, i) => { const f = window.ZARAMA.katla(p).replace(/^[^a-z0-9çğıöşü]+/, ''); return kokler.some(k => f.indexOf(k) === 0) ? <mark key={i} className="bg-amber-400/30 text-amber-50 rounded px-0.5">{p}</mark> : p; });
+        };
+        const AramaPaneli = ({ acik, kapat, ilk, ilkT }) => {
+            const [q, setQ] = React.useState('');
+            const [s, setS] = React.useState(null); // sonuç
+            const [yuk, setYuk] = React.useState('');
+            const [hata, setHata] = React.useState('');
+            const [goster, setGoster] = React.useState(30);
+            const [sekme, setSekme] = React.useState('ar');
+            const [meal, setMeal] = React.useState(null);
+            const [harita, setHarita] = React.useState(false);
+            const inputRef = React.useRef(null);
+            React.useEffect(() => { if (!acik) return; setTimeout(() => inputRef.current && inputRef.current.focus(), 80); if (ilk && ilk.trim()) { setQ(ilk); ara(ilk); } const esc = (e) => { if (e.key === 'Escape') kapat(); }; window.addEventListener('keydown', esc); return () => window.removeEventListener('keydown', esc); }, [acik, ilk, ilkT]);
+            const Z = window.ZARAMA;
+            const digerleri = (t) => {
+                const f = Z.katla(t); if (f.length < 2) return [];
+                const r = [];
+                const m = f.match(/^(\d{1,3})\s*[:.\-\s]\s*(\d{1,3})$/);
+                if (m && AYET_SAYILARI[+m[1]] && +m[2] >= 1 && +m[2] <= AYET_SAYILARI[+m[1]]) r.push({ tur: 'ayet', ad: `${getTurkishName(+m[1])} ${m[2]}. ayet`, h: `ayet-${+m[1]}-${+m[2]}` });
+                Object.keys(AYET_SAYILARI).forEach(n => { const ad = Z.katla(getTurkishName(+n)); const mm = f.match(/^(.+?)\s+(\d{1,3})$/); if (mm && ad === Z.katla(mm[1]) && +mm[2] <= AYET_SAYILARI[n]) r.push({ tur: 'ayet', ad: `${getTurkishName(+n)} ${mm[2]}. ayet`, h: `ayet-${n}-${mm[2]}` }); else if (ad.indexOf(f) === 0 || (f.length >= 4 && ad.indexOf(f) >= 0)) r.push({ tur: 'sure', ad: `${n}. ${getTurkishName(+n)} Suresi · ${AYET_SAYILARI[n]} ayet`, h: `sure-${n}` }); });
+                HADIS_HAVUZU.forEach((h, i) => { if (Z.katla(h.t).indexOf(f) >= 0) r.push({ tur: 'hadis', ad: `“${h.t.slice(0, 110)}${h.t.length > 110 ? '…' : ''}” (${h.k})`, h: `hadis-${i}` }); });
+                ESMA_99.forEach((e, i) => { if (Z.katla(e.n + ' ' + e.d).indexOf(f) >= 0) r.push({ tur: 'esma', ad: `${e.n}: ${e.d}`, h: `esma-${i}` }); });
+                SOZ_RISALE.forEach((e, i) => { if (Z.katla(e.t).indexOf(f) >= 0) r.push({ tur: 'soz', ad: `🪶 “${e.t}”`, h: `soz-r-${i}` }); });
+                SOZ_EGITIM.forEach((e, i) => { if (Z.katla(e.t + ' ' + e.k).indexOf(f) >= 0) r.push({ tur: 'soz', ad: `🎓 “${e.t}” (${e.k})`, h: `soz-e-${i}` }); });
+                AYET_HADIS.forEach(x => { if (Z.katla(x.baslik + ' ' + x.olay).indexOf(f) >= 0) r.push({ tur: 'nuzul', ad: `📜 ${x.baslik} · ${getTurkishName(+x.s)} ${x.a}`, h: `ayet-${x.s}-${String(x.a).split('-')[0]}` }); });
+                try { const n = JSON.parse(localStorage.getItem('zirve_notlar') || '{}'); Object.keys(n).forEach(u => { const x = n[u]; if (Z.katla(`${x.not || ''} ${x.ayet || ''}`).indexOf(f) >= 0 && x.not) r.push({ tur: 'not', ad: `📝 ${x.surahName || ''} ${x.ayahNo}: ${String(x.not).replace(/[*_=~{}#|]/g, '').slice(0, 90)}`, h: `sure-${x.surahNo}-${x.ayahNo}` }); }); } catch (e) {}
+                try { (window.ZKULLIYAT ? window.ZKULLIYAT.oku() : []).forEach(k => { if (Z.katla(k.baslik + ' ' + k.metin).indexOf(f) >= 0) r.push({ tur: 'not', ad: `📚 ${k.baslik}`, h: 'notlar' }); }); } catch (e) {}
+                return r.slice(0, 40);
+            };
+            const ara = async (t) => {
+                t = String(t || '').trim(); if (!t) return;
+                setHata(''); setS(null); setMeal(null); setGoster(30); setHarita(false);
+                setYuk("Kur'an kelime verisi hazırlanıyor…");
+                try { await Z.veriYukle(); } catch (e) { setYuk(''); setHata((e && e.message) || 'Veri yüklenemedi'); setS({ q: t, diger: digerleri(t) }); return; }
+                setYuk('Sayılıyor…');
+                await new Promise(r => setTimeout(r, 20));
+                let sonuc = { q: t, diger: digerleri(t) };
+                // Ayet numarası (2:255, Bakara 255) ya da yalnız sure adı: doğrudan aç
+                if (sonuc.diger.length && (sonuc.diger[0].tur === 'ayet' || /^\d+$/.test(Z.katla(t)) || (sonuc.diger.every(d => d.tur === 'sure') && !Z.kavramBul(t).length))) { sonuc.yalnizDiger = true; setS(sonuc); setYuk(''); return; }
+                if (Z.arapcaMi(t)) { sonuc.ar = Z.arapcaAra(t); sonuc.tur = 'arapca'; setSekme('ar'); }
+                else {
+                    const kv = Z.kavramBul(t);
+                    if (kv.length) { sonuc.kavram = kv[0]; sonuc.benzer = kv.slice(1, 5); sonuc.ar = Z.kavramSay(kv[0]); sonuc.ek = (kv[0].ek || []).map(g => ({ ad: g.ad, r: Z.kavramSay(g) })); setSekme('ar'); }
+                    else setSekme('meal');
+                    sonuc.tur = 'turkce';
+                }
+                setS(sonuc); setYuk('');
+                if (sonuc.tur === 'turkce') {
+                    try { const m = await Z.mealYukle('tr.vakfi'); const kk = (sonuc.kavram && sonuc.kavram.meal) ? sonuc.kavram.meal : [t]; setMeal({ ad: 'Diyanet Vakfı meali', m, r: Z.mealAra(m, kk) }); }
+                    catch (e) { setMeal({ hata: 'Meal metni alınamadı (internet?)' }); }
+                }
+            };
+            const aiKok = async () => {
+                setYuk('Yapay zekâya Arapça karşılığı soruluyor…');
+                try {
+                    const j = await GeminiAPI.generateJSON(`Türkçe "${s.q}" kavramının Kur'an-ı Kerim'de geçen Arapça karşılıklarının KÖKLERİNİ ver. Yalnızca JSON: {"kokler":["3 veya 4 harfli Arapça kök, harekesiz, harfler bitişik ör. صبر"],"aciklama":"kısa Türkçe açıklama"}. En fazla 3 kök.`);
+                    const kl = ((j && j.kokler) || []).map(x => String(x).replace(/\s+/g, '')).filter(k => Z.kokVarMi(k));
+                    if (!kl.length) { setYuk(''); setHata('Yapay zekânın önerdiği kök Kur\'an verisinde bulunamadı.'); return; }
+                    const r = Z.kavramSay({ kok: kl });
+                    setS({ ...s, ai: { kokler: kl, aciklama: (j && j.aciklama) || '' }, ar: r, kavram: { ad: s.q, kok: kl } }); setSekme('ar');
+                } catch (e) { setHata('Yapay zekâya ulaşılamadı: ' + ((e && e.message) || '')); }
+                setYuk('');
+            };
+            const git = (h) => { kapat(); setTimeout(() => { try { location.hash = h; } catch (e) {} }, 60); };
+            if (!acik) return null;
+            const V = Z.veri();
+            const lemRenk = {}; if (s && s.ar) Object.keys(s.ar.lemDag).sort((a, b) => s.ar.lemDag[b] - s.ar.lemDag[a]).forEach((l, i) => { lemRenk[l] = ARAMA_RENK[i % ARAMA_RENK.length]; });
+            const sureDagilim = s && s.ar ? Object.entries(s.ar.sureDag).sort((a, b) => b[1] - a[1]).slice(0, 6) : [];
+            const kavramAd = s && s.kavram ? s.kavram.ad : '';
+            const etiket = s && s.ar ? (s.kavram ? (s.kavram.kok && s.kavram.kok.length ? `Arapça kök: ${s.kavram.kok.map(k => k.split('').join(' ')).join(' + ')}` : s.kavram.ifade ? `Arapça ifade: ${s.kavram.ifade}` : s.kavram.lem ? `Arapça kelime: ${s.kavram.lem.join('، ')}` : s.kavram.bicim ? 'Arapça kelime: الآخرة' : '') : (s.ar.tur === 'kok' ? `Arapça kök: ${s.ar.etiket}` : s.ar.tur === 'lem' ? `Arapça kelime: ${s.ar.etiket}` : `Arapça ifade: ${s.ar.etiket}`)) : '';
+            return (
+                <div className="fixed inset-0 z-[73] bg-slate-950/98 backdrop-blur flex flex-col" role="dialog" aria-modal="true" aria-label="Kur'an'da ara">
+                    <div className="px-4 pt-[max(.75rem,env(safe-area-inset-top))] pb-3 border-b border-white/10 bg-slate-950">
+                        <div className="max-w-3xl mx-auto flex items-center gap-2">
+                            <form onSubmit={(e) => { e.preventDefault(); ara(q); }} className="flex-1 flex items-center rounded-2xl bg-slate-800 border border-slate-600 focus-within:border-emerald-400 overflow-hidden">
+                                <span className="pl-3 text-emerald-300" aria-hidden="true"><Icons.Search size={20}/></span>
+                                <input ref={inputRef} value={q} onChange={e => setQ(e.target.value)} placeholder="Kelime, kavram, Arapça kök, 2:255…" aria-label="Kur'an'da ara" className="flex-1 min-w-0 bg-transparent px-3 min-h-[48px] text-[16px] text-white placeholder:text-slate-500 outline-none" enterKeyHint="search" />
+                                {q && <button type="button" onClick={() => { setQ(''); setS(null); inputRef.current && inputRef.current.focus(); }} aria-label="Temizle" className="px-2 text-slate-400"><Icons.X size={18}/></button>}
+                                <button type="submit" className="px-4 min-h-[48px] bg-emerald-500 text-emerald-950 font-bold text-[14px]">Ara</button>
+                            </form>
+                            <button onClick={kapat} aria-label="Aramayı kapat" className="p-2.5 rounded-full text-slate-300 hover:bg-white/5"><Icons.X size={22}/></button>
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                        <div className="max-w-3xl mx-auto px-4 py-4 pb-24">
+                            {!s && !yuk && (
+                                <>
+                                    <p className="text-[13px] text-slate-300 mb-3">Bir kelime ya da kavram yaz: Kur'an'da <b>gerçekte kaç kez</b> geçtiğini, hangi ayetlerde geçtiğini renkli olarak gösteririm. Arapça kök (عقل), ifade (أفلا تعقلون) ya da ayet numarası (2:255, Bakara 255) da yazabilirsin.</p>
+                                    <div className="flex flex-wrap gap-2 mb-5">{ARAMA_ONERI.map(o => <button key={o} onClick={() => { setQ(o); ara(o); }} className="px-3 min-h-[38px] rounded-full bg-slate-800 border border-slate-700 text-[13px] font-semibold text-slate-100 hover:border-emerald-400" dir="auto">{o}</button>)}</div>
+                                    <button onClick={() => setHarita(!harita)} aria-expanded={harita} className="w-full flex items-center gap-3 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 px-4 min-h-[56px] text-left"><span className="text-2xl" aria-hidden="true">📜</span><span className="flex-1"><b className="block text-[14px] text-cyan-100">Ayet ↔ Hadis haritası</b><span className="text-[11.5px] text-cyan-200/70">Hangi ayet hangi olay üzerine indi? {AYET_HADIS.length} sahih bağlantı</span></span><Icons.ChevronLeft size={16} className={`text-cyan-300 transition-transform ${harita ? 'rotate-90' : '-rotate-90'}`}/></button>
+                                    {harita && <div className="mt-3 space-y-2">{AYET_HADIS.map((x, i) => (
+                                        <div key={i} className="rounded-2xl bg-slate-900/80 border border-slate-800 p-3.5">
+                                            <button onClick={() => git(`ayet-${x.s}-${String(x.a).split('-')[0]}`)} className="text-[12px] font-bold text-amber-300 min-h-[28px]">{getTurkishName(+x.s)} {x.a} →</button>
+                                            <p className="text-[14px] font-bold text-white">{x.baslik}</p>
+                                            <p className="text-[13px] text-slate-300 leading-relaxed mt-1">{x.olay}</p>
+                                            {x.not && <p className="text-[11.5px] text-slate-500 mt-1">ℹ️ {x.not}</p>}
+                                            <p className="text-[11.5px] text-cyan-300/90 mt-1.5">📚 {x.kaynak}{x.url ? <> · <a href={x.url} target="_blank" rel="noopener" className="underline">kaynak</a></> : null}</p>
+                                        </div>))}</div>}
+                                </>
+                            )}
+                            {yuk && <div className="flex items-center gap-2 text-emerald-300 text-sm py-8 justify-center"><div className="w-5 h-5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>{yuk}</div>}
+                            {hata && <p className="text-[13px] text-rose-200 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 mb-3">{hata}</p>}
+                            {s && !yuk && (
+                                <>
+                                    {s.ar && (
+                                        <div className="rounded-3xl bg-gradient-to-br from-emerald-900/70 to-slate-900 border border-emerald-500/30 p-4 mb-3">
+                                            <p className="text-[11px] font-bold tracking-widest uppercase text-emerald-300/80">{kavramAd ? kavramAd : `“${s.q}”`}</p>
+                                            <p className="text-white mt-1"><span className="text-4xl font-black text-emerald-300">{s.ar.sayi}</span> <span className="text-[16px] font-bold">{s.ar.ifade ? 'kez geçiyor' : 'kez geçiyor'}</span> <span className="text-[13px] text-slate-300">· {s.ar.ayetSayi} ayette</span></p>
+                                            {etiket && <p className="text-[12.5px] text-emerald-100/90 mt-1" dir="auto">{etiket}</p>}
+                                            {s.ar.bicimNot && <p className="text-[12px] text-slate-300 mt-1" dir="auto">ℹ️ {s.ar.bicimNot}</p>}
+                                            {s.kavram && s.kavram.not && <p className="text-[12px] text-slate-300 mt-2 leading-relaxed">ℹ️ {s.kavram.not}</p>}
+                                            {s.ai && <p className="text-[12px] text-indigo-200 mt-2">🧠 Kökü yapay zekâ önerdi{s.ai.aciklama ? `: ${s.ai.aciklama}` : ''}. Sayı Kur'an metninden hesaplandı.</p>}
+                                            {s.ek && s.ek.map(g => <p key={g.ad} className="text-[12.5px] text-amber-100 mt-2">➕ {g.ad}: <b>{g.r.sayi}</b> kez · {g.r.ayetSayi} ayette</p>)}
+                                            {Object.keys(s.ar.lemDag).length > 0 && (
+                                                <div className="mt-3">
+                                                    <p className="text-[11px] text-slate-400 mb-1.5">Hangi kelimelerle geçiyor:</p>
+                                                    <div className="flex flex-wrap gap-1.5">{Object.keys(s.ar.lemDag).sort((a, b) => s.ar.lemDag[b] - s.ar.lemDag[a]).slice(0, 16).map(l => <span key={l} className="inline-flex items-center gap-1.5 px-2.5 min-h-[30px] rounded-full bg-black/30 border text-[13px]" style={{ borderColor: lemRenk[l] + '88' }}><span className="font-amiri text-[16px]" style={{ color: lemRenk[l] }} dir="rtl">{l}</span><b className="text-slate-200 text-[11px]">{s.ar.lemDag[l]}</b></span>)}</div>
+                                                </div>
+                                            )}
+                                            {sureDagilim.length > 1 && (
+                                                <div className="mt-3 space-y-1">{sureDagilim.map(([n, c]) => <div key={n} className="flex items-center gap-2 text-[11.5px]"><span className="w-24 truncate text-slate-300">{getTurkishName(+n)}</span><span className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden"><span className="block h-full bg-emerald-400" style={{ width: `${c * 100 / sureDagilim[0][1]}%` }}></span></span><span className="w-8 text-right text-slate-400">{c}</span></div>)}</div>
+                                            )}
+                                            <p className="text-[10.5px] text-slate-500 mt-3">Sayım: Kur'an'ın kelime kelime dil çözümlemesi (Quranic Arabic Corpus) üzerinden; her geçiş bir kez sayılır.</p>
+                                        </div>
+                                    )}
+                                    {s.tur === 'turkce' && meal && meal.r && (
+                                        <div className="rounded-2xl bg-slate-900 border border-amber-500/25 p-3.5 mb-3">
+                                            {meal.r.sayi ? <p className="text-[13px] text-amber-100">🇹🇷 {meal.ad} metninde <b>“{s.q}”</b> ve türevleri <b>{meal.r.sayi}</b> kez · {meal.r.ayetSayi} ayette geçiyor.</p>
+                                                : <p className="text-[13px] text-amber-100">🇹🇷 <b>“{s.q}”</b> kelimesi {meal.ad} metninde geçmiyor.{s.ar && s.ar.sayi ? ` Kur'an bu anlamı yukarıdaki Arapça kelimelerle anlatır (${s.ar.sayi} kez).` : ''}</p>}
+                                            <p className="text-[10.5px] text-slate-500 mt-1">Meal sayısı tercümeye göre değişir; asıl ölçü Arapça metindir.</p>
+                                        </div>
+                                    )}
+                                    {meal && meal.hata && <p className="text-[12px] text-slate-400 mb-3">{meal.hata}</p>}
+                                    {s.tur === 'turkce' && !s.kavram && !s.ai && (
+                                        <div className="rounded-2xl bg-indigo-950/40 border border-indigo-500/30 p-3.5 mb-3">
+                                            <p className="text-[13px] text-indigo-100">“{s.q}” kavram listemde yok. Arapça karşılığını yapay zekâya sorayım; sayıyı yine Kur'an metninden hesaplarım.</p>
+                                            <button onClick={aiKok} className="mt-2 px-3 min-h-[38px] rounded-xl bg-indigo-500 text-white text-[13px] font-bold">🧠 Arapça karşılığını bul ve say</button>
+                                        </div>
+                                    )}
+                                    {s.benzer && s.benzer.length > 0 && <div className="flex flex-wrap gap-1.5 mb-3"><span className="text-[11px] text-slate-500 self-center">Benzer:</span>{s.benzer.map(b => <button key={b.ad} onClick={() => { setQ(b.t[0]); ara(b.t[0]); }} className="px-2.5 min-h-[32px] rounded-full bg-slate-800 border border-slate-700 text-[12px] text-slate-200">{b.ad}</button>)}</div>}
+                                    {(s.ar || (meal && meal.r)) && (
+                                        <div role="tablist" className="flex gap-1 p-1 rounded-2xl bg-slate-800/70 border border-slate-700 mb-3">
+                                            {s.ar && <button role="tab" aria-selected={sekme === 'ar'} onClick={() => { setSekme('ar'); setGoster(30); }} className={`flex-1 min-h-[40px] rounded-xl text-[13px] font-bold ${sekme === 'ar' ? 'bg-emerald-500 text-emerald-950' : 'text-slate-300'}`}>Arapça metinde · {s.ar.ayetSayi}</button>}
+                                            {meal && meal.r && <button role="tab" aria-selected={sekme === 'meal'} onClick={() => { setSekme('meal'); setGoster(30); }} className={`flex-1 min-h-[40px] rounded-xl text-[13px] font-bold ${sekme === 'meal' ? 'bg-amber-500 text-amber-950' : 'text-slate-300'}`}>Mealde · {meal.r.ayetSayi}</button>}
+                                        </div>
+                                    )}
+                                    {sekme === 'ar' && s.ar && V && (
+                                        <div className="space-y-2.5">
+                                            {s.ar.ayetler.slice(0, goster).map(x => (
+                                                <div key={x.vi} className="rounded-2xl bg-slate-900/80 border border-slate-800 p-3.5">
+                                                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                                                        <button onClick={() => git(`ayet-${x.s}-${x.a}`)} className="text-[12.5px] font-bold text-amber-300 min-h-[30px]">{getTurkishName(x.s)} {x.s}:{x.a} →</button>
+                                                        <button onClick={() => git(`sure-${x.s}-${x.a}`)} className="text-[11px] text-slate-400 min-h-[30px] px-2">Surede aç</button>
+                                                    </div>
+                                                    <p dir="rtl" className="font-amiri text-[22px] leading-[2.1] text-slate-200 text-right">{V.w[x.vi].map((w, wi) => { const li = V.l[x.vi][wi]; const ad = li >= 0 ? V.lem[li] : w; const v = x.pos.indexOf(wi) >= 0; return <React.Fragment key={wi}>{v ? <span className="rounded px-0.5" style={{ color: lemRenk[ad] || '#34d399', background: (lemRenk[ad] || '#34d399') + '22' }}>{w}</span> : w}{' '}</React.Fragment>; })}</p>
+                                                    {meal && meal.m && <p className="text-[13.5px] text-slate-300 leading-relaxed mt-1 font-serif">{vurgulaTr(meal.m.metin[x.vi], meal.r ? meal.r.kokler : [])}</p>}
+                                                    <AyetHadisKutusu s={x.s} a={x.a} kucuk />
+                                                </div>
+                                            ))}
+                                            {s.ar.ayetler.length > goster && <button onClick={() => setGoster(goster + 40)} className="w-full min-h-[44px] rounded-xl bg-slate-800 border border-slate-700 text-[13px] font-bold text-slate-200">Daha fazla göster ({s.ar.ayetler.length - goster} ayet daha)</button>}
+                                        </div>
+                                    )}
+                                    {sekme === 'meal' && meal && meal.r && (
+                                        <div className="space-y-2.5">
+                                            {meal.r.ayetler.slice(0, goster).map(x => (
+                                                <div key={x.vi} className="rounded-2xl bg-slate-900/80 border border-slate-800 p-3.5">
+                                                    <button onClick={() => git(`ayet-${x.s}-${x.a}`)} className="text-[12.5px] font-bold text-amber-300 min-h-[30px]">{getTurkishName(x.s)} {x.s}:{x.a} →</button>
+                                                    <p className="text-[14px] text-slate-200 leading-relaxed font-serif">{vurgulaTr(meal.m.metin[x.vi], meal.r.kokler)}</p>
+                                                    <AyetHadisKutusu s={x.s} a={x.a} kucuk />
+                                                </div>
+                                            ))}
+                                            {meal.r.ayetler.length > goster && <button onClick={() => setGoster(goster + 40)} className="w-full min-h-[44px] rounded-xl bg-slate-800 border border-slate-700 text-[13px] font-bold text-slate-200">Daha fazla göster</button>}
+                                        </div>
+                                    )}
+                                    {s.yalnizDiger && s.diger[0] && <button onClick={() => git(s.diger[0].h)} className="w-full mb-3 rounded-2xl bg-emerald-500 text-emerald-950 font-bold text-[15px] min-h-[56px] px-4 text-left">→ {s.diger[0].ad}</button>}
+                                    {s.diger && s.diger.length > (s.yalnizDiger ? 1 : 0) && (
+                                        <div className="mt-5">
+                                            <p className="text-[11px] font-bold tracking-widest uppercase text-slate-400 mb-2">Uygulamada başka sonuçlar</p>
+                                            <div className="space-y-1.5">{s.diger.map((d, i) => <button key={i} onClick={() => git(d.h)} className="w-full text-left rounded-xl bg-slate-900/70 border border-slate-800 px-3 min-h-[44px] text-[13px] text-slate-200 hover:border-emerald-500/40">{d.tur === 'sure' ? '📖 ' : d.tur === 'ayet' ? '🔢 ' : d.tur === 'hadis' ? '📜 ' : d.tur === 'esma' ? '✨ ' : ''}{d.ad}</button>)}</div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const SurahDetail = ({ surah, setView, handleAiRequest, handleImageRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, annotations, setAnnotation, fontSize, arabicFont, mealFont, mealColor, lastRead, setLastRead, setPrevRead, highlightedSearch, setJumpModalOpen, mealSource, reciterSource, showToast }) => {
             const [ayahs, setAyahs] = React.useState([]);
             const [translation, setTranslation] = React.useState([]);
@@ -6213,6 +6539,7 @@ JSON ŞEMASI:
                                             {trText !== '...' && ((translation[index - 1] && translation[index - 1].text === trText) || (translation[index + 1] && translation[index + 1].text === trText)) && (
                                                 <span className="block mt-1.5 text-[11px] not-italic font-sans text-slate-500">ℹ️ Bu meal, bu ayeti komşu ayetle birlikte çevirmiştir.</span>
                                             )}
+                                            {!focusMode && <div className="font-sans not-italic"><AyetHadisKutusu s={surah.number} a={ayah.numberInSurah} kucuk /></div>}
                                             {!focusMode && <button onClick={() => setMealPanel({ ayet: ayah.numberInSurah, arabic: ayah.text })} className="mt-2 inline-flex items-center gap-1.5 px-3 min-h-[34px] rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-200 text-[12px] font-sans font-bold not-italic hover:bg-amber-500/20" title="Diğer mealler">📚 Diğer mealler: Elmalılı, Diyanet, Ateş, Bulaç…</button>}
                                         </div>
 
@@ -7117,11 +7444,7 @@ JSON ŞEMASI:
                 shuffleSunnah();
             }, []);
 
-            const handleSearchTrigger = () => {
-                if (searchQuery.length > 2) {
-                    performDeepSearch(searchQuery);
-                }
-            };
+            const handleSearchTrigger = () => { window.dispatchEvent(new CustomEvent('zirve-ara', { detail: { q: searchQuery } })); };
 
             return (
                 <div className="min-h-screen pb-24 text-slate-100">
@@ -7129,7 +7452,8 @@ JSON ŞEMASI:
                         
                         <div className="flex justify-between items-center mb-2">
                             <div className="flex gap-2">
-                                <button onClick={() => setJumpModalOpen(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white" title="Hızlı Ayete Git"><Icons.Compass size={20} /></button>
+                                <button onClick={() => window.dispatchEvent(new CustomEvent('zirve-ara', { detail: {} }))} className="flex items-center gap-2 pl-3 pr-4 min-h-[42px] rounded-full bg-emerald-500 text-emerald-950 font-bold text-[14px] shadow-lg shadow-emerald-900/40" title="Kur'an'da ara" aria-label="Kur'an'da ara"><Icons.Search size={20}/><span>Ara</span></button>
+                                <button onClick={() => setJumpModalOpen(true)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white hidden sm:block" title="Hızlı Ayete Git"><Icons.Compass size={20} /></button>
                                 <button onClick={handleRandomAyah} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors border border-white/10 text-white" title="Rastgele Ayet (Tefekkür)"><Icons.Shuffle size={20} /></button>
                             </div>
                             <div className="flex gap-2">
@@ -7479,7 +7803,7 @@ JSON ŞEMASI:
                             <div className="pl-3 text-slate-400"><Icons.Search size={18} /></div>
                             <input 
                                 type="text" 
-                                placeholder="Kuran'da ara (Örn: Sabır, Firavun)..." 
+                                placeholder="Kur'an'da ara: sabır, akletmez misiniz, 2:255…" 
                                 value={searchQuery} 
                                 onChange={(e) => setSearchQuery(e.target.value)} 
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearchTrigger()}
@@ -7554,6 +7878,8 @@ JSON ŞEMASI:
             const [view, setView] = React.useState('home'); 
             const [anKart, setAnKart] = React.useState(null);
             const [kutuAcik, setKutuAcik] = React.useState(false); // 📬 bildirim kutusu
+            const [arama, setArama] = React.useState(null); // 🔍 {ilk}
+            React.useEffect(() => { const f = (e) => setArama({ ilk: (e.detail && e.detail.q) || '', t: Date.now() }); window.addEventListener('zirve-ara', f); return () => window.removeEventListener('zirve-ara', f); }, []);
             React.useEffect(() => { const f = () => setKutuAcik(true); window.addEventListener('zirve-kutu-ac', f); return () => window.removeEventListener('zirve-kutu-ac', f); }, []); // bildirimden açılan ayet/hadis/Esmâ kartı
             useOtoTazele();
             useCalismaBildirimTazele(); // 🌙 kişisel 21:00 hatırlatmasının metni
@@ -7605,6 +7931,7 @@ JSON ŞEMASI:
                 if (h === 'kaldigim') { if (lastRead) sureAc(lastRead.surahNo, lastRead.ayahNo); else setView('home'); }
                 else if (h === 'hatim') setView('hatim');
                 else if (h === 'kutu' || h === 'bildirimler') setKutuAcik(true);
+                else if (h === 'ara') setArama({ ilk: '', t: Date.now() });
                 else if (h === 'favoriler') setView('favorites');
                 else if (h === 'notlar') setView('notes');
                 else if (h === 'anasayfa') setView('home');
@@ -8075,6 +8402,7 @@ JSON ŞEMASI:
                         error={aiImageError}
                     />
                     
+                    <AramaPaneli acik={!!arama} ilk={arama ? arama.ilk : ''} ilkT={arama ? arama.t : 0} kapat={() => setArama(null)} />
                     <BildirimKutusu acik={kutuAcik} kapat={() => setKutuAcik(false)} ac={(h) => { try { location.hash = h; } catch(e){} }} showToast={showToast} />
                     <AnKarti kart={anKart} setKart={setAnKart} mealSource={mealSource} reciterSource={reciterSource} toggleFavorite={toggleFavorite} favorites={favorites} surahs={surahs} showToast={showToast}
                         sureAc={(no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) sessionStorage.setItem('jumpToAyah', ayet); } }} />
@@ -8083,6 +8411,7 @@ JSON ŞEMASI:
                         <button onClick={() => setView('home')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'home' ? 'text-emerald-500' : 'text-slate-500 hover:text-emerald-400'}`}><Icons.BookOpen size={24} /><span className="text-[10px] font-bold">Kuran</span></button>
                         <button onClick={() => setView('hatim')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'hatim' ? 'text-emerald-500' : 'text-slate-500 hover:text-emerald-400'}`}><Icons.Grid size={24} /><span className="text-[10px] font-bold">Hatim</span></button>
                         <button onClick={() => setView('favorites')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'favorites' ? 'text-rose-500' : 'text-slate-500 hover:text-rose-400'}`}><Icons.Heart size={24} fill={view === 'favorites' ? "currentColor" : "none"} /><span className="text-[10px] font-bold">Favoriler</span></button>
+                        <button onClick={() => setArama({ ilk: '', t: Date.now() })} aria-label="Kur'an'da ara" className="flex flex-col items-center gap-1 -mt-5"><span className="w-12 h-12 rounded-full bg-emerald-500 text-emerald-950 flex items-center justify-center shadow-lg shadow-emerald-900/50 ring-4 ring-slate-900"><Icons.Search size={22}/></span><span className="text-[10px] font-bold text-emerald-400">Ara</span></button>
                         <button onClick={() => setView('notes')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'notes' ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'}`}><Icons.StickyNote size={24} fill={view === 'notes' ? "currentColor" : "none"} /><span className="text-[10px] font-bold">Notlarım</span></button>
                         <button onClick={() => { setDarkMode(!darkMode); showToast(darkMode ? "OLED Siyah Modu Aktif" : "Varsayılan Tema Aktif"); }} className="flex flex-col items-center gap-1 text-slate-500 hover:text-amber-400 transition-colors">{darkMode ? <Icons.Sun size={24} /> : <Icons.Moon size={24} />}<span className="text-[10px] font-bold">Tema</span></button>
                     </div>
