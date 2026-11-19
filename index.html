@@ -105,7 +105,47 @@
       .zs-ayar button:not([aria-pressed]):not([title]):not(.zs-kucuk) { min-height: 44px; }
       #root nav button, #root .fixed.bottom-0 button { min-height: 44px; }
     }
-    </style>
+    
+    /* 📊 Çalışma takibi: yapılan Keşfet araçları ✓ ile işaretlenir */
+    [data-yapildi~="nuzul"] button[title="Siyer Analizi ve Nüzul Sebebi"],
+    [data-yapildi~="tefsir"] button[title="Tefsir Karşılaştırması"],
+    [data-yapildi~="kelime"] button[title="Kelime Analizi"],
+    [data-yapildi~="anatomi"] button[title="Ayeti parçalarına ayır: kişiler, kavramlar, duygular, kelime kökleri"],
+    [data-yapildi~="hadis"] button[title="Hadis ve Siyer İklimi"],
+    [data-yapildi~="sifa"] button[title="Bu ayet bunalımdaki insana ne katar? (psikolojik/manevi fayda)"],
+    [data-yapildi~="modern"] button[title="Modern Hayata Uyarlama"],
+    [data-yapildi~="benzer"] button[title="Benzer Ayetler"],
+    [data-yapildi~="risale"] button[title="Risale-i Nur İzahı"],
+    [data-yapildi~="tecvid"] button[title="Tecvid Analizi"],
+    [data-yapildi~="meal"] button[title="Farklı Mealleri Kıyasla"],
+    [data-yapildi~="sor"] button[title="Ayete Dair Soru Sor"],
+    [data-yapildi~="cocuk"] button[title="Çocuklar İçin Anlat"],
+    [data-yapildi~="tablo"] button[title="Imagen AI ile Tablo Çiz"] { position: relative; border-color: rgba(52,211,153,.75) !important; box-shadow: 0 0 0 1px rgba(52,211,153,.35); }
+    [data-yapildi~="nuzul"] button[title="Siyer Analizi ve Nüzul Sebebi"]::after,
+    [data-yapildi~="tefsir"] button[title="Tefsir Karşılaştırması"]::after,
+    [data-yapildi~="kelime"] button[title="Kelime Analizi"]::after,
+    [data-yapildi~="anatomi"] button[title="Ayeti parçalarına ayır: kişiler, kavramlar, duygular, kelime kökleri"]::after,
+    [data-yapildi~="hadis"] button[title="Hadis ve Siyer İklimi"]::after,
+    [data-yapildi~="sifa"] button[title="Bu ayet bunalımdaki insana ne katar? (psikolojik/manevi fayda)"]::after,
+    [data-yapildi~="modern"] button[title="Modern Hayata Uyarlama"]::after,
+    [data-yapildi~="benzer"] button[title="Benzer Ayetler"]::after,
+    [data-yapildi~="risale"] button[title="Risale-i Nur İzahı"]::after,
+    [data-yapildi~="tecvid"] button[title="Tecvid Analizi"]::after,
+    [data-yapildi~="meal"] button[title="Farklı Mealleri Kıyasla"]::after,
+    [data-yapildi~="sor"] button[title="Ayete Dair Soru Sor"]::after,
+    [data-yapildi~="cocuk"] button[title="Çocuklar İçin Anlat"]::after,
+    [data-yapildi~="tablo"] button[title="Imagen AI ile Tablo Çiz"]::after { content: '✓'; position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 9999px; background: #10b981; color: #022c22; font-size: 10px; font-weight: 900; line-height: 16px; text-align: center; box-shadow: 0 0 0 2px #0f172a; }
+    body.zk-tilavet .zk-kalem-btn { bottom: calc(13.5rem + env(safe-area-inset-bottom)) !important; }
+    .zk-vurgu { animation: zkVurgu 1.1s ease 1; }
+    @keyframes zkVurgu { 0%,100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); } 40% { box-shadow: 0 0 0 6px rgba(251,191,36,.55); } }
+    /* ✨ AI Keşif & Analiz Atlası: Keşfet gibi sade çipler */
+    .zk-atlas.zk-kapali > :not(.zk-atlas-bas) { display: none !important; }
+    .zk-atlas .grid { display: flex !important; flex-wrap: wrap; gap: .5rem !important; }
+    .zk-atlas .grid > button { flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; gap: .4rem !important; padding: .35rem .8rem .35rem .45rem !important; min-height: 40px; height: auto !important; border-radius: 9999px !important; width: auto !important; }
+    .zk-atlas .grid > button > div:first-child { padding: .3rem !important; }
+    .zk-atlas .grid > button svg { width: 15px !important; height: 15px !important; }
+    .zk-atlas .grid > button > span { font-size: 12px !important; text-align: left !important; }
+</style>
 </head>
 <body class="bg-slate-950 text-slate-100 transition-colors duration-500" id="app-body">
 
@@ -1319,9 +1359,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v3.1', tarih:'18.11.2026', satir:7091, kb:748,
-        onceki:{ surum:'v3.0', satir:6782, kb:719 },
-        yenilikler:['📬 Bildirim Kutusu: gelen bildirimler birikir; okunan silinir, beğendiğin kalır','❤️ Beğendiklerim: istediğin an tekrar oku, dinle; 🔗 metin ya da 🖼️ görsel olarak paylaş','🔕 Bildirime dokununca simgedeki sayı düşer (yeni sw.js)','🎧 Kesintisiz dinleme, 🎨 tecvidli Mushaf, 🔔 her gün değişen bildirimler','🕌 Namaz vakitleri ve sıradaki mübarek gün'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'v3.3', tarih:'19.11.2026', satir:8134, kb:866,
+        onceki:{ surum:'v3.2', satir:7711, kb:806 },
+        yenilikler:['📚 Not Külliyatı: renkli, altı çizili, fosforlu notlar; konulara göre kendiliğinden düzen','✏️ Ekran kalemi: ayetlerin üzerine yaz, otomatik nota kaydet, el yazını yazıya çevir','📌 Yapay zekâ cevaplarını Notlarıma ekle','🪶 Risale-i Nur vecizeleri ve 🎓 âlimlerden eğitim sözleri bildirimi','📊 Çalışma takibi, 9 meal, 21:00 kaldığın yer bildirimi'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1516,7 +1556,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='3.1';
+    const SURUM='3.3';
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -1933,7 +1973,7 @@
       function ayar(){ try{ return JSON.parse(localStorage.getItem(LS_AYAR)||'{}')||{}; }catch(e){ return {}; } }
       function ayarla(k,v){ var a=ayar(); a[k]=v; try{ localStorage.setItem(LS_AYAR, JSON.stringify(a)); }catch(e){} yaz(oku()); }
       function hashOf(url){ var s=String(url||''), i=s.indexOf('#'); return i<0 ? '' : s.slice(i+1); }
-      function tur(url){ var h=hashOf(url); if(/^ayet-/.test(h)) return 'ayet'; if(/^hadis-/.test(h)) return 'hadis'; if(/^esma-/.test(h)) return 'esma'; return 'genel'; }
+      function tur(url){ var h=hashOf(url); if(/^ayet-/.test(h)) return 'ayet'; if(/^hadis-/.test(h)) return 'hadis'; if(/^esma-/.test(h)) return 'esma'; if(/^soz-/.test(h)) return 'soz'; return 'genel'; }
       // Okunanlar (açıksa) 1 gün sonra, hepsi 30 gün sonra silinir; BEĞENİLENLER hiç silinmez
       function budama(a){
         var simdi=Date.now(), oto=ayar().otoSil!==false, sayac=0;
@@ -2007,7 +2047,7 @@
       }
       function eskiKopya(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); return 'kopya'; }catch(e){ return 'hata'; } }
       // 🖼️ Görsel kart: 1080×1350 (Instagram/WhatsApp durumu oranı)
-      var RENK={ ayet:['#064e3b','#022c22','#6ee7b7','📖 AYET'], hadis:['#78350f','#1c1917','#fcd34d','📜 HADİS-İ ŞERİF'], esma:['#713f12','#1c1917','#fde68a','✨ ESMÂ-ÜL HÜSNÂ'], genel:['#0f172a','#020617','#93c5fd','🔔 BİLDİRİM'] };
+      var RENK={ ayet:['#064e3b','#022c22','#6ee7b7','📖 AYET'], hadis:['#78350f','#1c1917','#fcd34d','📜 HADİS-İ ŞERİF'], esma:['#713f12','#1c1917','#fde68a','✨ ESMÂ-ÜL HÜSNÂ'], soz:['#134e4a','#0f172a','#99f6e4','🪶 GÜZEL SÖZ'], genel:['#0f172a','#020617','#93c5fd','🔔 BİLDİRİM'] };
       function satirla(ctx, metin, gen){
         var out=[]; String(metin||'').split(/\n+/).forEach(function(p){ var s='';
           p.split(/\s+/).filter(Boolean).forEach(function(w){
@@ -2060,6 +2100,118 @@
       document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') topla(); });
       window.addEventListener('storage', function(e){ if(e.key===LS) yay(); });
       setTimeout(topla, 300);
+    })();
+</script>
+<!-- ===== 📊 ÇALIŞMA YOLCULUĞU (v3.2): her ayet ve sure için hangi çalışmaların yapıldığını tutar ===== -->
+<script>
+    (function(){
+      var LS='zirve_calisma';
+      // Ayet başına çalışmalar. title = Keşfet düğmesinin title niteliği (tıklama buradan yakalanır)
+      var AYET=[
+        { id:'oku',     ad:'Meali okudum',      kisa:'Meal',        ikon:'📖', oncelik:1, mod:null },
+        { id:'nuzul',   ad:'Nüzul sebebi',      kisa:'Nüzul',       ikon:'🕰️', oncelik:2, mod:'verse',       title:'Siyer Analizi ve Nüzul Sebebi' },
+        { id:'tefsir',  ad:'Tefsir',            kisa:'Tefsir',      ikon:'⚖️', oncelik:3, mod:'comparison',  title:'Tefsir Karşılaştırması' },
+        { id:'kelime',  ad:'Kelime analizi',    kisa:'Kelime',      ikon:'🔍', oncelik:4, mod:'concepts',    title:'Kelime Analizi' },
+        { id:'anatomi', ad:'Ayet Anatomisi',    kisa:'Anatomi',     ikon:'🔬', oncelik:5, mod:null,          title:'Ayeti parçalarına ayır: kişiler, kavramlar, duygular, kelime kökleri' },
+        { id:'hadis',   ad:'Hadis & Siyer',     kisa:'Hadis',       ikon:'📜', oncelik:6, mod:'hadith',      title:'Hadis ve Siyer İklimi' },
+        { id:'dinle',   ad:'Dinledim',          kisa:'Dinle',       ikon:'🎧', oncelik:7, mod:null },
+        { id:'sifa',    ad:'Ruha Şifa',         kisa:'Şifa',        ikon:'💚', oncelik:8, mod:'sifa',        title:'Bu ayet bunalımdaki insana ne katar? (psikolojik/manevi fayda)' },
+        { id:'modern',  ad:'Modern hayat',      kisa:'Modern',      ikon:'💼', oncelik:9, mod:'modern_life', title:'Modern Hayata Uyarlama' },
+        { id:'benzer',  ad:'Benzer ayetler',    kisa:'Benzer',      ikon:'🔗', oncelik:10, mod:'related',    title:'Benzer Ayetler' },
+        { id:'risale',  ad:'Risale-i Nur',      kisa:'Risale',      ikon:'🪶', oncelik:11, mod:'risale_ayah', title:'Risale-i Nur İzahı' },
+        { id:'tecvid',  ad:'Tecvid',            kisa:'Tecvid',      ikon:'🎵', oncelik:12, mod:'tajweed',    title:'Tecvid Analizi' },
+        { id:'meal',    ad:'Mealleri kıyasla',  kisa:'Mealler',     ikon:'📚', oncelik:13, mod:'meal',       title:'Farklı Mealleri Kıyasla' },
+        { id:'sor',     ad:'Ayete sordum',      kisa:'Soru',        ikon:'❓', oncelik:14, mod:null,         title:'Ayete Dair Soru Sor' },
+        { id:'cocuk',   ad:'Çocuklar için',     kisa:'Çocuk',       ikon:'🧒', oncelik:15, mod:'child',      title:'Çocuklar İçin Anlat' },
+        { id:'tablo',   ad:'Tablo çizdim',      kisa:'Tablo',       ikon:'🖼️', oncelik:16, mod:null,         title:'Imagen AI ile Tablo Çiz' },
+        { id:'not',     ad:'Not aldım',         kisa:'Not',         ikon:'📝', oncelik:17, mod:null }
+      ];
+      // Sure başına çalışmalar (handleAiRequest modu ile eşleşir)
+      var SURE=[
+        { id:'summary',           ad:'Surenin özeti',          ikon:'📘' },
+        { id:'history',           ad:'Nüzul & tarihçe',        ikon:'🕰️' },
+        { id:'contemplation',     ad:'Tefekkür',               ikon:'✨' },
+        { id:'surah_stories',     ad:'Kıssalar ve karakterler', ikon:'👥' },
+        { id:'surah_fiqh',        ad:'Ameli ve fıkhi hükümler', ikon:'⚖️' },
+        { id:'surah_esma',        ad:'Suredeki Esmâ',          ikon:'⭐' },
+        { id:'siyak_sibak',       ad:'Siyak-sibak',            ikon:'🔀' },
+        { id:'risale_surah',      ad:'Risale-i Nur izahı',     ikon:'🪶' },
+        { id:'action',            ad:'Eylem planı',            ikon:'✅' },
+        { id:'spiritual_checkup', ad:'Manevi check-up',        ikon:'🩺' },
+        { id:'surah_dua',         ad:'Sureden dua',            ikon:'🤲' },
+        { id:'quiz',              ad:'Sure quizi',             ikon:'🧩' },
+        { id:'class_activity',    ad:'Sınıf etkinlik planı',   ikon:'🎓' }
+      ];
+      var ayetById={}, ayetByTitle={}, ayetByMod={}, sureById={};
+      AYET.forEach(function(k){ ayetById[k.id]=k; if(k.title) ayetByTitle[k.title]=k; if(k.mod) ayetByMod[k.mod]=k; });
+      SURE.forEach(function(k){ sureById[k.id]=k; });
+
+      var veri=null, dinleyiciler=[];
+      function bos(){ return { a:{}, s:{}, g:{}, son:null }; }
+      function yukle(){ if(veri) return veri; try{ veri=JSON.parse(localStorage.getItem(LS)||'null')||bos(); }catch(e){ veri=bos(); } ['a','s','g'].forEach(function(k){ if(!veri[k]||typeof veri[k]!=='object') veri[k]={}; }); return veri; }
+      var zam=null;
+      function kaydet(){ clearTimeout(zam); zam=setTimeout(function(){ try{ localStorage.setItem(LS, JSON.stringify(veri)); }catch(e){} }, 120); dinleyiciler.forEach(function(f){ try{ f(); }catch(e){} }); }
+      function abone(f){ dinleyiciler.push(f); return function(){ dinleyiciler=dinleyiciler.filter(function(x){ return x!==f; }); }; }
+      window.addEventListener('storage', function(e){ if(e.key===LS){ veri=null; yukle(); dinleyiciler.forEach(function(f){ try{ f(); }catch(x){} }); } });
+      function gun(t){ var d=new Date(t||Date.now()); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+      function isaretle(sure, ayet, id){
+        var v=yukle(); sure=+sure; if(!sure || !id) return false;
+        var t=Date.now();
+        if(ayet){ if(!ayetById[id]) return false; var k=sure+':'+(+ayet); var m=v.a[k]||(v.a[k]={}); if(m[id]) return false; m[id]=t; v.son={ s:sure, a:+ayet, t:t, id:id }; }
+        else { if(!sureById[id]) return false; var ms=v.s[sure]||(v.s[sure]={}); if(ms[id]) return false; ms[id]=t; v.son=v.son && v.son.s===sure ? Object.assign({}, v.son, { t:t }) : { s:sure, a:(v.son && v.son.s===sure ? v.son.a : 1), t:t, id:id }; }
+        var g=gun(t); v.g[g]=(v.g[g]||0)+1; kaydet(); return true;
+      }
+      function kaldir(sure, ayet, id){
+        var v=yukle(); var m= ayet ? v.a[sure+':'+ayet] : v.s[sure]; if(!m || !m[id]) return; delete m[id];
+        if(ayet && !Object.keys(m).length) delete v.a[sure+':'+ayet]; if(!ayet && !Object.keys(m).length) delete v.s[sure];
+        kaydet();
+      }
+      function degistir(sure, ayet, id){ var m=ayetDurum(sure, ayet); if(ayet ? m[id] : (sureDurum(sure)[id])) kaldir(sure, ayet, id); else isaretle(sure, ayet, id); }
+      function ayetDurum(sure, ayet){ var v=yukle(); return v.a[sure+':'+ayet]||{}; }
+      function sureDurum(sure){ var v=yukle(); return v.s[sure]||{}; }
+      // notluMu(s,a): uygulama 'not' kalemini notlardan türetir
+      var notKaynagi=function(){ return false; };
+      function notKaynak(f){ notKaynagi=f; }
+      function ayetYapilan(sure, ayet){ var m=Object.assign({}, ayetDurum(sure, ayet)); if(!m.not && notKaynagi(sure, ayet)) m.not=1; return m; }
+      function eksikler(sure, ayet){ var m=ayetYapilan(sure, ayet); return AYET.filter(function(k){ return !m[k.id]; }); }
+      function sureOzet(sure, ayetSayisi){
+        var top=0, yap=0, tamAyet=0, baslanan=0, ilkEksik=null;
+        for(var a=1;a<=ayetSayisi;a++){
+          var m=ayetYapilan(sure, a), n=0; AYET.forEach(function(k){ if(m[k.id]) n++; });
+          top+=AYET.length; yap+=n; if(n) baslanan++; if(n===AYET.length) tamAyet++;
+          if(!ilkEksik && n<AYET.length){ var ek=AYET.filter(function(k){ return !m[k.id]; }); ilkEksik={ ayet:a, kalem:ek[0], kalan:ek.length }; }
+        }
+        var sd=sureDurum(sure), sy=SURE.filter(function(k){ return sd[k.id]; }).length;
+        var toplam=top+SURE.length, yapilan=yap+sy;
+        return { ayetYapilan:yap, ayetToplam:top, sureYapilan:sy, sureToplam:SURE.length, yapilan:yapilan, toplam:toplam, yuzde: toplam? Math.round(yapilan*1000/toplam)/10 : 0,
+          baslananAyet:baslanan, tamAyet:tamAyet, ilkEksik:ilkEksik, sureEksik:SURE.filter(function(k){ return !sd[k.id]; }) };
+      }
+      // Bütün Kur'an: ayetSayilari = [7,286,...] (114)
+      function genelOzet(ayetSayilari){
+        var v=yukle(), yap=0, ayetBaslanan=0, sureler={};
+        Object.keys(v.a).forEach(function(k){ var n=Object.keys(v.a[k]).length; if(!n) return; yap+=n; ayetBaslanan++; var s=+k.split(':')[0]; sureler[s]=(sureler[s]||0)+n; });
+        Object.keys(v.s).forEach(function(s){ var n=Object.keys(v.s[s]).length; yap+=n; sureler[s]=(sureler[s]||0)+n; });
+        var toplamAyet=(ayetSayilari||[]).reduce(function(a,b){ return a+b; },0)||6236;
+        return { yapilan:yap, ayetBaslanan:ayetBaslanan, toplamAyet:toplamAyet, sureler:sureler, seri:seri(), bugun:(v.g[gun()]||0), son:v.son };
+      }
+      function seri(){ var v=yukle(), n=0, d=new Date(); if(!v.g[gun(d)]) d.setDate(d.getDate()-1); while(v.g[gun(d)]){ n++; d.setDate(d.getDate()-1); } return n; }
+      function son(){ return yukle().son; }
+      function ad(){ try{ return (localStorage.getItem('zirve_ad')||'').trim(); }catch(e){ return ''; } }
+      function adYaz(x){ try{ localStorage.setItem('zirve_ad', String(x||'').replace(/[,]/g,' ').replace(/\s+/g,' ').trim().slice(0,30)); }catch(e){} kaydet(); }
+      function hitap(){ var a=ad(); return a ? a : ''; }
+      // "Barış, 3. ayetin nüzul sebebini henüz okumadın." gibi uyarı cümlesi
+      function uyari(sureAdi, ayet, kalem){
+        if(!kalem) return '';
+        var h=hitap(), on=h? h+', ' : '';
+        var fiil={ oku:'mealini henüz okumadın', nuzul:'nüzul sebebini henüz okumadın', tefsir:'tefsirine henüz bakmadın', kelime:'kelime analizini henüz yapmadın', anatomi:'Ayet Anatomisi\'ni henüz açmadın',
+          hadis:'hadis ve siyer bağlamına henüz bakmadın', dinle:'tilavetini henüz dinlemedin', sifa:'Ruha Şifa bölümünü henüz okumadın', modern:'modern hayata uyarlamasını henüz okumadın', benzer:'benzer ayetlerine henüz bakmadın',
+          risale:'Risale-i Nur izahını henüz okumadın', tecvid:'tecvidine henüz bakmadın', meal:'meallerini henüz kıyaslamadın', sor:'ayete henüz bir soru sormadın', cocuk:'çocuklar için anlatımına henüz bakmadın', tablo:'tablosunu henüz çizdirmedin', not:'henüz not almadın' }[kalem.id] || (kalem.ad+' eksik');
+        return on + (sureAdi? sureAdi+' ' : '') + ayet + '. ayetin ' + fiil + '.';
+      }
+      window.ZCALISMA={ AYET:AYET, SURE:SURE, ayetById:ayetById, ayetByTitle:ayetByTitle, ayetByMod:ayetByMod, sureById:sureById,
+        isaretle:isaretle, kaldir:kaldir, degistir:degistir, ayetDurum:ayetDurum, ayetYapilan:ayetYapilan, sureDurum:sureDurum, eksikler:eksikler, sureOzet:sureOzet, genelOzet:genelOzet,
+        seri:seri, son:son, abone:abone, notKaynak:notKaynak, ad:ad, adYaz:adYaz, uyari:uyari, gun:gun, ham:function(){ return yukle(); } };
     })();
 </script>
 <script type="text/babel">
@@ -2812,6 +2964,7 @@ Kullanıcının isteği: `;
                                       <div className="flex flex-wrap gap-1.5 px-2 pb-1.5">
                                         <button onClick={() => { try { window.ZIRVE_gorselPaylas && window.ZIRVE_gorselPaylas({ html: marked.parse(temizleLatex(m.text)), baslik: 'AI: ' + displayTitle }); } catch(e){} }} className="flex items-center gap-1 text-[10px] font-bold text-emerald-200 bg-emerald-600/20 hover:bg-emerald-600/30 rounded-lg px-2 py-1 transition-colors" title="Bu versiyonu renkli görsel yap"><Icons.Image size={11}/> Görsel</button>
                                         <button onClick={() => { try { window.ZIRVE_pdfPaylas && window.ZIRVE_pdfPaylas({ html: marked.parse(temizleLatex(m.text)), baslik: 'AI: ' + displayTitle }); } catch(e){} }} className="flex items-center gap-1 text-[10px] font-bold text-rose-200 bg-rose-600/20 hover:bg-rose-600/30 rounded-lg px-2 py-1 transition-colors" title="Bu versiyonu renkli PDF yap"><Icons.FileText size={11}/> PDF</button>
+                                        <KulliyataEkleDugmesi baslik={displayTitle} metin={m.text} baglam={window.__zaiBaglam} />
                                         <button onClick={() => { try { const _t = window.ZIRVE_whatsappMetin ? window.ZIRVE_whatsappMetin(m.text) : m.text; navigator.clipboard.writeText(_t); window.ZIRVE && window.ZIRVE.toast('📋 Bu versiyon kopyalandı','green'); } catch(e){} }} className="flex items-center gap-1 text-[10px] font-bold text-slate-300 bg-slate-700/50 hover:bg-slate-700 rounded-lg px-2 py-1 transition-colors" title="Bu versiyonu kopyala"><Icons.Copy size={11}/> Kopyala</button>
                                       </div>
                                     )}
@@ -3301,6 +3454,9 @@ Kullanıcının isteği: `;
             { n: "Es-Sabûr", d: "Çok sabırlı olan, cezalandırmada acele etmeyen." },
             { n: "El-Latîf", d: "Kullarına sezilmez yollardan iyilikler ulaştıran." }
         ];
+        // ===== 🪶 SÖZ HAVUZLARI (v3.3): Risale-i Nur vecizeleri + âlimlerden eğitim sözleri — kaynakları doğrulanmıştır =====
+        const SOZ_RISALE = [{"t": "Ey bîçare hasta! Merak etme, sabret.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Birinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/207"}, {"t": "Senin hastalığın sana dert değil, belki bir nevi dermandır.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Birinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/207"}, {"t": "Hastalık, senin o sermayeni büyük kârlarla meyvedar ediyor.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Birinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/207"}, {"t": "Musibet zamanı çok uzundur; safâ zamanı pek kısa oluyor.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Birinci Devâ (darb-ı mesel olarak)", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/207"}, {"t": "Sabret, belki şükret.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), İkinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/207"}, {"t": "Senin bu hastalığın, ömür dakikalarını birer saat ibadet hükmüne getirebilir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), İkinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/207"}, {"t": "Ey şekvâcı hasta! Senin hakkın şekvâ değil, şükürdür, sabırdır.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Dördüncü Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/208"}, {"t": "Sen açlıkla onun Rezzâk ismini tanıdığın gibi, Şâfî ismini de hastalığında bil.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Dördüncü Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/208"}, {"t": "Eğer perde açılsa, tevahhuş ve nefret ettiğin hastalık perdesi arkasında sevimli, güzel mânâları bulursun.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Dördüncü Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/208"}, {"t": "Bu zamanda tecrübemle kanaatim gelmiştir ki, hastalık bazılara bir ihsan-ı İlâhîdir, bir hediye-i Rahmânîdir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Beşinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/208"}, {"t": "Ve hastalık vazifesini bitirdikten sonra, Hâlık-ı Rahîm inşaallah sana şifa verir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Beşinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/208"}, {"t": "\"Bu da geçer, yâ Hû\" de, şekvâ yerinde şükret.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Altıncı Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/209"}, {"t": "Çünkü elemin zevâli lezzettir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Altıncı Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/209"}, {"t": "Senin hastalığın sıhhatteki nimet-i İlâhiyenin lezzetini kaçırmıyor, bilâkis tattırıyor, ziyadeleştiriyor.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Yedinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/210"}, {"t": "Hastalık, sabun gibi, günahların kirlerini yıkar, temizler.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Sekizinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/210"}, {"t": "Merak kesilmesiyle, o hastalığın onda dokuzu gider.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Onuncu Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/211"}, {"t": "Yani, hastalığın faydalarını, sevabını ve çabuk geçeceğini düşün, merakı kaldır, hastalığın kökünü kes.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), Onuncu Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/211"}, {"t": "Elem olmazsa teessür olamaz.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Birinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/212"}, {"t": "Gelecek günler daha gelmemişler.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Birinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/212"}, {"t": "Müttakî bir mü'min, hastalık sebebiyle yapamadığı daimî virdinin sevabını, hastalık zamanında yine kazanır.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On İkinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/212"}, {"t": "Hastalık bazılara ehemmiyetli bir definedir, gayet kıymettar bir hediye-i İlâhiyedir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Üçüncü Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/213"}, {"t": "Hastalık gafleti dağıtır, âhireti düşündürür, ölümü tahattur ettirir, öylece hazırlanır.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Üçüncü Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/213"}, {"t": "Bazı öyle bir kazancı olur ki, yirmi senede kazanamadığı bir mertebeyi yirmi günde kazanıyor.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Üçüncü Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/213"}, {"t": "Ondan şekvâ değil, tevekkül, sabır ile, belki şükredip rahmet-i İlâhiyeye itimad etmektir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Üçüncü Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/213"}, {"t": "İşte o perdeyi senin gözünden kaldıracak, o gözle seni baktıracak göz hekimi, Kur'ân-ı Hakîmdir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Dördüncü Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/214"}, {"t": "Hastalığın suretine bakıp ah eyleme; mânâsına bak, oh de.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Beşinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/214"}, {"t": "Bu nuranî kafileye iltihak etmek istersen, sabır içinde şükret.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Beşinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/215"}, {"t": "Hastalık, hayat-ı içtimaiye-i insaniyede en mühim ve gayet güzel olan hürmet ve merhameti telkin eder.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Altıncı Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/215"}, {"t": "Hayrâtın en hâlisinin kapısını sana açan, hastalıktır.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Yedinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/215"}, {"t": "Hastaların duasını alınız; onların duası makbuldür.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Yedinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/216"}, {"t": "Hâlık-ı Hakîm daha iyi biliyor; menfaatimize hayırlı ne ise onu verir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Yedinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/216"}, {"t": "Hastalık duanın vaktidir; şifa duanın neticesi değil.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Yedinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/216"}, {"t": "Belki Cenâb-ı Hakîm-i Rahîm şifa verse, fazlından verir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Yedinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/216"}, {"t": "Senin elin kırık ise, kesilmiş ellere bak.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Sekizinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/217"}, {"t": "Bir gözün yoksa, iki gözü de olmayan âmâlara bak, Allah'a şükret.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Sekizinci Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/217"}, {"t": "Güzelin aynası güzeldir.", "k": "Lem'alar, 25. Lem'a (Hastalar Risalesi), On Dokuzuncu Devâ", "url": "https://kulliyat.risaleinurenstitusu.org/lemalar/yirmi-besinci-lem-a/217"}];
+        const SOZ_EGITIM = [{"t": "Kolaylaştırınız, zorlaştırmayınız. Müjdeleyiniz, ürkütmeyiniz.", "k": "Hz. Peygamber (s.a.v.) — Buhârî, İlim 11 (no. 69); Müslim (müttefekun aleyh)", "url": "https://hadeethenc.com/tr/browse/hadith/5866"}, {"t": "Küçüğümüze merhamet etmeyen ve büyüğümüze saygı göstermeyen bizden değildir.", "k": "Hz. Peygamber (s.a.v.) — Tirmizî, Ebû Dâvûd, Ahmed (sahih)", "url": "https://hadeethenc.com/tr/browse/hadith/3083"}, {"t": "Merhamet etmeyen kimseye merhamet olunmaz.", "k": "Hz. Peygamber (s.a.v.) — Buhârî ve Müslim (müttefekun aleyh), Ebû Hüreyre rivayeti", "url": "https://hadeethenc.com/tr/browse/hadith/5440"}, {"t": "Kim insanlara merhamet etmezse, Allah da ona merhamet etmez.", "k": "Hz. Peygamber (s.a.v.) — Müslim, no. 2319; Buhârî (müttefekun aleyh)", "url": "https://hadeethenc.com/tr/browse/hadith/5439"}, {"t": "Merhametli olanlara Rahman merhamet eder. Siz yeryüzündekilere merhamet edin ki, gökteki de size merhamet etsin.", "k": "Hz. Peygamber (s.a.v.) — Ebû Dâvûd, no. 4941; Tirmizî (sahih)", "url": "https://hadeethenc.com/tr/browse/hadith/8289"}, {"t": "Şüphesiz ki Allah Refîk'tir, rıfkı (yumuşak huyluluğu) sever.", "k": "Hz. Peygamber (s.a.v.) — Müslim, no. 2593", "url": "https://hadeethenc.com/tr/browse/hadith/5797"}, {"t": "Nerede yumuşak huyluluk, kolaylık varsa orada güzellik vardır. Kolaylığın bulunmadığı her şey çirkindir.", "k": "Hz. Peygamber (s.a.v.) — Müslim, no. 2594 (HadeethEnc Türkçe çevirisi)", "url": "https://hadeethenc.com/tr/browse/hadith/5796"}, {"t": "Sizin en hayırlınız Kur'an'ı öğrenen ve öğretendir.", "k": "Hz. Peygamber (s.a.v.) — Buhârî, no. 5027", "url": "https://hadeethenc.com/tr/browse/hadith/5913"}, {"t": "Kim bir müminin dünyevi sıkıntılarından birini giderirse, Allah da onun kıyamet günü sıkıntılarından birini giderir.", "k": "Hz. Peygamber (s.a.v.) — Müslim, no. 2699", "url": "https://hadeethenc.com/tr/browse/hadith/4801"}, {"t": "Bir kimse, ilim elde etmek arzusuyla bir yola girerse, Allah o kişiye cennetin yolunu kolaylaştırır.", "k": "Hz. Peygamber (s.a.v.) — Ebû Dâvûd, Tirmizî, İbn Mâce (hasen)", "url": "https://hadeethenc.com/tr/browse/hadith/6267"}, {"t": "Çocuk anne ve babanın yanında ilâhî bir emanettir. Onun kalbi sâfi bir cevherdir.", "k": "İmam Gazâlî — İhyâu Ulûmi'd-Dîn (Türkçe çev., Temel Neşriyat, c. VIII, s. 1474; Gümrükçüoğlu 2017 aktarımı)", "url": "https://dergipark.org.tr/en/download/article-file/792741"}, {"t": "İnsan, küçük çocuk iken bilgi öğrenir ve büyüyünce dileğine kavuşur.", "k": "Yusuf Has Hâcib — Kutadgu Bilig, beyit 1823 (R. R. Arat çevirisi; Kocasavaş 2006 aktarımı)", "url": "https://dergipark.org.tr/en/download/article-file/93055"}, {"t": "İnsan bilgisiz doğar ve yaşadıkça öğrenir; bilgi sahibi olunca her işinde muvaffak olur.", "k": "Yusuf Has Hâcib — Kutadgu Bilig, beyit 1680 (Arat çevirisi)", "url": "https://dergipark.org.tr/en/download/article-file/93055"}, {"t": "Bilgiyi olsun, fazileti olsun, insan öğrenebilir; fakat akıl ise insan ile birlikte doğar.", "k": "Yusuf Has Hâcib — Kutadgu Bilig, beyit 1825 (Arat çevirisi)", "url": "https://dergipark.org.tr/en/download/article-file/93055"}, {"t": "İnsanı hayvandan ayıran şey bilgidir; insanoğlu bilgi ile hâkim vaziyete geçmiştir.", "k": "Yusuf Has Hâcib — Kutadgu Bilig, beyit 1845 (Arat çevirisi)", "url": "https://dergipark.org.tr/en/download/article-file/93055"}, {"t": "Bilgisiz adam boş bir kalıptan ibarettir; bilgili kimsenin yeri gökten daha yüksektir.", "k": "Yusuf Has Hâcib — Kutadgu Bilig, beyit 2452 (Arat çevirisi)", "url": "https://dergipark.org.tr/en/download/article-file/93055"}, {"t": "İki türlü insana insan derler: biri öğreten, biri öğrenen.", "k": "Yusuf Has Hâcib — Kutadgu Bilig, beyit 3217 (Arat çevirisi)", "url": "https://dergipark.org.tr/en/download/article-file/93055"}, {"t": "Gönül huzuru ile öğretsinler, bilgisizler de onlardan bilgi öğrensinler.", "k": "Yusuf Has Hâcib — Kutadgu Bilig, beyit 5554 (Arat çevirisi)", "url": "https://dergipark.org.tr/en/download/article-file/93055"}, {"t": "Talebe her ilmin en güzel bahislerini seçmeli, tevhid ilmini öne almalıdır.", "k": "Burhâneddin ez-Zernûcî — Ta'lîmü'l-müteallim (Şifa Yay. 2008 Türkçe çev.; Elmas 2021 aktarımı)", "url": "https://dergipark.org.tr/en/download/article-file/1722464"}];
         const BAS = (x) => `📖 Kur'an ve Siyer Atlası · ${x}`;
         const KONU_KATALOG = [
             { uyg: 'kssabah', ikon: '🌅', ad: 'Sabah ayeti', zaman: 'Her gün 07:00', varsayilan: true,
@@ -3317,6 +3473,10 @@ Kullanıcının isteği: `;
               liste: () => [{ id: 'cuma', saat: '12:30', gunler: [5], baslik: BAS('Hayırlı Cumalar'), govde: "Cuman mübarek olsun. Bugün Kehf Suresi'ni okumayı unutma.", bolum: 'sure-18' }] },
             { uyg: 'ksaksam', ikon: '🌙', ad: "Akşam Kur'an saati", zaman: 'Her gün 21:00', varsayilan: true,
               liste: () => [{ id: 'aksam', saat: '21:00', gunler: [], baslik: BAS("Akşam Kur'an saati"), govde: 'Yatmadan önce birkaç ayet oku. Mülk Suresi güzel bir kapanıştır.', bolum: 'sure-67' }] },
+            { uyg: 'ksrisale', ikon: '🪶', ad: 'Risale-i Nur vecizesi', zaman: 'Her gün 10:30 ve 17:30',
+              liste: () => { const r = []; for (let g = 0; g < 7; g++) ['10:30', '17:30'].forEach((saat, i) => { const n = (g * 2 + i) % Math.max(1, SOZ_RISALE.length), v = SOZ_RISALE[n]; if (v) r.push({ id: `rs-${g}-${i}`, saat, gunler: [g], baslik: BAS('🪶 Risale-i Nur\'dan'), govde: `"${v.t}" (${v.k})`, bolum: `soz-r-${n}` }); }); return r; } },
+            { uyg: 'ksegitim', ikon: '🎓', ad: 'Âlimlerden eğitim sözü', zaman: 'Her gün 19:30',
+              liste: () => [0,1,2,3,4,5,6].map(g => { const n = g % Math.max(1, SOZ_EGITIM.length), v = SOZ_EGITIM[n]; return v ? { id: 'eg-' + g, saat: '19:30', gunler: [g], baslik: BAS('🎓 Eğitime dair'), govde: `"${v.t}" (${v.k})`, bolum: `soz-e-${n}` } : null; }).filter(Boolean) },
             { uyg: 'kshatim', ikon: '📿', ad: 'Haftalık hatim', zaman: 'Pazar 10:00',
               liste: () => [{ id: 'hatim', saat: '10:00', gunler: [0], baslik: BAS('Haftalık hatim'), govde: 'Hatim planına göz at: bu hafta hangi cüzdesin?', bolum: 'hatim' }] }
         ];
@@ -3413,7 +3573,7 @@ Kullanıcının isteği: `;
             // Kullanılabilir ayetler: meali 200 karakteri aşmayanlar (anlam yarıda kalmasın diye kesilmez, uzunlar atlanır)
             let ayetler = AYET_REFLERI.map(([s, a]) => ({ s, a, t: mealMap ? kisaMeal(mealMap[s + ':' + a]) : '' })).filter(x => x.t && x.t.length <= 200);
             if (ayetler.length < 20) ayetler = BILDIRIM_AYETLERI.map(v => ({ s: v.s, a: v.a, t: v.t }));
-            const plan = { kssabah: [], kssaatayet: [], kssaathadis: [], ksesma: [], ksogle: [], kscuma: [], ksaksam: [], kshatim: [], mubarek: [] };
+            const plan = { kssabah: [], kssaatayet: [], kssaathadis: [], ksesma: [], ksogle: [], kscuma: [], ksaksam: [], kshatim: [], ksrisale: [], ksegitim: [], mubarek: [] };
             for (let k = 0; k < 7; k++) {
                 const d = new Date(simdi.getFullYear(), simdi.getMonth(), simdi.getDate() + k);
                 const g = d.getDay(), ta = tarihAnahtar(d), tohum = otoHash(ta);
@@ -3429,6 +3589,9 @@ Kullanıcının isteği: `;
                     const hi = (otoHash(ta + 'h') + i * 7) % HADIS_HAVUZU.length, hd = HADIS_HAVUZU[hi];
                     plan.kssaathadis.push({ id: `oto-sh-${g}-${i}`, saat: String(9 + i).padStart(2, '0') + ':30', gunler: [g], baslik: B(bas('saatHadis', i)), govde: `"${hd.t}" (${hd.k})`, url: url(`hadis-${hi}`) });
                 }
+                // 🪶 Risale-i Nur (günde 2) ve 🎓 eğitim sözü (günde 1): gün gün sırayla döner, aynı gün tekrar etmez
+                if (SOZ_RISALE.length) ['10:30', '17:30'].forEach((saat, i) => { const n = (yilinGunu(d) * 2 + i) % SOZ_RISALE.length, v = SOZ_RISALE[n]; plan.ksrisale.push({ id: `oto-rs-${g}-${i}`, saat, gunler: [g], baslik: B(['🪶 Risale-i Nur\'dan', '🌿 Bir vecize', '💫 Kalbe bir söz', '🕯️ Nur\'dan bir damla'][otoHash(ta + 'rs' + i) % 4]), govde: `"${v.t}" (${v.k})`, url: url(`soz-r-${n}`) }); });
+                if (SOZ_EGITIM.length) { const n = yilinGunu(d) % SOZ_EGITIM.length, v = SOZ_EGITIM[n]; plan.ksegitim.push({ id: `oto-eg-${g}`, saat: '19:30', gunler: [g], baslik: B(['🎓 Eğitime dair', '👨‍👧 Çocuk terbiyesine dair', '📚 Âlimlerden bir söz', '🌱 Öğretmenin defterinden'][otoHash(ta + 'eg') % 4]), govde: `"${v.t}" (${v.k})`, url: url(`soz-e-${n}`) }); }
                 const ei = (yilinGunu(d) - 1) % ESMA_99.length, es = ESMA_99[ei]; // 99 günde 99 isim
                 plan.ksesma.push({ id: `oto-esma-${g}`, saat: '08:30', gunler: [g], baslik: B(bas('esma', 0)), govde: `${es.n} (${es.ar}): ${es.d}.`, url: url(`esma-${ei}`) });
                 if (g >= 1 && g <= 5) { const v = ayetSec('ogle'); plan.ksogle.push({ id: `oto-ogle-${g}`, saat: '13:00', gunler: [g], baslik: B(bas('ogle', 0)), govde: `Beş dakikalığına dur ve düşün: ${ayetGovde(v)}`, url: url(`ayet-${v.s}-${v.a}`) }); }
@@ -3543,6 +3706,7 @@ Kullanıcının isteği: `;
             ayet: { ik: '📖', ad: 'Ayet', kutu: 'bg-emerald-500/15 border-emerald-500/30', yazi: 'text-emerald-300' },
             hadis: { ik: '📜', ad: 'Hadis', kutu: 'bg-amber-500/15 border-amber-500/30', yazi: 'text-amber-300' },
             esma: { ik: '✨', ad: 'Esmâ', kutu: 'bg-yellow-500/15 border-yellow-500/30', yazi: 'text-yellow-300' },
+            soz: { ik: '🪶', ad: 'Güzel söz', kutu: 'bg-teal-500/15 border-teal-500/30', yazi: 'text-teal-300' },
             genel: { ik: '🔔', ad: 'Bildirim', kutu: 'bg-sky-500/15 border-sky-500/30', yazi: 'text-sky-300' }
         };
 
@@ -3700,6 +3864,7 @@ Kullanıcının isteği: `;
             const rastgele = () => {
                 if (kart.tur === 'ayet') { const [s, a] = AYET_REFLERI[Math.floor(Math.random() * AYET_REFLERI.length)]; setKart({ tur: 'ayet', s, a }); }
                 else if (kart.tur === 'hadis') setKart({ tur: 'hadis', i: Math.floor(Math.random() * HADIS_HAVUZU.length) });
+                else if (kart.tur === 'soz') { const L = kart.g === 'r' ? SOZ_RISALE : SOZ_EGITIM; if (!L.length) return; setKart({ tur: 'soz', g: kart.g, i: Math.floor(Math.random() * L.length) }); }
                 else setKart({ tur: 'esma', i: Math.floor(Math.random() * ESMA_99.length) });
             };
             const paylas = async (metin) => { try { if (navigator.share) await navigator.share({ text: metin }); else { await navigator.clipboard.writeText(metin); showToast && showToast('📋 Kopyalandı'); } } catch(e){} };
@@ -3743,6 +3908,23 @@ Kullanıcının isteği: `;
                             {begenBtn(`hadis-${kart.i}`, '📜 Hadis-i şerif', `“${hd.t}” (${hd.k})`)}
                             <button onClick={() => paylas(`“${hd.t}” (${hd.k})`)} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
                             <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100 col-span-2`}>🎲 Başka bir hadis</button>
+                        </div>
+                    </>
+                );
+            } else if (kart.tur === 'soz') {
+                const L = kart.g === 'r' ? SOZ_RISALE : SOZ_EGITIM, v = L[kart.i] || L[0] || { t: '', k: '' };
+                const risale = kart.g === 'r';
+                govde = (
+                    <>
+                        <p className={`text-[11px] font-bold tracking-widest uppercase mb-3 ${risale ? 'text-emerald-300' : 'text-sky-300'}`}>{risale ? '🪶 Risale-i Nur\'dan' : '🎓 Âlimlerden eğitime dair'}</p>
+                        <p className="text-[19px] leading-relaxed text-slate-100 font-serif mb-2">“{v.t}”</p>
+                        <p className={`text-[12px] mb-4 ${risale ? 'text-emerald-200/80' : 'text-sky-200/80'}`}>{v.k}</p>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button onClick={() => window.ZTILAVET.tekMetin(v.t)} className={`${btn} ${risale ? 'bg-emerald-500 text-emerald-950 border-emerald-400' : 'bg-sky-500 text-sky-950 border-sky-400'} col-span-2`}>🔊 Dinle</button>
+                            {begenBtn(`soz-${kart.g}-${kart.i}`, risale ? '🪶 Risale-i Nur vecizesi' : '🎓 Eğitime dair', `“${v.t}” (${v.k})`)}
+                            <button onClick={() => paylas(`“${v.t}” (${v.k})`)} className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>🔗 Paylaş</button>
+                            <button onClick={rastgele} className={`${btn} bg-slate-800 border-slate-700 text-slate-100 ${v.url ? '' : 'col-span-2'}`}>🎲 Başka bir söz</button>
+                            {v.url && <a href={v.url} target="_blank" rel="noopener" className={`${btn} bg-slate-800 border-slate-700 text-slate-100`}>📖 Kaynağı aç</a>}
                         </div>
                     </>
                 );
@@ -5263,6 +5445,426 @@ JSON ŞEMASI:
         };
 
 
+        // ===== 📊 ÇALIŞMA YOLCULUĞU — arayüz (v3.2) =====
+        const useCalisma = () => {
+            const [, setT] = React.useState(0);
+            React.useEffect(() => (window.ZCALISMA ? window.ZCALISMA.abone(() => setT(t => t + 1)) : undefined), []);
+            return window.ZCALISMA;
+        };
+        const CEKIRDEK = ['oku', 'nuzul', 'tefsir', 'kelime', 'anatomi', 'hadis', 'dinle'];
+        const CalismaHalkasi = ({ yuzde, boyut = 56, kalinlik = 6, renk = '#34d399', children }) => {
+            const r = (boyut - kalinlik) / 2, c = 2 * Math.PI * r, d = Math.max(0, Math.min(100, yuzde || 0));
+            return (
+                <span className="relative inline-flex items-center justify-center shrink-0" style={{ width: boyut, height: boyut }}>
+                    <svg width={boyut} height={boyut} className="-rotate-90" aria-hidden="true">
+                        <circle cx={boyut / 2} cy={boyut / 2} r={r} fill="none" stroke="rgba(148,163,184,.18)" strokeWidth={kalinlik} />
+                        <circle cx={boyut / 2} cy={boyut / 2} r={r} fill="none" stroke={renk} strokeWidth={kalinlik} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - d / 100)} style={{ transition: 'stroke-dashoffset .6s ease' }} />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center">{children}</span>
+                </span>
+            );
+        };
+        // Sure düzeyindeki keşif araçları (eski yatay şeritteki düğmelerin aynısı; komutlar korunmuştur)
+        const sureAraclari = (trName) => [
+            { id: 'summary', ad: 'Surenin Özeti', ikon: <Icons.BookOpen size={14}/>, renk: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30', p: `Sen deneyimli bir müfessirsin. ${trName} Suresi hakkında özet ve analiz hazırla.` },
+            { id: 'history', ad: 'Nüzul & Tarihçe', ikon: <Icons.History size={14}/>, renk: 'bg-amber-500/20 text-amber-300 border-amber-500/30', p: `Sen bir tarih ve siyer uzmanısın. "${trName} Suresi"nin hangi olaylar üzerine indiğini, esbab-ı nüzulünü ve siyerdeki yerini açıkla.` },
+            { id: 'action', ad: 'Eylem Planı', ikon: <Icons.ListChecks size={14}/>, renk: 'bg-teal-500/20 text-teal-300 border-teal-500/30', p: `Sen bir yaşam koçusun. "${trName} Suresi"nin öğretilerine dayanarak haftalık eylem planı hazırla.` },
+            { id: 'contemplation', ad: 'Tefekkür Modu', ikon: <Icons.Sparkles size={14}/>, renk: 'bg-purple-500/20 text-purple-300 border-purple-500/30', p: `Sen bir tasavvuf uzmanısın. ${trName} Suresi'nin derin felsefi, tasavvufi ve manevi boyutlarını (tefekkür) analiz et. Günümüz insanına şifa olacak reçeteler sun.` },
+            { id: 'surah_dua', ad: 'Sureden Dua Üret', ikon: <Icons.Hands size={14}/>, renk: 'bg-pink-500/20 text-pink-300 border-pink-500/30', p: `Sen manevi bir rehbersin. ${trName} Suresi'nin ana mesajlarını baz alarak, bu sureyi okuyan bir müminin kalbinden dökülebilecek çok içten bir dua metni hazırla.` },
+            { id: 'risale_surah', ad: 'Risale-i Nur İzahı', ikon: <Icons.Feather size={14}/>, renk: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', p: `Şu an ekrandaki "${trName} Suresi"ni Bediüzzaman Said Nursi'nin tefekkür dünyası ışığında analiz et. Surenin mesajlarını Risale-i Nur penceresinden asrımız insanının manevi yaralarına reçete olarak sun.` },
+            { id: 'class_activity', ad: 'Sınıf Etkinlik Planı', ikon: <Icons.Gamepad2 size={14}/>, renk: 'bg-sky-500/20 text-sky-300 border-sky-500/30', p: `Sen bir din kültürü ve ahlak bilgisi veya değerler eğitimi öğretmenisin. Şu an ekrandaki "${trName} Suresi"ni sınıftaki çocuklara veya gençlere sıkıcı olmadan, interaktif, oyunlaştırma ve drama gibi modern eğitim teknikleriyle nasıl işleyebileceğime dair harika bir ders işleniş ve etkinlik planı hazırla.` },
+            { id: 'siyak_sibak', ad: 'Siyak-Sibak İlişkisi', ikon: <Icons.GitMerge size={14}/>, renk: 'bg-blue-500/20 text-blue-300 border-blue-500/30', p: `Sen bir Kuran ilimleri ve tefsir uzmanısın. Şu anki "${trName} Suresi"nin Kuran-ı Kerim'deki sıralamasını (Siyak-Sibak ilişkisini) analiz et. Bu sure neden bir önceki sureden sonra geliyor, neden bir sonraki sureye bağlanıyor?` },
+            { id: 'surah_esma', ad: 'Esma-ül Hüsna', ikon: <Icons.Star size={14}/>, renk: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30', p: `Şu anki "${trName} Suresi"nde Allah'ın hangi isimleri (Esma-ül Hüsna) daha çok ön plana çıkıyor? Analiz et.` },
+            { id: 'surah_stories', ad: 'Kıssalar ve Karakterler', ikon: <Icons.Users size={14}/>, renk: 'bg-orange-500/20 text-orange-300 border-orange-500/30', p: `Şu anki "${trName} Suresi"nde adı geçen veya atıf yapılan peygamberleri, kavimleri ve karakterleri listele. Bu karakterlerin günümüz insanına verdikleri mesajı analiz et.` },
+            { id: 'surah_fiqh', ad: 'Ameli ve Fıkhi Hükümler', ikon: <Icons.Scale size={14}/>, renk: 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30', p: `Şu anki "${trName} Suresi"nin içerdiği ameli, ahlaki ve fıkhi hükümleri (helaller, haramlar, sosyal kurallar vb.) maddeler halinde özetle.` },
+            { id: 'spiritual_checkup', ad: 'Manevi Check-Up', ikon: <Icons.ClipboardList size={14}/>, renk: 'bg-rose-500/20 text-rose-300 border-rose-500/30', p: `Şu anki "${trName} Suresi"ni okuyan bir müminin kendi iç dünyasına dönüp sorması gereken 5 kritik nefis muhasebesi (manevi check-up) sorusu hazırla.` },
+            { id: 'quiz', ad: 'İnteraktif Sure Quizi', ikon: <span>✨</span>, renk: 'bg-orange-500/20 text-orange-300 border-orange-500/30', p: `Sen bir Kuran eğitmenisin. Şu anki "${trName} Suresi" hakkında kullanıcının anlama seviyesini test etmek için 3 adet harika ve düşündürücü çoktan seçmeli soru hazırla. Her sorunun altına kısa bir hikmetli açıklama ile doğru cevabı ekle.` }
+        ];
+
+        // Sure başındaki: tek "Sureyi keşfet" düğmesi + açılınca Keşfet gibi sarılı çipler (yapılanlarda ✓)
+        const SureKesfet = ({ surah, trName, handleAiRequest }) => {
+            const Z = useCalisma();
+            const [acik, setAcik] = React.useState(() => { try { return localStorage.getItem('zirve_sure_kesfet') === '1'; } catch (e) { return false; } });
+            const ac = (v) => { setAcik(v); try { localStorage.setItem('zirve_sure_kesfet', v ? '1' : '0'); } catch (e) {} };
+            const sd = Z ? Z.sureDurum(surah.number) : {};
+            const araclar = sureAraclari(trName);
+            const yap = araclar.filter(a => sd[a.id]).length;
+            const calistir = (a) => { window.__zaiBaglam = { sure: surah.number, ayet: null, sureAdi: trName }; Z && Z.isaretle(surah.number, null, a.id); handleAiRequest(a.p, a.id); };
+            React.useEffect(() => { const f = (e) => { const a = araclar.find(x => x.id === e.detail); if (a) calistir(a); }; window.addEventListener('zirve-sure-araci', f); return () => window.removeEventListener('zirve-sure-araci', f); });
+            return (
+                <div className="px-4 pt-3 pb-1 max-w-5xl mx-auto">
+                    <button onClick={() => ac(!acik)} aria-expanded={acik} className={`w-full flex items-center gap-3 px-4 min-h-[52px] rounded-2xl border transition-colors ${acik ? 'bg-white/10 border-white/20' : 'bg-slate-800/70 border-slate-700 hover:bg-slate-800'}`}>
+                        <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0"><Icons.Sparkles size={18} className="text-white"/></span>
+                        <span className="flex-1 text-left min-w-0">
+                            <span className="block text-[14px] font-bold text-white">Sureyi keşfet</span>
+                            <span className="block text-[11px] text-slate-400 truncate">Özet, nüzul, tefekkür, hükümler, quiz… · {yap}/{araclar.length} yapıldı</span>
+                        </span>
+                        <Icons.ChevronLeft size={16} className={`text-slate-400 transition-transform ${acik ? 'rotate-90' : '-rotate-90'}`}/>
+                    </button>
+                    {acik && (
+                        <div className="flex flex-wrap gap-2 pt-3 animate-fade-in">
+                            {araclar.map(a => (
+                                <button key={a.id} onClick={() => calistir(a)} className={`relative flex items-center gap-1.5 px-3 min-h-[38px] rounded-full text-[12px] font-bold border transition-colors ${a.renk} ${sd[a.id] ? 'ring-1 ring-emerald-400/70' : ''}`}>
+                                    {a.ikon}<span>{a.ad}</span>
+                                    {sd[a.id] ? <span className="ml-0.5 w-4 h-4 rounded-full bg-emerald-500 text-emerald-950 text-[10px] font-black flex items-center justify-center" aria-label="yapıldı">✓</span> : null}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Sure çalışma durumu kartı: halka + uyarı + eksikler
+        const SureCalismaKarti = ({ surah, trName, ayetSayisi, kalemCalistir }) => {
+            const Z = useCalisma();
+            const [acik, setAcik] = React.useState(false);
+            const [adDuzen, setAdDuzen] = React.useState(false);
+            if (!Z || !ayetSayisi) return null;
+            const o = Z.sureOzet(surah.number, ayetSayisi);
+            // Uyarı: ilk "çekirdek" eksiği olan ayet
+            let hedef = null;
+            for (let a = 1; a <= ayetSayisi && !hedef; a++) { const m = Z.ayetYapilan(surah.number, a); const k = CEKIRDEK.find(id => !m[id]); if (k) hedef = { ayet: a, kalem: Z.ayetById[k] }; }
+            const ad = Z.ad();
+            const tamamCekirdek = !hedef;
+            const satirlar = [];
+            if (acik) for (let a = 1; a <= ayetSayisi; a++) { const m = Z.ayetYapilan(surah.number, a); const ek = Z.AYET.filter(k => !m[k.id]); satirlar.push({ a, n: Z.AYET.length - ek.length, ek }); }
+            return (
+                <div className="px-4 pt-3 max-w-5xl mx-auto">
+                    <div className="rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-emerald-950/60 to-slate-900/80 p-4">
+                        <div className="flex items-center gap-3">
+                            <CalismaHalkasi yuzde={o.yuzde} boyut={60}><span className="text-[13px] font-black text-white">%{Math.round(o.yuzde)}</span></CalismaHalkasi>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-bold tracking-widest uppercase text-emerald-300/80">Çalışma durumun</p>
+                                <p className="text-[14px] font-bold text-white leading-snug">{trName} · {o.baslananAyet}/{ayetSayisi} ayete başladın</p>
+                                <p className="text-[11px] text-slate-400">Ayet çalışmaları {o.ayetYapilan}/{o.ayetToplam} · Sure çalışmaları {o.sureYapilan}/{o.sureToplam}{o.tamAyet ? ` · ${o.tamAyet} ayet tamam` : ''}</p>
+                            </div>
+                        </div>
+                        {hedef ? (
+                            <div className="mt-3 flex items-start gap-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 p-3">
+                                <span className="text-lg leading-none mt-0.5" aria-hidden="true">💡</span>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[13px] text-amber-100 leading-relaxed">{Z.uyari('', hedef.ayet, hedef.kalem).replace(/^ /, '')}</p>
+                                    <button onClick={() => kalemCalistir(hedef.ayet, hedef.kalem.id)} className="mt-2 inline-flex items-center gap-1.5 px-3 min-h-[36px] rounded-lg bg-amber-500 text-amber-950 text-[12px] font-bold">{hedef.kalem.ikon} Şimdi yap · {hedef.ayet}. ayet</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="mt-3 text-[13px] text-emerald-200 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3">🌿 {ad ? ad + ', ' : ''}bu surenin bütün ayetlerinde temel çalışmaları (meal, nüzul, tefsir, kelime, anatomi, hadis, dinleme) tamamladın. Kalanlar isteğe bağlı derinleşme.</p>
+                        )}
+                        {acik && o.sureEksik.length > 0 && (
+                            <div className="mt-3">
+                                <p className="text-[11px] text-slate-400 mb-1.5">Sure çalışmalarından henüz yapmadıkların:</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {o.sureEksik.map(k => <button key={k.id} onClick={() => window.dispatchEvent(new CustomEvent('zirve-sure-araci', { detail: k.id }))} className="px-2.5 min-h-[32px] rounded-full text-[11px] font-bold bg-slate-800 border border-slate-700 text-slate-300 hover:text-white">{k.ikon} {k.ad}</button>)}
+                                </div>
+                            </div>
+                        )}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <button onClick={() => setAcik(!acik)} aria-expanded={acik} className="inline-flex items-center gap-1.5 px-3 min-h-[36px] rounded-lg bg-slate-800 border border-slate-700 text-[12px] font-bold text-slate-200">{acik ? 'Ayet ayet listeyi kapat' : '📋 Ayet ayet neyi yaptım, neyi yapmadım?'}</button>
+                            {!adDuzen ? <button onClick={() => setAdDuzen(true)} className="text-[11px] text-slate-500 underline underline-offset-2 min-h-[32px]">{ad ? `Hitap: ${ad}` : 'Sana adınla hitap edeyim mi?'}</button>
+                                : <input autoFocus defaultValue={ad} onBlur={(e) => { Z.adYaz(e.target.value); setAdDuzen(false); }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }} placeholder="Adın" aria-label="Adın" className="w-32 min-h-[34px] px-2 rounded-lg bg-black/40 border border-slate-600 text-[16px] text-white" />}
+                        </div>
+                        {acik && (
+                            <div className="mt-3 max-h-[60vh] overflow-y-auto pr-1 space-y-1.5" role="list">
+                                {satirlar.map(s => (
+                                    <div key={s.a} role="listitem" className="rounded-xl bg-black/25 border border-white/5 p-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`w-7 h-7 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 ${s.ek.length ? 'bg-slate-700 text-white' : 'bg-emerald-500 text-emerald-950'}`}>{s.a}</span>
+                                            <div className="flex-1 h-2 rounded-full bg-slate-800 overflow-hidden"><div className="h-full bg-emerald-400 rounded-full" style={{ width: `${s.n * 100 / Z.AYET.length}%` }}></div></div>
+                                            <span className="text-[11px] text-slate-400 w-10 text-right">{s.n}/{Z.AYET.length}</span>
+                                        </div>
+                                        {s.ek.length > 0 && (
+                                            <div className="flex flex-wrap gap-1 mt-2">
+                                                {s.ek.map(k => <button key={k.id} onClick={() => kalemCalistir(s.a, k.id)} title={`${s.a}. ayet: ${k.ad}`} className="px-2 min-h-[28px] rounded-full text-[10.5px] font-semibold bg-slate-800/80 border border-slate-700 text-slate-400 hover:text-white">{k.ikon} {k.kisa}</button>)}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Ayet başlığındaki küçük halka (dokununca ayetin yapılan/yapılmayan listesi)
+        const AyetIlerleme = ({ sure, ayet, onAc }) => {
+            const Z = useCalisma(); if (!Z) return null;
+            const m = Z.ayetYapilan(sure, ayet), n = Z.AYET.filter(k => m[k.id]).length;
+            return (
+                <button onClick={onAc} className="ml-auto inline-flex items-center gap-1.5 pl-1 pr-2 min-h-[34px] rounded-full hover:bg-slate-700/60" title="Bu ayette neleri çalıştın?" aria-label={`Bu ayette ${Z.AYET.length} çalışmadan ${n} tanesi yapıldı`}>
+                    <CalismaHalkasi yuzde={n * 100 / Z.AYET.length} boyut={26} kalinlik={3.5}><span className="text-[8.5px] font-black text-slate-200">{n}</span></CalismaHalkasi>
+                    <span className="text-[10px] font-bold text-slate-400 hidden min-[380px]:inline">/{Z.AYET.length}</span>
+                </button>
+            );
+        };
+        const AyetIlerlemeListesi = ({ sure, ayet, kalemCalistir, kapat }) => {
+            const Z = useCalisma(); if (!Z) return null;
+            const m = Z.ayetYapilan(sure, ayet);
+            return (
+                <div className="mb-5 p-3 rounded-2xl bg-slate-900/90 border border-emerald-500/25 animate-fade-in">
+                    <div className="flex items-center justify-between mb-2">
+                        <p className="text-[12px] font-bold text-emerald-300">📊 {ayet}. ayette yaptıkların</p>
+                        <button onClick={kapat} aria-label="Kapat" className="p-1.5 rounded-lg text-slate-400 hover:text-white"><Icons.X size={16}/></button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                        {Z.AYET.map(k => (
+                            <div key={k.id} className={`flex items-center gap-1.5 rounded-lg border px-2 min-h-[38px] ${m[k.id] ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-800/60 border-slate-700'}`}>
+                                <button onClick={() => { if (!m[k.id]) kalemCalistir(ayet, k.id); }} className={`flex-1 text-left text-[11.5px] font-semibold truncate ${m[k.id] ? 'text-emerald-200' : 'text-slate-300'}`}>{k.ikon} {k.ad}</button>
+                                {k.id !== 'not' && <button onClick={() => Z.degistir(sure, ayet, k.id)} aria-label={m[k.id] ? `${k.ad}: yapıldı, işareti kaldır` : `${k.ad}: yaptım olarak işaretle`} className={`w-6 h-6 rounded-md text-[11px] font-black flex items-center justify-center shrink-0 ${m[k.id] ? 'bg-emerald-500 text-emerald-950' : 'border border-slate-600 text-transparent'}`}>✓</button>}
+                            </div>
+                        ))}
+                    </div>
+                    <p className="text-[10.5px] text-slate-500 mt-2">Bir çalışmayı açtığında kendiliğinden işaretlenir. Kitaptan çalıştıysan ✓ kutusuyla kendin de işaretleyebilirsin.</p>
+                </div>
+            );
+        };
+        // Ayetten önce görünen nazik uyarı
+        const AyetUyari = ({ sure, ayet, kalemCalistir }) => {
+            const Z = useCalisma(); if (!Z) return null;
+            const m = Z.ayetYapilan(sure, ayet); const k = CEKIRDEK.find(id => !m[id]); if (!k) return null;
+            const kalem = Z.ayetById[k];
+            return (
+                <div className="mb-4 flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/25 px-3 py-2">
+                    <span className="text-[13px]" aria-hidden="true">💡</span>
+                    <p className="flex-1 text-[12px] text-amber-100/90 leading-snug">{Z.uyari('', ayet, kalem).replace(/^ /, '')}</p>
+                    <button onClick={() => kalemCalistir(ayet, k)} className="shrink-0 px-2.5 min-h-[32px] rounded-lg bg-amber-500/90 text-amber-950 text-[11px] font-bold">{kalem.ikon} Yap</button>
+                </div>
+            );
+        };
+
+        // 📚 Mealleri karşılaştır (alquran.cloud) + kendi kitabından eklenen mealler
+        const MEAL_LISTESI = [
+            { id: 'tr.yazir', ad: 'Elmalılı Hamdi Yazır' }, { id: 'tr.vakfi', ad: 'Diyanet Vakfı' }, { id: 'tr.diyanet', ad: 'Diyanet İşleri' },
+            { id: 'tr.ates', ad: 'Süleyman Ateş' }, { id: 'tr.yildirim', ad: 'Suat Yıldırım' }, { id: 'tr.bulac', ad: 'Ali Bulaç' },
+            { id: 'tr.golpinarli', ad: 'Abdülbâki Gölpınarlı' }, { id: 'tr.ozturk', ad: 'Yaşar Nuri Öztürk' }, { id: 'tr.yuksel', ad: 'Edip Yüksel' }
+        ];
+        const ELLE_MEALLER = [
+            { id: 'islamoglu', ad: 'Mustafa İslamoğlu', ara: (s, a) => `https://www.google.com/search?q=${encodeURIComponent(`Mustafa İslamoğlu meali ${s} Suresi ${a}. ayet`)}` },
+            { id: 'meyildirim', ad: 'Muhammed Emin Yıldırım', ara: (s, a) => `https://www.youtube.com/results?search_query=${encodeURIComponent(`Muhammed Emin Yıldırım ${s} Suresi ${a}. ayet`)}` }
+        ];
+        const elleMealOku = () => { try { return JSON.parse(localStorage.getItem('zirve_elle_meal') || '{}') || {}; } catch (e) { return {}; } };
+        const MeallerPaneli = ({ sure, ayet, sureAdi, arabic, kapat }) => {
+            const [veri, setVeri] = React.useState(null);
+            const [hata, setHata] = React.useState('');
+            const [elle, setElle] = React.useState(elleMealOku);
+            const [duzen, setDuzen] = React.useState(null);
+            const [secili, setSecili] = React.useState(() => { try { const s = JSON.parse(localStorage.getItem('zirve_meal_secim') || 'null'); return Array.isArray(s) && s.length ? s : MEAL_LISTESI.map(m => m.id); } catch (e) { return MEAL_LISTESI.map(m => m.id); } });
+            React.useEffect(() => {
+                let iptal = false; setVeri(null); setHata('');
+                const k = `zirve_mealler_${sure}_${ayet}`;
+                try { const c = JSON.parse(sessionStorage.getItem(k) || 'null'); if (c) { setVeri(c); return; } } catch (e) {}
+                fetch(`https://api.alquran.cloud/v1/ayah/${sure}:${ayet}/editions/${MEAL_LISTESI.map(m => m.id).join(',')}`).then(r => r.json()).then(j => {
+                    if (iptal) return; const d = {};
+                    (Array.isArray(j.data) ? j.data : []).forEach(x => { if (x && x.edition && x.text) d[x.edition.identifier] = x.text; });
+                    if (!Object.keys(d).length) throw new Error('boş');
+                    setVeri(d); try { sessionStorage.setItem(k, JSON.stringify(d)); } catch (e) {}
+                }).catch(() => { if (!iptal) setHata('Mealler şu an alınamadı. İnternet bağlantını kontrol et.'); });
+                window.ZCALISMA && window.ZCALISMA.isaretle(sure, ayet, 'meal');
+                const esc = (e) => { if (e.key === 'Escape') kapat(); }; window.addEventListener('keydown', esc);
+                return () => { iptal = true; window.removeEventListener('keydown', esc); };
+            }, [sure, ayet]);
+            const uid = `${sure}:${ayet}`;
+            const elleKaydet = (id, t) => { const n = { ...elle }; n[id] = { ...(n[id] || {}) }; if (t.trim()) n[id][uid] = t.trim(); else delete n[id][uid]; setElle(n); try { localStorage.setItem('zirve_elle_meal', JSON.stringify(n)); } catch (e) {} setDuzen(null); };
+            const secimDegis = (id) => { const s = secili.includes(id) ? secili.filter(x => x !== id) : secili.concat(id); setSecili(s); try { localStorage.setItem('zirve_meal_secim', JSON.stringify(s)); } catch (e) {} };
+            const [ayar, setAyar] = React.useState(false);
+            return (
+                <div className="fixed inset-0 z-[72] bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={kapat}>
+                    <div role="dialog" aria-modal="true" aria-label="Mealleri karşılaştır" onClick={e => e.stopPropagation()} className="w-full sm:max-w-2xl max-h-[92dvh] flex flex-col bg-slate-950 border border-slate-700 rounded-t-3xl sm:rounded-3xl shadow-2xl animate-fade-in">
+                        <div className="p-5 pb-3 border-b border-white/5 flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="text-[11px] font-bold tracking-widest uppercase text-amber-300/80">Mealleri karşılaştır</p>
+                                <h2 className="text-lg font-bold text-white">{sureAdi} · {ayet}. ayet</h2>
+                            </div>
+                            <div className="flex gap-1 shrink-0">
+                                <button onClick={() => setAyar(!ayar)} aria-expanded={ayar} className="px-3 min-h-[40px] rounded-xl bg-slate-800 border border-slate-700 text-[12px] font-bold text-slate-200">Mealler</button>
+                                <button autoFocus onClick={kapat} aria-label="Kapat" className="p-2.5 rounded-full hover:bg-white/5 text-slate-300"><Icons.X size={20}/></button>
+                            </div>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-5 pt-3 space-y-3">
+                            {ayar && (
+                                <div className="rounded-2xl bg-slate-900 border border-slate-700 p-3">
+                                    <p className="text-[12px] text-slate-300 mb-2">Görmek istediğin mealleri seç:</p>
+                                    <div className="flex flex-wrap gap-1.5">{MEAL_LISTESI.map(m => <button key={m.id} onClick={() => secimDegis(m.id)} aria-pressed={secili.includes(m.id)} className={`px-3 min-h-[34px] rounded-full text-[12px] font-bold border ${secili.includes(m.id) ? 'bg-amber-500/20 border-amber-500/50 text-amber-100' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>{secili.includes(m.id) ? '✓ ' : ''}{m.ad}</button>)}</div>
+                                </div>
+                            )}
+                            {arabic && <p dir="rtl" className="font-amiri text-2xl leading-[2.2] text-emerald-300 text-right">{arabic}</p>}
+                            {hata && <p className="text-[13px] text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3">{hata}</p>}
+                            {!veri && !hata && <div className="flex items-center gap-2 text-emerald-300 text-sm py-4"><div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div> Mealler getiriliyor…</div>}
+                            {veri && MEAL_LISTESI.filter(m => secili.includes(m.id) && veri[m.id]).map(m => (
+                                <div key={m.id} className="rounded-2xl bg-slate-900/80 border border-slate-800 p-4">
+                                    <p className="text-[11px] font-bold text-amber-300 mb-1.5">{m.ad}</p>
+                                    <p className="text-[15px] leading-relaxed text-slate-100 font-serif">{veri[m.id]}</p>
+                                </div>
+                            ))}
+                            {ELLE_MEALLER.map(m => {
+                                const t = elle[m.id] && elle[m.id][uid];
+                                return (
+                                    <div key={m.id} className="rounded-2xl bg-slate-900/60 border border-dashed border-slate-700 p-4">
+                                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                                            <p className="text-[11px] font-bold text-sky-300">{m.ad}</p>
+                                            <span className="flex gap-1.5">
+                                                <a href={m.ara(sureAdi, ayet)} target="_blank" rel="noopener" className="px-2.5 min-h-[32px] inline-flex items-center rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-bold text-slate-200">🔎 Kaynağında ara</a>
+                                                <button onClick={() => setDuzen(duzen === m.id ? null : m.id)} className="px-2.5 min-h-[32px] rounded-lg bg-sky-500/15 border border-sky-500/40 text-[11px] font-bold text-sky-200">{t ? '✏️ Düzenle' : '➕ Kitabımdan ekle'}</button>
+                                            </span>
+                                        </div>
+                                        {duzen === m.id ? (
+                                            <div>
+                                                <textarea autoFocus defaultValue={t || ''} id={`elle-${m.id}`} rows={3} placeholder={`${m.ad} mealini kendi kitabından buraya yaz…`} className="w-full p-2.5 rounded-xl bg-black/40 border border-slate-700 text-[16px] text-white"></textarea>
+                                                <div className="flex justify-end gap-2 mt-2"><button onClick={() => setDuzen(null)} className="px-3 min-h-[34px] rounded-lg text-[12px] text-slate-400">Vazgeç</button><button onClick={() => elleKaydet(m.id, document.getElementById(`elle-${m.id}`).value)} className="px-3 min-h-[34px] rounded-lg bg-emerald-500 text-emerald-950 text-[12px] font-bold">Kaydet</button></div>
+                                            </div>
+                                        ) : t ? <p className="text-[15px] leading-relaxed text-slate-100 font-serif whitespace-pre-wrap">{t}</p>
+                                          : <p className="text-[12px] text-slate-500">Bu mealin ayet ayet açık bir veri kaynağı yok (telifli). Kitabından ekleyebilir ya da kaynağında arayabilirsin; eklediğin metin yalnız bu cihazda saklanır.</p>}
+                                    </div>
+                                );
+                            })}
+                            <p className="text-[10.5px] text-slate-500 text-center">Mealler: api.alquran.cloud · Bir meal, mütercimin anlayışıdır; ayetin aslı Arapçasıdır.</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 🧭 Ana sayfa: Kur'an Yolculuğum kartı + tüm ilerleme paneli + kişisel 21:00 hatırlatması
+        const calismaBildirimMetni = () => {
+            const Z = window.ZCALISMA; if (!Z) return null;
+            const ad = Z.ad(); const son = Z.son();
+            let lr = null; try { lr = JSON.parse(localStorage.getItem('lastRead') || 'null'); } catch (e) {}
+            const s = (son && son.s) || (lr && lr.surahNo) || 1, a = (son && son.a) || (lr && lr.ayahNo) || 1;
+            const sureAdi = getTurkishName(s);
+            const m = Z.ayetYapilan(s, a); const k = CEKIRDEK.find(id => !m[id]);
+            const kalem = k ? Z.ayetById[k] : null;
+            const baslik = `📖 ${ad ? ad + ', ' : ''}Kur'an çalışman seni bekliyor`;
+            const govde = kalem ? `${sureAdi} ${a}. ayette kaldın. ${Z.uyari('', a, kalem).replace(/^[^,]*, /, '').replace(/^ /, '').replace(/^\d+\. ayetin /, 'Bu ayetin ')} Kaldığın yerden devam etmek ister misin?`
+                : `${sureAdi} ${a}. ayette kaldın; bu ayetin temel çalışmaları tamam. Sıradaki ayete geçmek ister misin?`;
+            return { baslik, govde: govde.slice(0, 220), url: (window.ZBILDIRIM ? window.ZBILDIRIM.taban() : '') + `#sure-${s}-${a}` };
+        };
+        const calismaBildirimKur = async (sifre) => {
+            const ZB = window.ZBILDIRIM; if (!ZB) throw new Error('Bildirim modülü yok');
+            const ok = await ZB.kanalDestek(); if (!ok) throw new Error('Kasa bu cihaz için kişisel kanalı desteklemiyor');
+            await ZB.konuAyarla('kscalisma', true);
+            const m = calismaBildirimMetni(); if (!m) return;
+            const liste = [0, 1, 2, 3, 4, 5, 6].map(g => ({ id: `oto-calisma-${g}`, saat: '21:00', gunler: [g], baslik: m.baslik, govde: m.govde, url: m.url, hedef: { sube: 'acik', ogrId: ZB.cihazId() }, aktif: true }));
+            await ZB.hKaydet(sifre, liste, 'kscalisma');
+            try { localStorage.setItem('zirve_calisma_bildirim', '1'); localStorage.setItem('zirve_calisma_bildirim_t', String(Date.now())); localStorage.setItem('zirve_calisma_bildirim_metin', m.govde); } catch (e) {}
+        };
+        const calismaBildirimKapat = async (sifre) => {
+            const ZB = window.ZBILDIRIM; if (!ZB) return;
+            try { await ZB.hKaydet(sifre, [], 'kscalisma'); } catch (e) {}
+            try { await ZB.konuAyarla('kscalisma', false); } catch (e) {}
+            try { localStorage.setItem('zirve_calisma_bildirim', '0'); } catch (e) {}
+        };
+        // Uygulama gizlenince (en çok 30 dakikada bir, metin değiştiyse) 21:00 bildirimini güncelle
+        const useCalismaBildirimTazele = () => {
+            React.useEffect(() => {
+                const f = () => {
+                    try {
+                        if (document.visibilityState !== 'hidden' || localStorage.getItem('zirve_calisma_bildirim') !== '1') return;
+                        const sifre = localStorage.getItem('zkasa_sifre'); if (!sifre) return;
+                        const m = calismaBildirimMetni(); if (!m) return;
+                        const t = +(localStorage.getItem('zirve_calisma_bildirim_t') || 0);
+                        if (m.govde === localStorage.getItem('zirve_calisma_bildirim_metin') && Date.now() - t < 18 * 3600e3) return;
+                        if (Date.now() - t < 30 * 60e3 && m.govde === localStorage.getItem('zirve_calisma_bildirim_metin')) return;
+                        calismaBildirimKur(sifre).catch(() => {});
+                    } catch (e) {}
+                };
+                document.addEventListener('visibilitychange', f);
+                const ilk = setTimeout(() => { try { if (localStorage.getItem('zirve_calisma_bildirim') === '1' && Date.now() - +(localStorage.getItem('zirve_calisma_bildirim_t') || 0) > 18 * 3600e3 && localStorage.getItem('zkasa_sifre')) calismaBildirimKur(localStorage.getItem('zkasa_sifre')).catch(() => {}); } catch (e) {} }, 8000);
+                return () => { document.removeEventListener('visibilitychange', f); clearTimeout(ilk); };
+            }, []);
+        };
+        const YolculukKarti = ({ onPanel }) => {
+            const Z = useCalisma(); if (!Z) return null;
+            const g = Z.genelOzet(Object.values(AYET_SAYILARI));
+            const son = g.son;
+            let lr = null; try { lr = JSON.parse(localStorage.getItem('lastRead') || 'null'); } catch (e) {}
+            const s = (son && son.s) || (lr && lr.surahNo), a = (son && son.a) || (lr && lr.ayahNo);
+            let uyari = '';
+            if (s && a) { const m = Z.ayetYapilan(s, a); const k = CEKIRDEK.find(id => !m[id]); if (k) uyari = Z.uyari(getTurkishName(s), a, Z.ayetById[k]); }
+            const yuzde = g.ayetBaslanan * 100 / g.toplamAyet;
+            const git = () => { if (!s) return; try { location.hash = `sure-${s}-${a || 1}`; } catch (e) {} };
+            return (
+                <div className="mb-5 rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-950/70 via-slate-900/80 to-slate-900/60 p-4 shadow-lg">
+                    <div className="flex items-center gap-3">
+                        <CalismaHalkasi yuzde={Math.max(yuzde, g.ayetBaslanan ? 1.5 : 0)} boyut={64} kalinlik={7}><span className="text-[11px] font-black text-white text-center leading-tight">{g.ayetBaslanan}<br/><span className="text-[8px] font-bold text-slate-400">ayet</span></span></CalismaHalkasi>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-300/80">Kur'an Yolculuğum</p>
+                            <p className="text-[15px] font-bold text-white leading-snug">{Z.ad() ? `${Z.ad()}, ` : ''}{g.ayetBaslanan ? `${g.toplamAyet} ayetin ${g.ayetBaslanan} tanesinde çalıştın` : 'Anlayarak okuma yolculuğuna başla'}</p>
+                            <p className="text-[11px] text-slate-400">{g.seri ? `🔥 ${g.seri} gün üst üste · ` : ''}Bugün {g.bugun} çalışma · Toplam {g.yapilan}</p>
+                        </div>
+                    </div>
+                    {uyari && <p className="mt-3 text-[12.5px] text-amber-100 rounded-xl bg-amber-500/10 border border-amber-500/25 px-3 py-2">💡 {uyari}</p>}
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                        <button onClick={git} disabled={!s} className="min-h-[42px] rounded-xl bg-emerald-500 text-emerald-950 text-[13px] font-bold disabled:opacity-40">{s ? `▶ ${getTurkishName(s)} ${a || 1}. ayetten devam` : 'Önce bir sure aç'}</button>
+                        <button onClick={onPanel} className="min-h-[42px] rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-[13px] font-bold">📊 Tüm ilerlemem</button>
+                    </div>
+                </div>
+            );
+        };
+        const CalismaPaneli = ({ acik, kapat, showToast }) => {
+            const Z = useCalisma();
+            const [filtre, setFiltre] = React.useState('baslanan');
+            const [mesgul, setMesgul] = React.useState(false);
+            const [bild, setBild] = React.useState(() => { try { return localStorage.getItem('zirve_calisma_bildirim') === '1'; } catch (e) { return false; } });
+            React.useEffect(() => { if (!acik) return; const esc = (e) => { if (e.key === 'Escape') kapat(); }; window.addEventListener('keydown', esc); return () => window.removeEventListener('keydown', esc); }, [acik]);
+            if (!acik || !Z) return null;
+            const g = Z.genelOzet(Object.values(AYET_SAYILARI));
+            const sahip = (() => { try { return localStorage.getItem('zirve_sahip') === '1' && !!localStorage.getItem('zkasa_sifre'); } catch (e) { return false; } })();
+            const satirlar = Object.keys(AYET_SAYILARI).map(n => +n).map(n => { const yap = g.sureler[n] || 0; const top = AYET_SAYILARI[n] * Z.AYET.length + Z.SURE.length; return { n, yap, top, yuzde: yap * 100 / top }; }).filter(r => filtre === 'tumu' || r.yap > 0);
+            const bildDegis = async () => {
+                const sifre = localStorage.getItem('zkasa_sifre'); if (!sifre) return;
+                setMesgul(true);
+                try { if (bild) { await calismaBildirimKapat(sifre); setBild(false); showToast && showToast('🌙 Akşam hatırlatması kapatıldı'); } else { await calismaBildirimKur(sifre); setBild(true); showToast && showToast('🌙 Her akşam 21:00\'de kaldığın yer hatırlatılacak'); } }
+                catch (e) { showToast && showToast('Kurulamadı: ' + (e && e.message ? e.message : 'bağlantı')); }
+                setMesgul(false);
+            };
+            const ac = (n) => { kapat(); try { location.hash = `sure-${n}`; } catch (e) {} };
+            return (
+                <div className="fixed inset-0 z-[72] bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={kapat}>
+                    <div role="dialog" aria-modal="true" aria-label="Kur'an yolculuğum" onClick={e => e.stopPropagation()} className="w-full sm:max-w-2xl max-h-[92dvh] flex flex-col bg-slate-950 border border-slate-700 rounded-t-3xl sm:rounded-3xl shadow-2xl animate-fade-in">
+                        <div className="p-5 pb-3 border-b border-white/5">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-[11px] font-bold tracking-widest uppercase text-emerald-300/80">Kur'an Yolculuğum</p>
+                                    <h2 className="text-lg font-bold text-white">{g.ayetBaslanan} / {g.toplamAyet} ayette çalıştın</h2>
+                                    <p className="text-[12px] text-slate-400">{g.seri ? `🔥 ${g.seri} gün üst üste · ` : ''}Toplam {g.yapilan} çalışma</p>
+                                </div>
+                                <button autoFocus onClick={kapat} aria-label="Kapat" className="p-2.5 rounded-full hover:bg-white/5 text-slate-300"><Icons.X size={20}/></button>
+                            </div>
+                            <div role="tablist" className="mt-3 flex gap-1 p-1 rounded-2xl bg-slate-800/70 border border-slate-700">
+                                {[['baslanan', 'Başladıklarım'], ['tumu', 'Bütün sureler']].map(([id, ad]) => <button key={id} role="tab" aria-selected={filtre === id} onClick={() => setFiltre(id)} className={`flex-1 min-h-[40px] rounded-xl text-[13px] font-bold ${filtre === id ? 'bg-emerald-500 text-emerald-950' : 'text-slate-300'}`}>{ad}</button>)}
+                            </div>
+                        </div>
+                        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-1.5">
+                            {satirlar.length === 0 && <p className="text-center text-slate-400 text-[13px] py-10">Henüz bir çalışma yok. Bir sure açıp ayetlerdeki ✨ Keşfet araçlarını kullandıkça burası dolacak.</p>}
+                            {satirlar.map(r => (
+                                <button key={r.n} onClick={() => ac(r.n)} className="w-full flex items-center gap-3 rounded-xl bg-slate-900/70 border border-slate-800 px-3 min-h-[48px] text-left hover:border-emerald-500/40">
+                                    <span className="w-7 text-[11px] font-bold text-slate-500 text-right">{r.n}</span>
+                                    <span className="w-28 sm:w-40 text-[13px] font-bold text-slate-100 truncate">{getTurkishName(r.n)}</span>
+                                    <span className="flex-1 h-2 rounded-full bg-slate-800 overflow-hidden"><span className="block h-full bg-emerald-400 rounded-full" style={{ width: `${Math.max(r.yap ? 2 : 0, r.yuzde)}%` }}></span></span>
+                                    <span className="w-12 text-[11px] text-slate-400 text-right">%{r.yuzde < 10 && r.yuzde > 0 ? r.yuzde.toFixed(1) : Math.round(r.yuzde)}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-white/5 space-y-2">
+                            <label className="flex items-center gap-2 text-[13px] text-slate-200">Sana nasıl hitap edeyim?
+                                <input defaultValue={Z.ad()} onBlur={(e) => Z.adYaz(e.target.value)} placeholder="Adın" aria-label="Adın" className="flex-1 min-w-0 min-h-[38px] px-2.5 rounded-lg bg-black/40 border border-slate-700 text-[16px] text-white" />
+                            </label>
+                            {sahip ? (
+                                <button onClick={bildDegis} disabled={mesgul} className={`w-full flex items-center gap-3 rounded-xl border px-3 min-h-[48px] text-left ${bild ? 'bg-indigo-500/15 border-indigo-400/40' : 'bg-slate-900 border-slate-700'}`}>
+                                    <span className="text-xl" aria-hidden="true">🌙</span>
+                                    <span className="flex-1 text-[13px] text-slate-100"><b>Her akşam 21:00</b> “nerede kaldın, devam et” bildirimi<span className="block text-[11px] text-slate-400">Yalnız bu cihaza gelir; metni çalışmana göre her gün yenilenir.</span></span>
+                                    <span className={`w-11 h-6 rounded-full relative shrink-0 ${bild ? 'bg-indigo-500' : 'bg-slate-700'}`}><span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${bild ? 'left-[22px]' : 'left-0.5'}`}></span></span>
+                                </button>
+                            ) : (
+                                <p className="text-[11px] text-slate-500">Akşam 21:00 hatırlatması için Ayarlar → Bildirimler'deki “Akşam Kur'an saati” kanalını açabilirsin.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const SurahDetail = ({ surah, setView, handleAiRequest, handleImageRequest, setShowSettings, playingAyah, toggleAudio, toggleFavorite, favorites, annotations, setAnnotation, fontSize, arabicFont, mealFont, mealColor, lastRead, setLastRead, setPrevRead, highlightedSearch, setJumpModalOpen, mealSource, reciterSource, showToast }) => {
             const [ayahs, setAyahs] = React.useState([]);
             const [translation, setTranslation] = React.useState([]);
@@ -5279,6 +5881,9 @@ JSON ŞEMASI:
             const [aiAcik, setAiAcik] = React.useState({}); // ayet altındaki yapay zekâ araçları açık mı {ayahNo:true}
             const [markMenu, setMarkMenu] = React.useState(null); // açık palet: ayahNo
             const [drawAyah, setDrawAyah] = React.useState(null); // elle çizim modundaki ayahNo
+            const [ilerlemeAcik, setIlerlemeAcik] = React.useState(null); // 📊 açık ayet listesi: ayahNo
+            const [mealPanel, setMealPanel] = React.useState(null); // 📚 mealler: {ayet, arabic}
+            const Zc = useCalisma();
 
             // --- işaretleme (fosforlu/altını çiz/üstünü çiz) + not ---
             const KALEM_RENKLERI = [
@@ -5423,8 +6028,50 @@ JSON ŞEMASI:
                 Z.baslat({ sure: surah.number, sureAdi: getTurkishName(surah.number), okuyucu: okuyucuAdi, ayet: no,
                     ayetler: ayahs.map((a, i) => ({ no: a.numberInSurah, audio: a.audio, ar: a.text, tr: translation[i] ? translation[i].text : '' })) });
             };
+            // 📊 Çalışma takibi: not kalemi notlardan türetilir; bağlam AI notları için tutulur
+            React.useEffect(() => () => { window.__zaiBaglam = null; }, []);
+            // Meal ekranda ~4 sn okunursa "Meali okudum" işaretlenir
+            React.useEffect(() => {
+                if (detailLoading || !ayahs.length || !('IntersectionObserver' in window) || !window.ZCALISMA) return;
+                const zaman = {};
+                const io = new IntersectionObserver((ents) => ents.forEach(en => {
+                    const a = +en.target.getAttribute('data-ayet');
+                    const gorunen = en.intersectionRect.height >= Math.min(en.boundingClientRect.height, (en.rootBounds ? en.rootBounds.height : innerHeight)) * 0.55;
+                    if (en.isIntersecting && gorunen) { if (!zaman[a]) zaman[a] = setTimeout(() => { window.ZCALISMA.isaretle(surah.number, a, 'oku'); }, 4000); }
+                    else { clearTimeout(zaman[a]); delete zaman[a]; }
+                }), { threshold: [0, 0.55, 0.8] });
+                document.querySelectorAll(`[data-zk-kap^="sure-${surah.number}-"] [data-zk-meal]`).forEach(el => io.observe(el));
+                return () => { io.disconnect(); Object.values(zaman).forEach(clearTimeout); };
+            }, [detailLoading, ayahs.length, surah.number]);
+            // Tilavet bu sureden bir ayeti okuyunca "Dinledim"
+            React.useEffect(() => { if (tilavetBuSure && tilavet.caliyor && tilavet.ayet && window.ZCALISMA) window.ZCALISMA.isaretle(surah.number, tilavet.ayet, 'dinle'); }, [tilavetBuSure, tilavet.caliyor, tilavet.ayet]);
+            // Ayet kartındaki tıklamalar: Keşfet düğmesinin title'ından hangi çalışma olduğu anlaşılır
+            const calismaTikla = (e, no) => {
+                window.__zaiBaglam = { sure: surah.number, ayet: no, sureAdi: getTurkishName(surah.number) };
+                const Z = window.ZCALISMA; if (!Z) return;
+                const el = e.target && e.target.closest ? e.target.closest('[title]') : null; if (!el) return;
+                const t = el.getAttribute('title');
+                if (t === 'Dokun: Ayet Anatomisi') { if (!ezberMode && drawAyah === null) Z.isaretle(surah.number, no, 'anatomi'); return; }
+                const k = Z.ayetByTitle[t]; if (k) Z.isaretle(surah.number, no, k.id);
+            };
+            // Uyarıdan / listeden "Şimdi yap"
+            const kalemCalistir = (no, id) => {
+                const Z = window.ZCALISMA; const k = Z && Z.ayetById[id];
+                const kap = () => document.querySelector(`[data-zk-kap="sure-${surah.number}-${no}"]`);
+                const kaydir = () => { const el = kap(); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+                setIlerlemeAcik(null);
+                if (id === 'oku') { kaydir(); showToast && showToast('📖 Meali sakin sakin oku; birkaç saniye sonra işaretlenir'); return; }
+                if (id === 'dinle') { kaydir(); tilavetBaslat(no); return; }
+                if (id === 'not') { setMarkMenu(no); setTimeout(kaydir, 60); return; }
+                if (id === 'meal') { const a = ayahs.find(x => x.numberInSurah === no); setMealPanel({ ayet: no, arabic: a ? a.text : '' }); return; }
+                if (focusMode) setFocusMode(false);
+                setAiAcik(p => ({ ...p, [no]: true }));
+                setTimeout(() => { kaydir(); const b = kap() && k && k.title ? kap().querySelector(`[title="${k.title}"]`) : null; if (b) { b.classList.add('zk-vurgu'); setTimeout(() => { try { b.click(); } catch (e) {} setTimeout(() => b.classList.remove('zk-vurgu'), 1200); }, 450); } }, 120);
+            };
             if (detailLoading) return <Loading />;
             const trName = getTurkishName(surah.number);
+            let hedefAyet = null;
+            if (Zc) for (let a = 1; a <= ayahs.length && !hedefAyet; a++) { const m = Zc.ayetYapilan(surah.number, a); if (CEKIRDEK.some(id => !m[id])) hedefAyet = a; }
             const timelineData = getSurahTimelineData(surah);
 
             return (
@@ -5456,23 +6103,9 @@ JSON ŞEMASI:
                     
                     {!focusMode && (
                         <div className="animate-fade-in">
-                            <div className="px-4 py-2 flex gap-2 overflow-x-auto custom-scrollbar border-b border-white/5 mb-2 pb-3 mt-2 max-w-5xl mx-auto">
-                                <button onClick={() => handleAiRequest(`Sen deneyimli bir müfessirsin. ${trName} Suresi hakkında özet ve analiz hazırla.`, 'summary')} className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-indigo-500/30"><Icons.BookOpen size={14}/> Surenin Özeti</button>
-                                <button onClick={() => handleAiRequest(`Sen bir tarih ve siyer uzmanısın. "${trName} Suresi"nin hangi olaylar üzerine indiğini, esbab-ı nüzulünü ve siyerdeki yerini açıkla.`, 'history')} className="flex items-center gap-1.5 px-4 py-1.5 bg-amber-500/20 text-amber-300 hover:bg-amber-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-amber-500/30"><Icons.History size={14}/> Nüzul & Tarihçe</button>
-                                <button onClick={() => handleAiRequest(`Sen bir yaşam koçusun. "${trName} Suresi"nin öğretilerine dayanarak haftalık eylem planı hazırla.`, 'action')} className="flex items-center gap-1.5 px-4 py-1.5 bg-teal-500/20 text-teal-300 hover:bg-teal-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-teal-500/30"><Icons.ListChecks size={14}/> Eylem Planı</button>
-                                <button onClick={() => handleAiRequest(`Sen bir tasavvuf uzmanısın. ${trName} Suresi'nin derin felsefi, tasavvufi ve manevi boyutlarını (tefekkür) analiz et. Günümüz insanına şifa olacak reçeteler sun.`, 'contemplation')} className="flex items-center gap-1.5 px-4 py-1.5 bg-purple-500/20 text-purple-300 hover:bg-purple-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-purple-500/30"><Icons.Sparkles size={14}/> Tefekkür Modu</button>
-                                <button onClick={() => handleAiRequest(`Sen manevi bir rehbersin. ${trName} Suresi'nin ana mesajlarını baz alarak, bu sureyi okuyan bir müminin kalbinden dökülebilecek çok içten bir dua metni hazırla.`, 'surah_dua')} className="flex items-center gap-1.5 px-4 py-1.5 bg-pink-500/20 text-pink-300 hover:bg-pink-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-pink-500/30"><Icons.Hands size={14}/> Suredan Dua Üret</button>
-                                <button onClick={() => handleAiRequest(`Şu an ekrandaki "${trName} Suresi"ni Bediüzzaman Said Nursi'nin tefekkür dünyası ışığında analiz et. Surenin mesajlarını Risale-i Nur penceresinden asrımız insanının manevi yaralarına reçete olarak sun.`, 'risale_surah')} className="flex items-center gap-1.5 px-4 py-1.5 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-emerald-500/30"><Icons.Feather size={14}/> Risale-i Nur İzahı</button>
-                                <button onClick={() => handleAiRequest(`Sen bir din kültürü ve ahlak bilgisi veya değerler eğitimi öğretmenisin. Şu an ekrandaki "${trName} Suresi"ni sınıftaki çocuklara veya gençlere sıkıcı olmadan, interaktif, oyunlaştırma ve drama gibi modern eğitim teknikleriyle nasıl işleyebileceğime dair harika bir ders işleniş ve etkinlik planı hazırla.`, 'class_activity')} className="flex items-center gap-1.5 px-4 py-1.5 bg-sky-500/20 text-sky-300 hover:bg-sky-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-sky-500/30"><Icons.Gamepad2 size={14}/> Sınıf Etkinlik Planı</button>
-                                <button onClick={() => handleAiRequest(`Sen bir Kuran ilimleri ve tefsir uzmanısın. Şu anki "${trName} Suresi"nin Kuran-ı Kerim'deki sıralamasını (Siyak-Sibak ilişkisini) analiz et. Bu sure neden bir önceki sureden sonra geliyor, neden bir sonraki sureye bağlanıyor?`, 'siyak_sibak')} className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-blue-500/30"><Icons.GitMerge size={14}/> Siyak-Sibak İlişkisi</button>
-                                <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nde Allah'ın hangi isimleri (Esma-ül Hüsna) daha çok ön plana çıkıyor? Analiz et.`, 'surah_esma')} className="flex items-center gap-1.5 px-4 py-1.5 bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-yellow-500/30"><Icons.Star size={14}/> Esma-ül Hüsna</button>
-                                <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nde adı geçen veya atıf yapılan peygamberleri, kavimleri ve karakterleri listele. Bu karakterlerin günümüz insanına verdikleri mesajı analiz et.`, 'surah_stories')} className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-500/20 text-orange-300 hover:bg-orange-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-orange-500/30"><Icons.Users size={14}/> Kıssalar ve Karakterler</button>
-                                <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"nin içerdiği ameli, ahlaki ve fıkhi hükümleri (helaller, haramlar, sosyal kurallar vb.) maddeler halinde özetle.`, 'surah_fiqh')} className="flex items-center gap-1.5 px-4 py-1.5 bg-fuchsia-500/20 text-fuchsia-300 hover:bg-fuchsia-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-fuchsia-500/30"><Icons.Scale size={14}/> Ameli ve Fıkhi Hükümler</button>
-                                <button onClick={() => handleAiRequest(`Şu anki "${trName} Suresi"ni okuyan bir müminin kendi iç dünyasına dönüp sorması gereken 5 kritik nefis muhasebesi (manevi check-up) sorusu hazırla.`, 'spiritual_checkup')} className="flex items-center gap-1.5 px-4 py-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-rose-500/30"><Icons.ClipboardList size={14}/> Manevi Check-Up</button>
-                                
-                                <button onClick={() => handleAiRequest(`Sen bir Kuran eğitmenisin. Şu anki "${trName} Suresi" hakkında kullanıcının anlama seviyesini test etmek için 3 adet harika ve düşündürücü çoktan seçmeli soru hazırla. Her sorunun altına kısa bir hikmetli açıklama ile doğru cevabı ekle.`, 'quiz')} className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-500/20 text-orange-300 hover:bg-orange-500/40 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-colors border border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.2)]">✨ İnteraktif Sure Quizi</button>
-                            </div>
-
+                            <SureKesfet surah={surah} trName={trName} handleAiRequest={handleAiRequest} />
+                            <SureCalismaKarti surah={surah} trName={trName} ayetSayisi={ayahs.length} kalemCalistir={kalemCalistir} />
+                            <div className="h-2"></div>
                             <div className="px-2 max-w-5xl mx-auto"> <NuzulTimelineCard data={timelineData} /> </div>
                         </div>
                     )}
@@ -5524,9 +6157,9 @@ JSON ŞEMASI:
                             }
 
                             return (
-                                <div key={ayah.number} id={`ayah-${ayah.numberInSurah}`} data-zk-kap={`sure-${surah.number}-${ayah.numberInSurah}`}>
+                                <div key={ayah.number} id={`ayah-${ayah.numberInSurah}`} data-zk-kap={`sure-${surah.number}-${ayah.numberInSurah}`} data-ayet={ayah.numberInSurah} data-yapildi={Zc ? Object.keys(Zc.ayetYapilan(surah.number, ayah.numberInSurah)).join(' ') : ''} onClickCapture={(e) => calismaTikla(e, ayah.numberInSurah)}>
                                     {(!focusMode && contextData) && <NuzulTimelineCard data={contextData} isRemote={!!remoteContexts[String(ayah.numberInSurah)]} />}
-                                    <div className={`relative p-4 md:p-6 rounded-2xl transition-all mt-2 ${ayahBgClass} ${isLastRead ? 'ring-2 ring-emerald-500/50' : ''}`}>
+                                    <div className={`zk-ayet-kart relative p-4 md:p-6 rounded-2xl transition-all mt-2 ${ayahBgClass} ${isLastRead ? 'ring-2 ring-emerald-500/50' : ''}`}>
                                         {ann && ann.cizim && drawAyah !== ayah.numberInSurah && <AyahDrawOverlay cizim={ann.cizim} />}
                                         {drawAyah === ayah.numberInSurah && (
                                             <AyahDrawCanvas
@@ -5559,8 +6192,11 @@ JSON ŞEMASI:
                                                     {ann && <span className="absolute top-1 right-1 w-2 h-2 rounded-full ring-1 ring-slate-900" style={{ background: ann.renk || '#fde047' }}></span>}
                                                 </button>
                                             </div>
+                                            {!focusMode && <AyetIlerleme sure={surah.number} ayet={ayah.numberInSurah} onAc={() => setIlerlemeAcik(ilerlemeAcik === ayah.numberInSurah ? null : ayah.numberInSurah)} />}
                                         </div>
                                         
+                                        {ilerlemeAcik === ayah.numberInSurah && <AyetIlerlemeListesi sure={surah.number} ayet={ayah.numberInSurah} kalemCalistir={kalemCalistir} kapat={() => setIlerlemeAcik(null)} />}
+                                        {!focusMode && hedefAyet === ayah.numberInSurah && ilerlemeAcik !== ayah.numberInSurah && <AyetUyari sure={surah.number} ayet={ayah.numberInSurah} kalemCalistir={kalemCalistir} />}
                                         <div className="relative mb-6">
                                             <p onClick={() => { if (!ezberMode && drawAyah === null) setAnatomi({ ayah, trText }); }} title="Dokun: Ayet Anatomisi" className={`text-right ${arabicFont} leading-[2.6] text-emerald-400 dir-rtl transition-all duration-300 ${ezberMode && !acikAyetler[ayah.numberInSurah] ? 'blur-md select-none' : 'cursor-pointer hover:text-emerald-300'}`} style={{fontSize: `${fontSize + 6}px`}}><ArapcaMetin metin={ayah.text} tecvidHam={tecvidListe ? tecvidListe[index] : null} gorunum={gorunum} /></p>
                                             {ezberMode && !acikAyetler[ayah.numberInSurah] && (
@@ -5572,11 +6208,12 @@ JSON ŞEMASI:
                                                 <button onClick={() => setAcikAyetler(p => { const n = { ...p }; delete n[ayah.numberInSurah]; return n; })} className="absolute top-0 left-0 text-[10px] text-slate-400 hover:text-amber-400 bg-slate-800/80 rounded-md px-1.5 py-0.5 flex items-center gap-1" title="Tekrar gizle"><Icons.EyeOff size={11}/> gizle</button>
                                             )}
                                         </div>
-                                        <div className="leading-relaxed font-serif text-slate-300 mb-6" style={{fontSize: `${fontSize}px`, fontFamily: mealFont || undefined, color: mealColor || undefined}}>
+                                        <div data-zk-meal="1" data-ayet={ayah.numberInSurah} className="leading-relaxed font-serif text-slate-300 mb-6" style={{fontSize: `${fontSize}px`, fontFamily: mealFont || undefined, color: mealColor || undefined}}>
                                             <span style={isaretStili(ann)}><HighlightedText text={trText} highlight={highlightedSearch} /></span>
                                             {trText !== '...' && ((translation[index - 1] && translation[index - 1].text === trText) || (translation[index + 1] && translation[index + 1].text === trText)) && (
                                                 <span className="block mt-1.5 text-[11px] not-italic font-sans text-slate-500">ℹ️ Bu meal, bu ayeti komşu ayetle birlikte çevirmiştir.</span>
                                             )}
+                                            {!focusMode && <button onClick={() => setMealPanel({ ayet: ayah.numberInSurah, arabic: ayah.text })} className="mt-2 inline-flex items-center gap-1.5 px-3 min-h-[34px] rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-200 text-[12px] font-sans font-bold not-italic hover:bg-amber-500/20" title="Diğer mealler">📚 Diğer mealler: Elmalılı, Diyanet, Ateş, Bulaç…</button>}
                                         </div>
 
                                         {markMenu === ayah.numberInSurah && (
@@ -5596,7 +6233,7 @@ JSON ŞEMASI:
                                                     <button onClick={() => { setMarkMenu(null); setDrawAyah(ayah.numberInSurah); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border bg-sky-900/30 text-sky-300 border-sky-500/40 hover:bg-sky-900/50 transition-colors" title="Ayetin üzerine elle çiz / yaz"><Icons.Pencil size={13}/> Elle Çiz</button>
                                                     {ann && ann.cizim && ann.cizim.strokes && ann.cizim.strokes.length > 0 && <button onClick={() => isaretGuncelle(ayah, trText, { cizim: null })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700 hover:text-rose-400 transition-colors"><Icons.X size={13}/> Çizimi Sil</button>}
                                                 </div>
-                                                <textarea defaultValue={(ann && ann.not) || ''} onBlur={(e) => isaretGuncelle(ayah, trText, { not: e.target.value })} placeholder="Bu ayet hakkında kişisel notun… (Örn: bunu ezberle, tefsirine bak)" rows={2} className="w-full p-2.5 rounded-xl bg-black/40 border border-slate-700 text-sm text-white focus:border-amber-500/60 outline-none resize-y placeholder:text-slate-500"></textarea>
+                                                <NotDuzenleyici deger={(ann && ann.not) || ''} onKaydet={(t) => { isaretGuncelle(ayah, trText, { not: t, t: Date.now() }); showToast && showToast('📝 Not kaydedildi'); }} placeholder="Bu ayet hakkında notun… (B kalın, U altı çizili, F fosforlu, 🎨 renkli)" />
                                                 <div className="flex justify-end mt-2">
                                                     <button onClick={() => setMarkMenu(null)} className="text-xs font-bold text-emerald-300 hover:bg-emerald-500/10 rounded-lg px-3 py-1.5 transition-colors">Bitti</button>
                                                 </div>
@@ -5606,7 +6243,7 @@ JSON ŞEMASI:
                                         {ann && ann.not && ann.not.trim() && markMenu !== ayah.numberInSurah && (
                                             <div onClick={() => setMarkMenu(ayah.numberInSurah)} className="mb-5 flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 cursor-pointer hover:bg-amber-500/15 transition-colors">
                                                 <Icons.StickyNote size={15} className="text-amber-400 mt-0.5 shrink-0"/>
-                                                <p className="text-sm text-amber-100/90 leading-relaxed whitespace-pre-wrap flex-1">{ann.not}</p>
+                                                <NotGoster metin={ann.not} className="text-sm text-amber-100/90 leading-relaxed flex-1" />
                                             </div>
                                         )}
 
@@ -5676,6 +6313,15 @@ JSON ŞEMASI:
                         })}
                     </div>
                     
+                    {!focusMode && <EkranKalemi sure={surah.number} showToast={showToast} onKaydet={(sonuc, metinler) => {
+                        Object.keys(sonuc).forEach(uid => {
+                            const no = +uid.split(':')[1]; const idx = ayahs.findIndex(x => x.numberInSurah === no); if (idx < 0) return;
+                            const a = ayahs[idx], tr = translation[idx] ? translation[idx].text : '', mev = annotations[uid] || {};
+                            const ekMetin = metinler && metinler[uid] && metinler[uid].trim() ? metinler[uid].trim() : '';
+                            isaretGuncelle(a, tr, { cizim: kalemCizimBirlestir(mev.cizim, sonuc[uid]), not: ekMetin ? ((mev.not ? mev.not + '\n' : '') + '✍️ ' + ekMetin) : (mev.not || ''), t: Date.now() });
+                        });
+                    }} />}
+                    {mealPanel && <MeallerPaneli sure={surah.number} ayet={mealPanel.ayet} sureAdi={trName} arabic={mealPanel.arabic} kapat={() => setMealPanel(null)} />}
                     {anatomi && (
                         <AyetAnatomisi
                             veri={{ ayah: anatomi.ayah, trText: anatomi.trText, trName, surahNo: surah.number }}
@@ -5864,101 +6510,484 @@ JSON ŞEMASI:
             );
         };
 
+        // ===== 📚 NOT KÜLLİYATI (v3.3): renkli zengin notlar, konulara göre düzen, AI cevaplarını saklama =====
+        // Not işaretleri: **kalın**  __altı çizili__  ==fosforlu==  ~~üstü çizili~~  {{#renk|metin}}
+        const notMarkupHtml = (metin) => {
+            let h = String(metin || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            h = h.replace(/\{\{(#[0-9a-fA-F]{3,8})\|([^{}]*?)\}\}/g, (m, c, t) => /^#[0-9a-fA-F]{3,8}$/.test(c) ? `<span style="color:${c};font-weight:600">${t}</span>` : t);
+            h = h.replace(/\*\*([^*]+?)\*\*/g, '<b>$1</b>');
+            h = h.replace(/__([^_]+?)__/g, '<u style="text-decoration-color:#34d399;text-decoration-thickness:2px;text-underline-offset:4px">$1</u>');
+            h = h.replace(/==([^=]+?)==/g, '<mark style="background:rgba(253,224,71,.35);color:inherit;border-radius:3px;padding:0 2px">$1</mark>');
+            h = h.replace(/~~([^~]+?)~~/g, '<s style="text-decoration-color:#f472b6">$1</s>');
+            return h.replace(/\n/g, '<br>');
+        };
+        const NotGoster = ({ metin, className = '' }) => <div className={`break-words ${className}`} dangerouslySetInnerHTML={{ __html: notMarkupHtml(metin) }} />;
+        const NOT_RENKLERI = ['#fde047', '#34d399', '#f472b6', '#60a5fa', '#fb923c', '#c084fc'];
+        const NotDuzenleyici = ({ deger, onKaydet, placeholder, otomatikOdak, satir = 3, blurKaydet = true }) => {
+            const ref = React.useRef(null);
+            const sonKayit = React.useRef(deger || '');
+            const kaydetBir = (x) => { if (x === sonKayit.current) return; sonKayit.current = x; onKaydet(x); };
+            const [t, setT] = React.useState(deger || '');
+            const [onizle, setOnizle] = React.useState(false);
+            const [renkAcik, setRenkAcik] = React.useState(false);
+            React.useEffect(() => { setT(deger || ''); sonKayit.current = deger || ''; }, [deger]);
+            const sar = (bas, son) => {
+                const el = ref.current; if (!el) return;
+                const a = el.selectionStart, b = el.selectionEnd, sec = t.slice(a, b);
+                const yeni = t.slice(0, a) + bas + sec + son + t.slice(b);
+                setT(yeni); setRenkAcik(false);
+                setTimeout(() => { try { el.focus(); const k = sec ? a + bas.length + sec.length + son.length : a + bas.length; el.setSelectionRange(k, k); } catch (e) {} }, 0);
+            };
+            const tb = 'min-w-[36px] min-h-[36px] px-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-[13px] hover:bg-slate-700';
+            return (
+                <div>
+                    <div className="flex flex-wrap gap-1.5 mb-2" role="toolbar" aria-label="Not biçimlendirme">
+                        <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => sar('**', '**')} className={`${tb} font-black`} aria-label="Kalın yazı">B</button>
+                        <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => sar('__', '__')} className={`${tb} underline`} aria-label="Altı çizili yazı">U</button>
+                        <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => sar('==', '==')} className={tb} aria-label="Fosforlu yazı"><span className="bg-yellow-300/40 px-1 rounded">F</span></button>
+                        <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => sar('~~', '~~')} className={`${tb} line-through`} aria-label="Üstü çizili yazı">S</button>
+                        <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setRenkAcik(!renkAcik)} className={tb} aria-label="Renkli yazı" aria-expanded={renkAcik}>🎨</button>
+                        {renkAcik && NOT_RENKLERI.map(c => <button key={c} type="button" onMouseDown={e => e.preventDefault()} onClick={() => sar(`{{${c}|`, '}}')} aria-label={`Renk ${c}`} className="w-9 h-9 rounded-full ring-1 ring-white/20" style={{ background: c }}></button>)}
+                        <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setOnizle(!onizle)} aria-pressed={onizle} className={`${tb} ml-auto ${onizle ? 'bg-emerald-600/30 border-emerald-500/50' : ''}`}>{onizle ? '✏️ Yaz' : '👁 Önizle'}</button>
+                    </div>
+                    {onizle ? <NotGoster metin={t || '…'} className="min-h-[72px] p-2.5 rounded-xl bg-black/40 border border-slate-700 text-[15px] text-slate-100 leading-relaxed" />
+                        : <textarea ref={ref} autoFocus={otomatikOdak} value={t} onChange={e => setT(e.target.value)} onBlur={() => { if (blurKaydet && t !== (deger || '')) kaydetBir(t); }} placeholder={placeholder || 'Notunu yaz… (B kalın, U altı çizili, F fosforlu, 🎨 renkli)'} rows={satir} className="w-full p-2.5 rounded-xl bg-black/40 border border-slate-700 text-[16px] text-white focus:border-amber-500/60 outline-none resize-y placeholder:text-slate-500"></textarea>}
+                    <div className="flex justify-end mt-2"><button type="button" onMouseDown={e => e.preventDefault()} onClick={() => { sonKayit.current = t; onKaydet(t); }} className="px-4 min-h-[38px] rounded-lg bg-emerald-500 text-emerald-950 text-[13px] font-bold">Kaydet</button></div>
+                </div>
+            );
+        };
+
+        const NOT_KONULARI = ['🕋 İman & Tevhid', '🕌 İbadet & Namaz', '🤲 Dua & Zikir', '🌿 Ahlak & Edep', '👨‍👩‍👧 Aile & Toplum', '⏳ Sabır & Tevekkül', '🌾 Şükür & Rızık', '⚖️ Ahiret & Hesap', '📜 Peygamberler & Kıssalar', '📚 İlim & Tefekkür', '💧 Tövbe & Rahmet', '🗂️ Diğer'];
+        const KONU_KELIMELER = [
+            ['🕋 İman & Tevhid', ['iman', 'tevhid', 'allah', 'rab', 'şirk', 'ilah', 'mümin', 'inan', 'kalp', 'kalb', 'yaratı']],
+            ['🕌 İbadet & Namaz', ['namaz', 'secde', 'rükû', 'ruku', 'oruç', 'zekât', 'zekat', 'hac', 'abdest', 'kıble', 'ibadet', 'kul']],
+            ['🤲 Dua & Zikir', ['dua', 'zikir', 'zikr', 'yalvar', 'tesbih', 'an ', 'anın', 'istiğfar', 'niyaz']],
+            ['🌿 Ahlak & Edep', ['ahlak', 'edep', 'yalan', 'doğru', 'emanet', 'kibir', 'tevazu', 'haset', 'gıybet', 'adalet', 'iyilik', 'güzel söz']],
+            ['👨‍👩‍👧 Aile & Toplum', ['anne', 'baba', 'aile', 'eş', 'çocuk', 'yetim', 'komşu', 'akraba', 'evlilik', 'toplum', 'kardeş']],
+            ['⏳ Sabır & Tevekkül', ['sabır', 'sabr', 'tevekkül', 'musibet', 'imtihan', 'sıkıntı', 'hastalık', 'zorluk', 'bela', 'dayan']],
+            ['🌾 Şükür & Rızık', ['şükür', 'şükr', 'nimet', 'rızık', 'rızk', 'borç', 'faiz', 'mal', 'infak', 'sadaka', 'kazanç', 'helal']],
+            ['⚖️ Ahiret & Hesap', ['ahiret', 'âhiret', 'cennet', 'cehennem', 'kıyamet', 'hesap', 'mizan', 'ölüm', 'kabir', 'diril']],
+            ['📜 Peygamberler & Kıssalar', ['peygamber', 'nebi', 'resul', 'musa', 'isa', 'ibrahim', 'yusuf', 'nuh', 'kıssa', 'firavun', 'meryem', 'süleyman', 'davud', 'adem']],
+            ['📚 İlim & Tefekkür', ['ilim', 'bilgi', 'akıl', 'tefekkür', 'düşün', 'ibret', 'ayet', 'kâinat', 'gök', 'yer']],
+            ['💧 Tövbe & Rahmet', ['tövbe', 'tevbe', 'rahmet', 'merhamet', 'bağışla', 'affet', 'mağfiret', 'günah', 'umut', 'ümit']]
+        ];
+        const notKonuTahmin = (metin) => {
+            const m = ' ' + String(metin || '').toLocaleLowerCase('tr') + ' ';
+            let en = '🗂️ Diğer', enP = 0;
+            KONU_KELIMELER.forEach(([k, l]) => { const p = l.reduce((a, w) => a + (m.includes(w) ? 1 : 0), 0); if (p > enP) { enP = p; en = k; } });
+            return en;
+        };
+        const notlariAIileDuzenle = async (liste) => {
+            const parca = liste.map(x => ({ id: x.id, metin: String(x.metin || '').slice(0, 300) }));
+            const istem = `Aşağıdaki Kur'an çalışma notlarının her birini şu konu başlıklarından TAM OLARAK birine ata (başlığı aynen yaz): ${JSON.stringify(NOT_KONULARI)}.\nSadece JSON nesnesi döndür: {"id": "konu", ...}\nNotlar: ${JSON.stringify(parca)}`;
+            const sonuc = await GeminiAPI.generateJSON(istem);
+            const obj = Array.isArray(sonuc) ? Object.fromEntries(sonuc.map(x => [x.id, x.konu])) : (sonuc || {});
+            const temiz = {}; Object.keys(obj).forEach(id => { if (NOT_KONULARI.includes(obj[id])) temiz[id] = obj[id]; });
+            if (!Object.keys(temiz).length) throw new Error('boş sonuç');
+            return temiz;
+        };
+
+        // Külliyat deposu: yapay zekâ cevapları ve serbest notlar
+        const ZKULLIYAT = (() => {
+            const LS = 'zirve_kulliyat'; let dinle = [];
+            const oku = () => { try { const a = JSON.parse(localStorage.getItem(LS) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+            const yaz = (a) => {
+                a.sort((x, y) => (y.sabit ? 1 : 0) - (x.sabit ? 1 : 0) || y.t - x.t);
+                while (a.length > 400) { const i = a.map(x => !x.sabit).lastIndexOf(true); if (i < 0) break; a.splice(i, 1); }
+                try { localStorage.setItem(LS, JSON.stringify(a)); } catch (e) { try { window.ZIRVE && window.ZIRVE.toast('Depolama dolu: eski notları silmen gerekebilir', 'red'); } catch (x) {} }
+                dinle.forEach(f => { try { f(); } catch (x) {} });
+            };
+            const ekle = (o) => {
+                const a = oku(); const t = Date.now();
+                const ayni = a.find(x => x.baslik === o.baslik && x.metin === o.metin && t - x.t < 60000); if (ayni) return ayni.id;
+                const id = 'k' + t.toString(36) + Math.random().toString(36).slice(2, 6);
+                a.push({ id, t, tur: o.tur || 'serbest', baslik: String(o.baslik || 'Not').slice(0, 160), metin: String(o.metin || ''), sure: o.sure || null, ayet: o.ayet || null, sureAdi: o.sureAdi || '', konu: o.konu || notKonuTahmin((o.baslik || '') + ' ' + (o.metin || '')), renk: o.renk || '#fde047', sabit: !!o.sabit });
+                yaz(a); return id;
+            };
+            const guncelle = (id, p) => { const a = oku(); a.forEach(x => { if (x.id === id) Object.assign(x, p); }); yaz(a); };
+            const sil = (id) => yaz(oku().filter(x => x.id !== id));
+            const abone = (f) => { dinle.push(f); return () => { dinle = dinle.filter(x => x !== f); }; };
+            window.addEventListener('storage', (e) => { if (e.key === LS) dinle.forEach(f => { try { f(); } catch (x) {} }); });
+            return { oku, ekle, guncelle, sil, abone };
+        })();
+        try { window.ZKULLIYAT = ZKULLIYAT; } catch (e) {}
+        const useKulliyat = () => { const [, setT] = React.useState(0); React.useEffect(() => ZKULLIYAT.abone(() => setT(t => t + 1)), []); return ZKULLIYAT.oku(); };
+
+        const KulliyataEkleDugmesi = ({ baslik, metin, baglam }) => {
+            const [ok, setOk] = React.useState(false);
+            React.useEffect(() => { setOk(false); }, [metin]);
+            return (
+                <button onClick={() => { const b = baglam || {}; ZKULLIYAT.ekle({ tur: 'ai', baslik: (b.sureAdi ? `${b.sureAdi}${b.ayet ? ' ' + b.ayet + '. ayet' : ''} · ` : '') + baslik, metin, sure: b.sure, ayet: b.ayet, sureAdi: b.sureAdi }); setOk(true); try { window.ZIRVE && window.ZIRVE.toast('📌 Not Külliyatına eklendi', 'green'); } catch (e) {} }}
+                    disabled={ok} className={`flex items-center gap-1 text-[10px] font-bold rounded-lg px-2 py-1 border ${ok ? 'text-emerald-200 bg-emerald-600/30 border-emerald-500/40' : 'text-amber-200 bg-amber-600/20 hover:bg-amber-600/30 border-amber-500/30'}`}>
+                    {ok ? '✓ Notlarımda' : '📌 Notlarıma ekle'}
+                </button>
+            );
+        };
+
+        // Çizimin yalnız çizgilerin olduğu bölgesini gösterir (boş alan kalmasın)
+        const CizimOnizleme = ({ cizim }) => {
+            const xs = [], ys = []; (cizim.strokes || []).forEach(s => (s.p || []).forEach(([x, y]) => { xs.push(x); ys.push(y); }));
+            if (!xs.length) return null;
+            const pad = 0.03, x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, w = Math.max(0.15, Math.max(...xs) - x0 + pad), h = Math.max(0.08, Math.max(...ys) - y0 + pad);
+            return (
+                <div className="relative w-full rounded-xl bg-black/30 border border-sky-500/20 mb-2 overflow-hidden">
+                    <span className="absolute left-2 top-1.5 text-[10px] font-bold text-sky-300">✏️ El yazısı / çizim</span>
+                    <svg viewBox={`${x0} ${y0} ${w} ${h}`} className="w-full block" style={{ maxHeight: 220, paddingTop: 18 }} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                        {cizim.strokes.map((s, i) => (s.p && s.p.length) ? <polyline key={i} points={s.p.map(([x, y]) => `${x},${y}`).join(' ')} fill="none" stroke={s.renk} strokeWidth={s.kalinlik} strokeLinecap="round" strokeLinejoin="round" opacity={s.mod === 'hi' ? 0.4 : 1} vectorEffect="non-scaling-stroke" /> : null)}
+                    </svg>
+                </div>
+            );
+        };
         const NotesView = ({ annotations, setAnnotation, surahs, setCurrentSurah, setView, showToast }) => {
             React.useEffect(() => { window.scrollTo(0, 0); }, []);
+            const kul = useKulliyat();
+            const [sekme, setSekme] = React.useState('ayet');
             const [ara, setAra] = React.useState('');
+            const [sira, setSira] = React.useState('sure');
+            const [duzen, setDuzen] = React.useState(null);
+            const [yeniAcik, setYeniAcik] = React.useState(false);
+            const [yeniRenk, setYeniRenk] = React.useState('#fde047');
+            const [yeniBaslik, setYeniBaslik] = React.useState('');
+            const [mesgul, setMesgul] = React.useState(false);
             const [temizleOnay, setTemizleOnay] = React.useState(false);
-
-            const liste = React.useMemo(() => {
+            const [acikKart, setAcikKart] = React.useState({});
+            const toast = (m) => { showToast ? showToast(m) : (window.ZIRVE && window.ZIRVE.toast(m, 'green')); };
+            const ayetler = React.useMemo(() => {
                 const arr = Object.keys(annotations || {}).map(uid => ({ uid, ...annotations[uid] }));
-                arr.sort((a, b) => (a.surahNo - b.surahNo) || (a.ayahNo - b.ayahNo));
+                arr.forEach(a => { a._konu = a.konu || notKonuTahmin((a.ayet || '') + ' ' + (a.not || '')); });
+                arr.sort((a, b) => sira === 'yeni' ? ((b.t || 0) - (a.t || 0)) : ((a.surahNo - b.surahNo) || (a.ayahNo - b.ayahNo)));
                 return arr;
-            }, [annotations]);
-
+            }, [annotations, sira]);
             const q = ara.trim().toLocaleLowerCase('tr');
-            const gosterilen = q ? liste.filter(a => ((a.surahName || '') + ' ' + (a.ayet || '') + ' ' + (a.not || '')).toLocaleLowerCase('tr').includes(q)) : liste;
-
-            const git = (a) => {
-                const s = surahs.find(x => x.number === a.surahNo);
-                if (s) { setCurrentSurah(s); setView('surah'); sessionStorage.setItem('jumpToAyah', a.ayahNo); }
+            const uy = (x) => !q || x.toLocaleLowerCase('tr').includes(q);
+            const ayetGor = ayetler.filter(a => uy(`${a.surahName || ''} ${a.ayahNo} ${a.ayet || ''} ${a.not || ''} ${a._konu}`));
+            const kulGor = kul.filter(k => uy(`${k.baslik} ${k.metin} ${k.sureAdi || ''} ${k.konu || ''}`));
+            const annKaydet = (a, patch, zamanKoru) => { const { uid, _konu, ...temiz } = a; setAnnotation(uid, { ...temiz, ...patch, t: zamanKoru ? (a.t || 0) : Date.now() }); };
+            const git = (s, a) => { const x = surahs.find(z => z.number === s); if (x) { setCurrentSurah(x); setView('surah'); if (a) sessionStorage.setItem('jumpToAyah', a); } };
+            const konularaGore = async () => {
+                setMesgul(true);
+                const liste = [...ayetler.map(a => ({ id: 'a|' + a.uid, metin: `${a.ayet || ''} — ${a.not || ''}` })), ...kul.map(k => ({ id: 'k|' + k.id, metin: `${k.baslik} — ${String(k.metin).slice(0, 200)}` }))];
+                let harita = null, ai = true;
+                harita = {};
+                for (let i = 0; i < liste.length; i += 60) { try { Object.assign(harita, await notlariAIileDuzenle(liste.slice(i, i + 60))); } catch (e) { ai = false; } }
+                liste.forEach(x => { if (!harita[x.id]) harita[x.id] = notKonuTahmin(x.metin); });
+                ayetler.forEach(a => { const k = harita['a|' + a.uid]; if (k && k !== a.konu) annKaydet(a, { konu: k }, true); });
+                kul.forEach(k => { const y = harita['k|' + k.id]; if (y && y !== k.konu) ZKULLIYAT.guncelle(k.id, { konu: y }); });
+                setMesgul(false); setSekme('konu');
+                toast(ai ? '🧠 Notların yapay zekâyla konulara ayrıldı' : '🗂️ Notların anahtar kelimelere göre konulara ayrıldı (yapay zekâya ulaşılamadı)');
             };
-            const sil = (a) => setAnnotation(a.uid, null);
-            const hepsiniSil = () => {
-                Object.keys(annotations || {}).forEach(uid => setAnnotation(uid, null));
-                setTemizleOnay(false);
-                showToast && showToast("Tüm işaretler ve notlar silindi");
+            const disaAktar = () => {
+                let md = `# Not Külliyatım\n\n_${new Date().toLocaleDateString('tr-TR')} · Kur'an ve Siyer Atlası_\n\n`;
+                NOT_KONULARI.forEach(k => {
+                    const a = ayetler.filter(x => x._konu === k), c = kul.filter(x => (x.konu || '🗂️ Diğer') === k);
+                    if (!a.length && !c.length) return;
+                    md += `## ${k}\n\n`;
+                    a.forEach(x => { md += `### ${x.surahName || 'Sure ' + x.surahNo} ${x.ayahNo}. ayet\n> ${x.ayet || ''}\n\n${x.not || ''}\n\n`; });
+                    c.forEach(x => { md += `### ${x.baslik}\n\n${x.metin}\n\n`; });
+                });
+                try { const b = new Blob([md], { type: 'text/markdown' }), u = URL.createObjectURL(b), l = document.createElement('a'); l.href = u; l.download = 'not-kulliyatim.md'; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); toast('⬇️ Notların indirildi'); } catch (e) { toast('İndirilemedi'); }
             };
+            const kopyala = (t) => { try { navigator.clipboard.writeText(t); toast('📋 Kopyalandı'); } catch (e) {} };
+            const paylas = (t) => { try { if (navigator.share) navigator.share({ text: t }); else kopyala(t); } catch (e) {} };
+            const hepsiniSil = () => { Object.keys(annotations || {}).forEach(uid => setAnnotation(uid, null)); setTemizleOnay(false); toast('Tüm ayet işaretleri ve notları silindi'); };
             const stilAdi = (s) => s === 'highlight' ? 'Fosforlu' : s === 'underline' ? 'Altı çizili' : s === 'strike' ? 'Üstü çizili' : '';
-
+            const KonuSec = ({ deger, onDegis }) => (
+                <select value={deger} onChange={e => onDegis(e.target.value)} onClick={e => e.stopPropagation()} aria-label="Konu" style={{ fontSize: 12 }} className="max-w-[60%] min-h-[30px] text-[11px] font-bold rounded-full bg-slate-800 border border-slate-700 text-slate-200 px-2">
+                    {NOT_KONULARI.map(k => <option key={k} value={k}>{k}</option>)}
+                </select>
+            );
+            const AyetKart = ({ a }) => (
+                <div className="relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 shadow-lg overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: a.renk || '#fbbf24' }}></div>
+                    <div className="p-4 pl-5">
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                            <button onClick={() => git(a.surahNo, a.ayahNo)} className="text-xs font-bold text-amber-400 flex items-center gap-1.5 min-h-[30px]"><Icons.BookOpen size={13}/> {a.surahName || ('Sure ' + a.surahNo)} · {a.ayahNo}. Ayet →</button>
+                            {KonuSec({ deger: a._konu, onDegis: (k) => annKaydet(a, { konu: k }, true) })}
+                        </div>
+                        {a.ayet && <p className="text-[14px] opacity-80 leading-relaxed text-slate-200 mb-2">"{a.ayet}{a.ayet.length >= 120 ? '…' : ''}"</p>}
+                        <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                            {a.stil && <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border" style={{ color: a.renk || '#fbbf24', borderColor: (a.renk || '#fbbf24') + '66', background: (a.renk || '#fbbf24') + '18' }}>{stilAdi(a.stil)}</span>}
+                            {NOT_RENKLERI.map(c => <button key={c} onClick={() => annKaydet(a, { renk: c, stil: a.stil || 'highlight' })} aria-label={`Rengi ${c} yap`} className={`w-6 h-6 rounded-full ${a.renk === c ? 'ring-2 ring-white' : 'ring-1 ring-white/20'}`} style={{ background: c }}></button>)}
+                        </div>
+                        {a.cizim && a.cizim.strokes && a.cizim.strokes.length > 0 && (
+                            <CizimOnizleme cizim={a.cizim} />
+                        )}
+                        {duzen === a.uid ? <NotDuzenleyici deger={a.not || ''} otomatikOdak onKaydet={(t) => { annKaydet(a, { not: t }); setDuzen(null); toast('📝 Not kaydedildi'); }} />
+                            : (a.not && a.not.trim()) ? <div onClick={() => setDuzen(a.uid)} className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-sm text-amber-50 leading-relaxed cursor-text"><NotGoster metin={a.not} /></div>
+                            : <button onClick={() => setDuzen(a.uid)} className="text-[12px] font-bold text-amber-300 min-h-[34px]">➕ Not yaz</button>}
+                        <div className="flex justify-end gap-1 mt-2">
+                            {duzen !== a.uid && a.not && <button onClick={() => setDuzen(a.uid)} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-slate-300 hover:bg-white/5">✏️ Düzenle</button>}
+                            <button onClick={() => setAnnotation(a.uid, null)} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-slate-500 hover:text-rose-400">🗑 Sil</button>
+                        </div>
+                    </div>
+                </div>
+            );
+            const KulKart = ({ k }) => {
+                const genis = !!acikKart[k.id];
+                return (
+                    <div className="relative rounded-2xl bg-slate-900/80 border border-slate-800 shadow-lg overflow-hidden">
+                        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: k.renk || '#fde047' }}></div>
+                        <div className="p-4 pl-5">
+                            <div className="flex items-start justify-between gap-2 mb-1.5">
+                                <p className="text-[13px] font-bold text-white leading-snug flex-1">{k.sabit ? '📌 ' : ''}{k.tur === 'ai' ? '✨ ' : '📝 '}{k.baslik}</p>
+                                {KonuSec({ deger: k.konu || '🗂️ Diğer', onDegis: (y) => ZKULLIYAT.guncelle(k.id, { konu: y }) })}
+                            </div>
+                            <p className="text-[10.5px] text-slate-500 mb-2">{new Date(k.t).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}{k.sureAdi ? ` · ${k.sureAdi}${k.ayet ? ' ' + k.ayet + '. ayet' : ''}` : ''}</p>
+                            {duzen === k.id ? <NotDuzenleyici deger={k.metin} otomatikOdak satir={6} onKaydet={(t) => { ZKULLIYAT.guncelle(k.id, { metin: t, tur: k.tur === 'ai' ? 'ai' : 'serbest' }); setDuzen(null); toast('📝 Kaydedildi'); }} />
+                                : <div className={`relative text-[14px] text-slate-200 leading-relaxed ${genis ? '' : 'max-h-28 overflow-hidden'}`}>
+                                    {k.tur === 'ai' ? <div className="prose prose-invert prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: (() => { try { return marked.parse(temizleLatex(k.metin || '')); } catch (e) { return notMarkupHtml(k.metin); } })() }} /> : <NotGoster metin={k.metin} />}
+                                    {!genis && <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-slate-900 to-transparent"></div>}
+                                </div>}
+                            <div className="flex flex-wrap gap-1 mt-2">
+                                <button onClick={() => setAcikKart(p => ({ ...p, [k.id]: !genis }))} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-emerald-300 hover:bg-white/5">{genis ? 'Daralt' : 'Devamı'}</button>
+                                {k.sure ? <button onClick={() => git(k.sure, k.ayet)} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-amber-300 hover:bg-white/5">Ayete git →</button> : null}
+                                <button onClick={() => setDuzen(duzen === k.id ? null : k.id)} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-slate-300 hover:bg-white/5">✏️ Düzenle</button>
+                                <button onClick={() => ZKULLIYAT.guncelle(k.id, { sabit: !k.sabit })} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-slate-300 hover:bg-white/5">{k.sabit ? 'Sabiti kaldır' : '📌 Sabitle'}</button>
+                                <button onClick={() => kopyala(`${k.baslik}\n\n${k.metin}`)} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-slate-300 hover:bg-white/5">Kopyala</button>
+                                <button onClick={() => paylas(`${k.baslik}\n\n${k.metin}`)} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-slate-300 hover:bg-white/5">Paylaş</button>
+                                <button onClick={() => ZKULLIYAT.sil(k.id)} className="px-2.5 min-h-[32px] rounded-lg text-[11px] font-bold text-slate-500 hover:text-rose-400 ml-auto">🗑 Sil</button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+            const toplam = ayetler.length + kul.length;
+            const sekmeler = [['ayet', 'Ayetlerim', ayetler.length], ['konu', 'Konular', null], ['kul', 'Külliyat', kul.length]];
             return (
                 <div className="min-h-screen pb-24 p-5 pt-10 max-w-2xl lg:max-w-5xl mx-auto zs-ust" style={{ "--zs-ust": "2.5rem" }}>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1 gap-2">
                         <h2 className="text-2xl font-bold flex items-center gap-2.5 text-white">
                             <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25"><Icons.StickyNote size={18} className="text-white"/></span>
-                            Notlarım
+                            Not Külliyatım
                         </h2>
-                        {liste.length > 0 && <span className="text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-full px-3 py-1">{liste.length} ayet</span>}
+                        {toplam > 0 && <span className="text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-full px-3 py-1">{toplam} not</span>}
                     </div>
-                    <p className="text-xs text-slate-400 mb-5">İşaretlediğin ve not aldığın ayetler burada. Dokununca ayete gidersin.</p>
-
-                    {liste.length === 0 ? (
-                        <div className="mt-16 text-center animate-fade-in">
-                            <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center">
-                                <Icons.Highlighter size={32} className="text-amber-500/70"/>
-                            </div>
-                            <p className="text-slate-300 font-semibold">Henüz işaret veya notun yok</p>
-                            <p className="text-slate-500 text-sm mt-1.5 max-w-xs mx-auto leading-relaxed">Bir ayeti okurken üstteki <Icons.Highlighter size={13} className="inline text-amber-400 -mt-0.5"/> kalem simgesine dokunarak fosforlu işaretle, altını çiz, elle çiz veya not al.</p>
-                            <button onClick={() => setView('home')} className="mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/20 hover:brightness-110 transition-all">Kur'an'ı Aç</button>
+                    <p className="text-xs text-slate-400 mb-4">Ayet notların, kalem yazıların ve sakladığın yapay zekâ cevapları. Konulara göre kendiliğinden düzenlenir.</p>
+                    <div role="tablist" className="flex gap-1 p-1 rounded-2xl bg-slate-800/70 border border-slate-700 mb-3">
+                        {sekmeler.map(([id, ad, n]) => <button key={id} role="tab" aria-selected={sekme === id} onClick={() => setSekme(id)} className={`flex-1 min-h-[42px] rounded-xl text-[13px] font-bold ${sekme === id ? 'bg-amber-500 text-amber-950' : 'text-slate-300'}`}>{ad}{n ? <span className="ml-1 text-[11px] opacity-70">{n}</span> : null}</button>)}
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                        <button onClick={() => { setYeniAcik(!yeniAcik); setSekme('kul'); }} className="px-3 min-h-[40px] rounded-xl bg-emerald-500 text-emerald-950 text-[13px] font-bold">➕ Yeni not</button>
+                        <button onClick={konularaGore} disabled={mesgul || !toplam} className="px-3 min-h-[40px] rounded-xl bg-indigo-500/20 border border-indigo-400/40 text-indigo-100 text-[13px] font-bold disabled:opacity-40">{mesgul ? '⏳ Düzenleniyor…' : '🧠 Konulara göre düzenle'}</button>
+                        <button onClick={disaAktar} disabled={!toplam} className="px-3 min-h-[40px] rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-[13px] font-bold disabled:opacity-40">⬇️ Dışa aktar</button>
+                        {sekme === 'ayet' && <select value={sira} onChange={e => setSira(e.target.value)} aria-label="Sıralama" className="min-h-[40px] px-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-[13px]"><option value="sure">Sure sırası</option><option value="yeni">En yeni</option></select>}
+                    </div>
+                    {yeniAcik && (
+                        <div className="mb-4 p-3 rounded-2xl bg-slate-900 border border-emerald-500/30">
+                            <input value={yeniBaslik} onChange={e => setYeniBaslik(e.target.value)} placeholder="Başlık (örn. Sabır üzerine)" aria-label="Not başlığı" className="w-full mb-2 min-h-[42px] px-3 rounded-xl bg-black/40 border border-slate-700 text-[16px] text-white" />
+                            <div className="flex gap-1.5 mb-2">{NOT_RENKLERI.map(c => <button key={c} onClick={() => setYeniRenk(c)} aria-label={`Not rengi ${c}`} className={`w-8 h-8 rounded-full ${yeniRenk === c ? 'ring-2 ring-white' : 'ring-1 ring-white/20'}`} style={{ background: c }}></button>)}</div>
+                            <NotDuzenleyici deger="" otomatikOdak satir={5} blurKaydet={false} onKaydet={(t) => { if (!t.trim() && !yeniBaslik.trim()) return; ZKULLIYAT.ekle({ tur: 'serbest', baslik: yeniBaslik.trim() || t.split('\n')[0].replace(/[*_=~{}#|]/g, '').slice(0, 60) || 'Not', metin: t, renk: yeniRenk }); setYeniBaslik(''); setYeniAcik(false); toast('📝 Not eklendi'); }} />
                         </div>
-                    ) : (
-                        <>
-                            {liste.length > 4 && (
-                                <div className="relative mb-4">
-                                    <Icons.Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                                    <input value={ara} onChange={(e) => setAra(e.target.value)} placeholder="Notlarda ara (sure, metin, not)…" className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-black/30 border border-slate-700 text-sm text-white focus:border-amber-500/60 outline-none" />
-                                </div>
-                            )}
-
-                            <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-3 lg:items-start">
-                                {gosterilen.map((a) => (
-                                    <div key={a.uid} className="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 hover:border-amber-500/40 transition-all shadow-lg overflow-hidden animate-fade-in">
-                                        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: a.renk || '#fbbf24' }}></div>
-                                        <div className="p-4 pl-5 cursor-pointer" onClick={() => git(a)}>
-                                            <div className="flex justify-between items-start gap-3 mb-2">
-                                                <p className="text-xs font-bold text-amber-400 flex items-center gap-1.5"><Icons.BookOpen size={13}/> {a.surahName || ('Sure ' + a.surahNo)} · {a.ayahNo}. Ayet</p>
-                                                <button onClick={(e) => { e.stopPropagation(); sil(a); }} className="text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg p-1 -mt-1 -mr-1 transition-colors shrink-0" title="Sil"><Icons.X size={16}/></button>
-                                            </div>
-                                            {a.ayet && <p className="text-[14px] opacity-80 leading-relaxed text-slate-200 mb-2">"{a.ayet}{a.ayet.length >= 120 ? '…' : ''}"</p>}
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                {a.stil && <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border" style={{ color: a.renk || '#fbbf24', borderColor: (a.renk || '#fbbf24') + '66', background: (a.renk || '#fbbf24') + '18' }}><span className="w-2 h-2 rounded-full" style={{ background: a.renk || '#fbbf24' }}></span>{stilAdi(a.stil)}</span>}
-                                                {a.cizim && a.cizim.strokes && a.cizim.strokes.length > 0 && <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/10"><Icons.Pencil size={10}/> El çizimi</span>}
-                                            </div>
-                                            {a.not && a.not.trim() && (
-                                                <div className="mt-2.5 flex items-start gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25">
-                                                    <Icons.StickyNote size={14} className="text-amber-400 mt-0.5 shrink-0"/>
-                                                    <p className="text-sm text-amber-100/90 leading-relaxed whitespace-pre-wrap flex-1">{a.not}</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                                {q && gosterilen.length === 0 && <p className="text-center text-slate-500 text-sm py-8">"{ara}" için sonuç bulunamadı.</p>}
-                            </div>
-
-                            <div className="mt-6 flex justify-center">
-                                {!temizleOnay ? (
-                                    <button onClick={() => setTemizleOnay(true)} className="text-xs font-semibold text-slate-500 hover:text-rose-400 flex items-center gap-1.5 px-4 py-2 rounded-lg hover:bg-rose-500/5 transition-colors"><Icons.Trash size={14}/> Tümünü Temizle</button>
-                                ) : (
-                                    <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 animate-fade-in">
-                                        <span className="text-xs text-rose-200 font-semibold">Tüm işaret ve notlar silinsin mi?</span>
-                                        <button onClick={hepsiniSil} className="text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white rounded-lg px-3 py-1.5 transition-colors">Evet, sil</button>
-                                        <button onClick={() => setTemizleOnay(false)} className="text-xs font-bold bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-1.5 transition-colors">Vazgeç</button>
-                                    </div>
-                                )}
-                            </div>
-                        </>
+                    )}
+                    {toplam > 3 && (
+                        <div className="relative mb-4">
+                            <Icons.Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                            <input value={ara} onChange={(e) => setAra(e.target.value)} placeholder="Notlarda ara (sure, metin, konu)…" aria-label="Notlarda ara" className="w-full pl-9 pr-3 min-h-[44px] rounded-xl bg-black/30 border border-slate-700 text-[16px] text-white focus:border-amber-500/60 outline-none" />
+                        </div>
+                    )}
+                    {toplam === 0 && !yeniAcik && (
+                        <div className="mt-12 text-center">
+                            <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center"><Icons.Highlighter size={32} className="text-amber-500/70"/></div>
+                            <p className="text-slate-300 font-semibold">Henüz notun yok</p>
+                            <p className="text-slate-500 text-sm mt-1.5 max-w-xs mx-auto leading-relaxed">Ayetteki kalem simgesiyle işaretle ve not al, sağ alttaki ✏️ kalemle ekrana yaz ya da yapay zekâ cevaplarında “📌 Notlarıma ekle”ye dokun.</p>
+                            <button onClick={() => setView('home')} className="mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-bold px-6 py-3 rounded-xl">Kur'an'ı Aç</button>
+                        </div>
+                    )}
+                    {sekme === 'ayet' && <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-3 lg:items-start">{ayetGor.map(a => <React.Fragment key={a.uid}>{AyetKart({ a: a })}</React.Fragment>)}</div>}
+                    {sekme === 'kul' && <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-3 lg:items-start">{kulGor.map(k => <React.Fragment key={k.id}>{KulKart({ k: k })}</React.Fragment>)}{kulGor.length === 0 && toplam > 0 && <p className="text-center text-slate-500 text-sm py-8">Külliyat boş. Yapay zekâ cevaplarındaki “📌 Notlarıma ekle” ile doldurabilirsin.</p>}</div>}
+                    {sekme === 'konu' && NOT_KONULARI.map(k => {
+                        const a = ayetGor.filter(x => x._konu === k), c = kulGor.filter(x => (x.konu || '🗂️ Diğer') === k);
+                        if (!a.length && !c.length) return null;
+                        return (
+                            <details key={k} open className="mb-4 rounded-2xl border border-slate-800 bg-slate-900/40">
+                                <summary className="cursor-pointer list-none px-4 min-h-[48px] flex items-center justify-between text-[14px] font-bold text-white">{k}<span className="text-[11px] text-slate-400">{a.length + c.length} not</span></summary>
+                                <div className="p-3 pt-0 space-y-3">{a.map(x => <React.Fragment key={x.uid}>{AyetKart({ a: x })}</React.Fragment>)}{c.map(x => <React.Fragment key={x.id}>{KulKart({ k: x })}</React.Fragment>)}</div>
+                            </details>
+                        );
+                    })}
+                    {q && ayetGor.length + kulGor.length === 0 && <p className="text-center text-slate-500 text-sm py-8">"{ara}" için sonuç bulunamadı.</p>}
+                    {ayetler.length > 0 && sekme === 'ayet' && (
+                        <div className="mt-6 flex justify-center">
+                            {!temizleOnay ? <button onClick={() => setTemizleOnay(true)} className="text-xs font-semibold text-slate-500 hover:text-rose-400 flex items-center gap-1.5 px-4 min-h-[40px] rounded-lg"><Icons.Trash size={14}/> Ayet notlarını temizle</button>
+                                : <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2"><span className="text-xs text-rose-200 font-semibold">Tüm ayet işaret ve notları silinsin mi?</span><button onClick={hepsiniSil} className="text-xs font-bold bg-rose-600 text-white rounded-lg px-3 min-h-[34px]">Evet, sil</button><button onClick={() => setTemizleOnay(false)} className="text-xs font-bold bg-slate-700 text-slate-200 rounded-lg px-3 min-h-[34px]">Vazgeç</button></div>}
+                        </div>
                     )}
                 </div>
+            );
+        };
+
+        // ===== ✏️ EKRAN KALEMİ (v3.3): sayfanın üstüne yaz; kaydedince her çizgi altındaki ayetin notuna eklenir =====
+        const KALEM_RENK = ['#f43f5e', '#fbbf24', '#34d399', '#60a5fa', '#c084fc', '#ffffff'];
+        const KALEM_KALINLIK = [{ ad: 'İnce', v: 2 }, { ad: 'Orta', v: 4 }, { ad: 'Kalın', v: 7 }];
+        // Ayet kartlarının belge koordinatlarındaki dikdörtgenleri
+        const kalemKartlar = (sure) => Array.from(document.querySelectorAll(`[data-zk-kap^="sure-${sure}-"]`)).map(w => {
+            const k = w.querySelector('.zk-ayet-kart') || w; const r = k.getBoundingClientRect();
+            return { uid: `${sure}:${w.getAttribute('data-ayet') || String(w.getAttribute('data-zk-kap')).split('-').pop()}`, x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height };
+        }).filter(k => k.w > 0);
+        // Her çizgiyi, noktalarının çoğunun düştüğü karta; hiçbirine düşmüyorsa dikeyde en yakın karta ata
+        const kalemAta = (cizgiler, kartlar) => {
+            const sonuc = {};
+            if (!kartlar.length) return sonuc;
+            cizgiler.forEach(c => {
+                if (!c.p || !c.p.length) return;
+                let en = null, enN = 0;
+                kartlar.forEach(k => { const n = c.p.filter(([x, y]) => x >= k.x && x <= k.x + k.w && y >= k.y && y <= k.y + k.h).length; if (n > enN) { enN = n; en = k; } });
+                if (!en) { const cy = c.p.reduce((a, p) => a + p[1], 0) / c.p.length; en = kartlar.reduce((a, k) => { const d = cy < k.y ? k.y - cy : cy > k.y + k.h ? cy - (k.y + k.h) : 0; return !a || d < a.d ? { k, d } : a; }, null).k; }
+                (sonuc[en.uid] = sonuc[en.uid] || { kart: en, cizgiler: [] }).cizgiler.push(c);
+            });
+            return sonuc;
+        };
+        // Belge koordinatından kart koordinatına: x,y kart GENİŞLİĞİNE bölünür (AyahDrawOverlay ile aynı), kalınlık ekran pikselidir
+        const kalemNormalize = (grup) => {
+            const k = grup.kart, W = k.w || 1;
+            return { oran: Math.round((k.h / W) * 1000) / 1000, ekStrokes: grup.cizgiler.map(c => ({ renk: c.renk, kalinlik: c.kalinlik, mod: c.mod, p: c.p.map(([x, y]) => [Math.round(((x - k.x) / W) * 1000) / 1000, Math.round(((y - k.y) / W) * 1000) / 1000]) })) };
+        };
+        const kalemCizimBirlestir = (mevcut, ek) => ({ oran: ek.oran || (mevcut && mevcut.oran) || 0.5, strokes: [...((mevcut && mevcut.strokes) || []), ...ek.ekStrokes] });
+        // El yazısını yazıya çevir (Gemini görsel okuma)
+        const kalemYaziyaCevir = async (cizgiler) => {
+            const xs = [], ys = []; cizgiler.forEach(c => c.p.forEach(([x, y]) => { xs.push(x); ys.push(y); }));
+            if (!xs.length) return '';
+            const pad = 24, x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, W = Math.min(2000, Math.max(...xs) - x0 + pad), H = Math.min(2000, Math.max(...ys) - y0 + pad);
+            const cv = document.createElement('canvas'); cv.width = Math.max(1, W); cv.height = Math.max(1, H);
+            const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.lineCap = 'round'; g.lineJoin = 'round';
+            cizgiler.forEach(c => { if (c.mod === 'hi') return; g.strokeStyle = '#111'; g.lineWidth = Math.max(2, c.kalinlik); g.beginPath(); c.p.forEach(([x, y], i) => { i ? g.lineTo(x - x0, y - y0) : g.moveTo(x - x0, y - y0); }); g.stroke(); });
+            const b64 = cv.toDataURL('image/png').split(',')[1];
+            const apiKey = anahtarCoz(); if (!apiKey) throw new Error('Ayarlar’dan Gemini anahtarı gerekli');
+            const model = localStorage.getItem('geminiModel') || 'gemini-2.5-flash';
+            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: 'Bu görseldeki el yazısını Türkçe olarak aynen yazıya dök. Sadece yazıyı ver; okunamayan yeri [?] ile belirt. Yazı yoksa boş dön.' }, { inline_data: { mime_type: 'image/png', data: b64 } }] }] }) });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const j = await r.json();
+            return ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || []).map(p => p.text || '').join('').trim();
+        };
+
+        const EkranKalemi = ({ sure, onKaydet, showToast }) => {
+            const anahtar = `zirve_kalem_${sure}`;
+            const [aktif, setAktif] = React.useState(false);
+            const [kaydir, setKaydir] = React.useState(false);
+            const [renk, setRenk] = React.useState(KALEM_RENK[0]);
+            const [mod, setMod] = React.useState('pen');
+            const [kal, setKal] = React.useState(4);
+            const [onay, setOnay] = React.useState(false);
+            const [yazilar, setYazilar] = React.useState(null); // {uid: metin} yazıya çevrilmiş
+            const [mesgul, setMesgul] = React.useState(false);
+            const [, ciz] = React.useState(0);
+            const canvasRef = React.useRef(null);
+            const cizgiRef = React.useRef((() => { try { return JSON.parse(sessionStorage.getItem(anahtar) || '[]'); } catch (e) { return []; } })());
+            const aktifCizgi = React.useRef(null);
+            const sakla = () => { try { sessionStorage.setItem(anahtar, JSON.stringify(cizgiRef.current)); } catch (e) {} };
+            const toast = (m) => showToast && showToast(m);
+            const yeniden = () => {
+                const c = canvasRef.current; if (!c) return; const g = c.getContext('2d'), dpr = window.devicePixelRatio || 1;
+                if (c.width !== Math.round(innerWidth * dpr) || c.height !== Math.round(innerHeight * dpr)) { c.width = Math.round(innerWidth * dpr); c.height = Math.round(innerHeight * dpr); c.style.width = innerWidth + 'px'; c.style.height = innerHeight + 'px'; }
+                g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, innerWidth, innerHeight); g.lineCap = 'round'; g.lineJoin = 'round';
+                const ox = scrollX, oy = scrollY;
+                cizgiRef.current.forEach(s => { if (!s.p.length) return; g.globalAlpha = s.mod === 'hi' ? 0.4 : 1; g.strokeStyle = s.renk; g.lineWidth = s.kalinlik; g.beginPath(); s.p.forEach(([x, y], i) => { i ? g.lineTo(x - ox, y - oy) : g.moveTo(x - ox, y - oy); }); if (s.p.length === 1) g.lineTo(s.p[0][0] - ox + 0.1, s.p[0][1] - oy); g.stroke(); });
+                g.globalAlpha = 1;
+            };
+            React.useEffect(() => {
+                if (!aktif) return;
+                let rq = 0; const f = () => { cancelAnimationFrame(rq); rq = requestAnimationFrame(yeniden); };
+                yeniden(); window.addEventListener('scroll', f, { passive: true }); window.addEventListener('resize', f);
+                const esc = (e) => { if (e.key === 'Escape') kapatIste(); }; window.addEventListener('keydown', esc);
+                return () => { cancelAnimationFrame(rq); window.removeEventListener('scroll', f); window.removeEventListener('resize', f); window.removeEventListener('keydown', esc); };
+            }, [aktif]);
+            const nokta = (e) => [e.clientX + scrollX, e.clientY + scrollY];
+            const sil = (pt) => { const n = cizgiRef.current.length; cizgiRef.current = cizgiRef.current.filter(s => !s.p.some(([x, y]) => Math.hypot(x - pt[0], y - pt[1]) < 14)); if (cizgiRef.current.length !== n) { sakla(); yeniden(); ciz(t => t + 1); } };
+            const asagi = (e) => {
+                if (aktifCizgi.current) return; // aynı anda tek parmak/kalem: ikinci dokunuş (avuç içi) yok sayılır
+                e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {}
+                if (mod === 'sil') { sil(nokta(e)); aktifCizgi.current = { sil: true, id: e.pointerId }; return; }
+                const k = mod === 'hi' ? Math.max(12, kal * 3) : kal * (e.pressure && e.pointerType === 'pen' ? (0.6 + e.pressure * 0.8) : 1);
+                const s = { renk, kalinlik: Math.round(k * 10) / 10, mod: mod === 'hi' ? 'hi' : 'pen', p: [nokta(e)] };
+                aktifCizgi.current = { s, pen: e.pointerType === 'pen', id: e.pointerId }; cizgiRef.current.push(s); yeniden();
+            };
+            const hareket = (e) => {
+                const a = aktifCizgi.current; if (!a || a.id !== e.pointerId) return; e.preventDefault();
+                if (a.sil) { sil(nokta(e)); return; }
+                const pt = nokta(e), son = a.s.p[a.s.p.length - 1]; if (Math.hypot(pt[0] - son[0], pt[1] - son[1]) < 1.5) return;
+                a.s.p.push(pt); yeniden();
+            };
+            const yukari = (e) => { if (aktifCizgi.current && (!e || aktifCizgi.current.id === e.pointerId)) { aktifCizgi.current = null; sakla(); ciz(t => t + 1); } };
+            const geriAl = () => { cizgiRef.current.pop(); sakla(); yeniden(); ciz(t => t + 1); };
+            const temizle = () => { cizgiRef.current = []; sakla(); yeniden(); ciz(t => t + 1); };
+            const kapat = () => { setAktif(false); setKaydir(false); setOnay(false); setYazilar(null); };
+            const kapatIste = () => { if (cizgiRef.current.length) setOnay(true); else kapat(); };
+            const kaydet = (metinler) => {
+                const gruplar = kalemAta(cizgiRef.current, kalemKartlar(sure));
+                const uidler = Object.keys(gruplar);
+                if (!uidler.length) { toast('Kaydedilecek çizim yok'); return; }
+                const sonuc = {}; uidler.forEach(u => { sonuc[u] = kalemNormalize(gruplar[u]); });
+                onKaydet(sonuc, metinler || {});
+                cizgiRef.current = []; sakla(); kapat();
+                toast(`✏️ Kalem notları ${uidler.length} ayete kaydedildi · Notlarım'da`);
+            };
+            const yaziyaCevir = async () => {
+                const gruplar = kalemAta(cizgiRef.current, kalemKartlar(sure)); const u = Object.keys(gruplar);
+                if (!u.length) { toast('Önce bir şey yaz'); return; }
+                setMesgul(true);
+                try { const m = {}; for (const id of u) m[id] = await kalemYaziyaCevir(gruplar[id].cizgiler); setYazilar(m); }
+                catch (e) { toast('Yazıya çevrilemedi: ' + (e && e.message ? e.message : 'bağlantı')); }
+                setMesgul(false);
+            };
+            const n = cizgiRef.current.length;
+            const tb = 'min-w-[40px] min-h-[40px] px-2 rounded-xl flex items-center justify-center text-[13px] font-bold border';
+            return (
+                <>
+                    {!aktif && (
+                        <button onClick={() => setAktif(true)} className="zk-kalem-btn fixed right-4 z-[44] w-[52px] h-[52px] rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow-xl shadow-indigo-900/50 flex items-center justify-center border border-white/20" style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom))' }} aria-label="Ekran kalemi" title="Ekran kalemi: ayetlerin üzerine yaz">
+                            <Icons.Pencil size={22}/>{n > 0 && <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-[10px] font-bold flex items-center justify-center">{n}</span>}
+                        </button>
+                    )}
+                    {aktif && (
+                        <>
+                            <canvas ref={canvasRef} onPointerDown={asagi} onPointerMove={hareket} onPointerUp={yukari} onPointerCancel={yukari} className="fixed inset-0 z-[65]" style={{ touchAction: 'none', pointerEvents: kaydir ? 'none' : 'auto', cursor: mod === 'sil' ? 'cell' : 'crosshair' }} aria-label="Kalem çizim alanı" />
+                            <div className="fixed top-0 inset-x-0 z-[66] px-2 pt-[max(.5rem,env(safe-area-inset-top))] pb-2 bg-slate-950/90 backdrop-blur border-b border-white/10" role="toolbar" aria-label="Kalem araçları">
+                                <div className="max-w-5xl mx-auto flex flex-wrap items-center gap-1.5">
+                                    {KALEM_RENK.map(c => <button key={c} onClick={() => { setRenk(c); if (mod === 'sil') setMod('pen'); }} aria-label={`Renk ${c}`} aria-pressed={renk === c} className={`w-8 h-8 rounded-full shrink-0 ${renk === c ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-950' : 'ring-1 ring-white/25'}`} style={{ background: c }}></button>)}
+                                    <span className="w-px h-7 bg-white/10 mx-0.5"></span>
+                                    {[['pen', '✏️', 'Kalem'], ['hi', '🖍️', 'Fosforlu'], ['sil', '🧽', 'Silgi']].map(([id, ik, ad]) => <button key={id} onClick={() => { setMod(id); setKaydir(false); }} aria-pressed={mod === id && !kaydir} aria-label={ad} title={ad} className={`${tb} ${mod === id && !kaydir ? 'bg-sky-500/25 border-sky-400/60 text-white' : 'bg-slate-800 border-slate-700 text-slate-300'}`}>{ik}</button>)}
+                                    {KALEM_KALINLIK.map(k => <button key={k.v} onClick={() => setKal(k.v)} aria-pressed={kal === k.v} aria-label={k.ad} title={k.ad} className={`${tb} ${kal === k.v ? 'bg-slate-700 border-slate-500' : 'bg-slate-800 border-slate-700'}`}><span className="rounded-full bg-white" style={{ width: k.v * 2 + 2, height: k.v * 2 + 2 }}></span></button>)}
+                                    <button onClick={() => setKaydir(!kaydir)} aria-pressed={kaydir} className={`${tb} ${kaydir ? 'bg-amber-500/25 border-amber-400/60 text-amber-100' : 'bg-slate-800 border-slate-700 text-slate-300'}`}>✋ {kaydir ? 'Yaz' : 'Kaydır'}</button>
+                                    <button onClick={geriAl} disabled={!n} aria-label="Geri al" className={`${tb} bg-slate-800 border-slate-700 text-slate-300 disabled:opacity-40`}>↶</button>
+                                    <button onClick={temizle} disabled={!n} aria-label="Temizle" className={`${tb} bg-slate-800 border-slate-700 text-slate-300 disabled:opacity-40`}>🗑</button>
+                                    <button onClick={yaziyaCevir} disabled={!n || mesgul} className={`${tb} bg-slate-800 border-slate-700 text-slate-200 disabled:opacity-40`}>{mesgul ? '⏳' : '✍️'} <span className="hidden min-[400px]:inline ml-1">Yazıya çevir</span></button>
+                                    <button onClick={() => kaydet()} disabled={!n} className={`${tb} bg-emerald-500 border-emerald-400 text-emerald-950 disabled:opacity-40 ml-auto`}>✓ Kaydet</button>
+                                    <button onClick={kapatIste} aria-label="Kalemi kapat" className={`${tb} bg-slate-800 border-slate-700 text-slate-300`}>✕</button>
+                                </div>
+                                <p className="max-w-5xl mx-auto text-[11px] text-slate-400 mt-1">{kaydir ? 'Sayfayı kaydır; yazdıkların ayetlere bağlı kalır. Sonra “Yaz”a dokun.' : 'Ayetlerin üzerine yaz ve çiz; kaydedince her biri altındaki ayetin notuna eklenir.'}</p>
+                            </div>
+                            {onay && (
+                                <div className="fixed inset-0 z-[67] bg-black/60 flex items-center justify-center p-4" onClick={() => setOnay(false)}>
+                                    <div onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl bg-slate-900 border border-slate-700 p-4">
+                                        <p className="text-white font-bold mb-1">Kaydedilmemiş çizim var</p>
+                                        <p className="text-[13px] text-slate-400 mb-3">Yazdıklarını ayetlerin notlarına kaydedeyim mi?</p>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <button onClick={() => kaydet()} className="min-h-[42px] rounded-xl bg-emerald-500 text-emerald-950 font-bold text-[13px]">Kaydet</button>
+                                            <button onClick={() => { temizle(); kapat(); }} className="min-h-[42px] rounded-xl bg-rose-600/80 text-white font-bold text-[13px]">Sil</button>
+                                            <button onClick={() => setOnay(false)} className="min-h-[42px] rounded-xl bg-slate-800 text-slate-200 font-bold text-[13px]">Vazgeç</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {yazilar && (
+                                <div className="fixed inset-0 z-[67] bg-black/60 flex items-end sm:items-center justify-center" onClick={() => setYazilar(null)}>
+                                    <div onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Yazıya çevrilen notlar" className="w-full sm:max-w-lg max-h-[85dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-slate-900 border border-slate-700 p-4">
+                                        <p className="text-white font-bold mb-3">✍️ El yazın yazıya çevrildi</p>
+                                        {Object.keys(yazilar).map(u => (
+                                            <label key={u} className="block mb-3"><span className="text-[12px] font-bold text-amber-300">{getTurkishName(+u.split(':')[0])} {u.split(':')[1]}. ayet</span>
+                                                <textarea defaultValue={yazilar[u]} onChange={e => { yazilar[u] = e.target.value; }} rows={3} className="mt-1 w-full p-2.5 rounded-xl bg-black/40 border border-slate-700 text-[16px] text-white"></textarea></label>
+                                        ))}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <button onClick={() => setYazilar(null)} className="min-h-[44px] rounded-xl bg-slate-800 text-slate-200 font-bold text-[13px]">Vazgeç</button>
+                                            <button onClick={() => kaydet(yazilar)} className="min-h-[44px] rounded-xl bg-emerald-500 text-emerald-950 font-bold text-[13px]">Çizim + yazıyı kaydet</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </>
             );
         };
 
@@ -6051,6 +7080,9 @@ JSON ŞEMASI:
         const Home = ({ surahs, searchQuery, setSearchQuery, setCurrentSurah, setView, chatQuery, setChatQuery, handleGeneralChat, duaQuery, setDuaQuery, handleDuaRequest, handleAiRequest, setShowSettings, performDeepSearch, searchResults, searchCount, isSearching, lastRead, prevRead, geriAlKaldigimYer, setJumpModalOpen, handleRandomAyah }) => {
             
             const [homePromptConfig, setHomePromptConfig] = React.useState(null);
+            const [calismaPanel, setCalismaPanel] = React.useState(false); // 📊 Kur'an yolculuğum paneli
+            const [atlasAcik, setAtlasAcik] = React.useState(() => { try { return localStorage.getItem('zirve_atlas_acik') === '1'; } catch (e) { return false; } });
+            const atlasAc = (v) => { setAtlasAcik(v); try { localStorage.setItem('zirve_atlas_acik', v ? '1' : '0'); } catch (e) {} };
             
             const [greeting, setGreeting] = React.useState("Hayırlı Günler");
             
@@ -6111,6 +7143,8 @@ JSON ŞEMASI:
                             <h1 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-3xl md:text-4xl font-amiri text-white drop-shadow-md cursor-pointer inline-flex items-center justify-center gap-2.5">{window.ZIRVE_E && window.ZIRVE_E.ikon() && <img src={window.ZIRVE_E.ikon()} alt="" aria-hidden="true" className="w-9 h-9 md:w-11 md:h-11 rounded-xl shadow-lg ring-1 ring-amber-300/30" />}<span>Kur'an ve Siyer Atlası</span></h1>
                         </div>
 
+                        <YolculukKarti onPanel={() => setCalismaPanel(true)} />
+                        <CalismaPaneli acik={calismaPanel} kapat={() => setCalismaPanel(false)} showToast={(m) => { try { window.ZIRVE && window.ZIRVE.toast(m, 'green'); } catch (e) {} }} />
                         <NamazKarti />
                         <KartAkisi>
                             
@@ -6284,8 +7318,12 @@ JSON ŞEMASI:
                         </div>
 
                         {/* YENİDEN DÜZENLENMİŞ HARİKA AI KEŞİF ARAÇLARI KATEGORİSİ */}
-                        <div className="mb-6">
-                            <h3 className="font-bold text-white mb-4 flex items-center gap-2 text-sm uppercase tracking-wide px-1"><Icons.Sparkles size={16} className="text-emerald-400"/> AI Keşif & Analiz Atlası</h3>
+                        <div className={`mb-6 zk-atlas ${atlasAcik ? '' : 'zk-kapali'}`}>
+                            <button onClick={() => atlasAc(!atlasAcik)} aria-expanded={atlasAcik} className="zk-atlas-bas w-full flex items-center gap-3 px-4 min-h-[56px] mb-3 rounded-2xl bg-slate-800/70 border border-slate-700 hover:bg-slate-800 transition-colors text-left">
+                                <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-indigo-600 flex items-center justify-center shrink-0"><Icons.Sparkles size={18} className="text-white"/></span>
+                                <span className="flex-1 min-w-0"><span className="block text-[14px] font-bold text-white">AI Keşif & Analiz Atlası</span><span className="block text-[11px] text-slate-400 truncate">Siyer turu, Kur'an sözlüğü, sahabe, rüya, aile, fıkıh… 22 araç</span></span>
+                                <Icons.ChevronLeft size={16} className={`text-slate-400 transition-transform ${atlasAcik ? 'rotate-90' : '-rotate-90'}`}/>
+                            </button>
                             
                             {/* GRUP 1: KİŞİSEL GELİŞİM & PSİKOLOJİ */}
                             <div className="mb-4">
@@ -6518,6 +7556,7 @@ JSON ŞEMASI:
             const [kutuAcik, setKutuAcik] = React.useState(false); // 📬 bildirim kutusu
             React.useEffect(() => { const f = () => setKutuAcik(true); window.addEventListener('zirve-kutu-ac', f); return () => window.removeEventListener('zirve-kutu-ac', f); }, []); // bildirimden açılan ayet/hadis/Esmâ kartı
             useOtoTazele();
+            useCalismaBildirimTazele(); // 🌙 kişisel 21:00 hatırlatmasının metni
             const [surahs, setSurahs] = React.useState([]);
             const [currentSurah, setCurrentSurah] = React.useState(null);
             const [favorites, setFavorites] = React.useState([]);
@@ -6560,7 +7599,7 @@ JSON ŞEMASI:
             React.useEffect(() => { const f = () => setHashTik(t => t + 1); window.addEventListener('hashchange', f); return () => window.removeEventListener('hashchange', f); }, []);
             React.useEffect(() => {
                 const h = (location.hash || '').replace(/^#/, '');
-                if (!h || (!surahs.length && !/^(ayet|hadis|esma)-/.test(h))) return;
+                if (!h || (!surahs.length && !/^(ayet|hadis|esma|soz)-/.test(h))) return;
                 const sureAc = (no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) sessionStorage.setItem('jumpToAyah', ayet); } };
                 let m = null;
                 if (h === 'kaldigim') { if (lastRead) sureAc(lastRead.surahNo, lastRead.ayahNo); else setView('home'); }
@@ -6573,6 +7612,7 @@ JSON ŞEMASI:
                 else if ((m = h.match(/^ayet-(\d{1,3})-(\d{1,3})$/)) && +m[1] >= 1 && +m[1] <= 114 && +m[2] >= 1 && +m[2] <= AYET_SAYILARI[+m[1]]) setAnKart({ tur: 'ayet', s: +m[1], a: +m[2] });
                 else if ((m = h.match(/^hadis-(\d{1,4})$/)) && HADIS_HAVUZU[+m[1]]) setAnKart({ tur: 'hadis', i: +m[1] });
                 else if ((m = h.match(/^esma-(\d{1,3})$/)) && ESMA_99[+m[1]]) setAnKart({ tur: 'esma', i: +m[1] });
+                else if ((m = h.match(/^soz-(r|e)-(\d{1,3})$/)) && (m[1] === 'r' ? SOZ_RISALE : SOZ_EGITIM)[+m[2]]) setAnKart({ tur: 'soz', g: m[1], i: +m[2] });
                 else return;
                 try { window.ZKUTU && window.ZKUTU.okunduUrl(h); } catch(e){}
                 try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
@@ -6764,13 +7804,16 @@ JSON ŞEMASI:
                 }
             };
 
+            const annRef = React.useRef(annotations); annRef.current = annotations; // ardışık kayıtlar birbirini ezmesin
+            if (window.ZCALISMA) window.ZCALISMA.notKaynak((s, a) => { const x = annRef.current && annRef.current[`${s}:${a}`]; return !!(x && ((x.not && x.not.trim()) || (x.cizim && x.cizim.strokes && x.cizim.strokes.length))); });
             const setAnnotation = async (uid, meta) => {
-                const next = { ...annotations };
+                const next = { ...annRef.current };
                 const bosNot = !(meta && meta.not && meta.not.trim());
                 const bosStil = !(meta && meta.stil);
                 const bosCizim = !(meta && meta.cizim && meta.cizim.strokes && meta.cizim.strokes.length);
                 if (!meta || (bosNot && bosStil && bosCizim)) { delete next[uid]; }
                 else { next[uid] = meta; }
+                annRef.current = next;
                 setAnnotations(next);
                 try { localStorage.setItem('zirve_notlar', JSON.stringify(next)); } catch(e){}
                 if (isFirebaseAvailable && user) {
