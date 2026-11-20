@@ -1362,9 +1362,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'8. sürüm', tarih:'20.11.2026', satir:9054, kb:1003,
-        onceki:{ surum:'7. sürüm', satir:8914, kb:987 },
-        yenilikler:['🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'9. sürüm', tarih:'20.11.2026', satir:9084, kb:1009,
+        onceki:{ surum:'8. sürüm', satir:9054, kb:1003 },
+        yenilikler:['🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1391,13 +1391,17 @@
       function kasa(){ var u=oku('zkasa_url') || oku('zkasa_url_yedek') || window.ZKASA_URL || VARSAYILAN; return String(u).replace(/\/+$/,''); }
       function ham(){ return window.ZIRVE_ORIG_FETCH || window.fetch.bind(window); }
       // Kasa çağrıları: gövde JSON, Content-Type text/plain (ön-kontrol isteği olmadan)
+      function zamanli(p, ms, mesaj){ return Promise.race([p, new Promise(function(_,rd){ setTimeout(function(){ rd(new Error(mesaj)); }, ms); })]); }
+      function adim(m){ try{ window.dispatchEvent(new CustomEvent('zirve-bildirim-adim', { detail:m })); }catch(e){} }
       function post(yol, govde, taban){
         var t=(taban ? String(taban).replace(/\/+$/,'') : kasa());
-        return ham()(t+yol, { method:'POST', headers:{'Content-Type':'text/plain;charset=UTF-8'}, body:JSON.stringify(govde) })
+        return zamanli(ham()(t+yol, { method:'POST', headers:{'Content-Type':'text/plain;charset=UTF-8'}, body:JSON.stringify(govde) })
           .then(function(r){ return r.text().then(function(x){ var j=null; try{ j=JSON.parse(x); }catch(e){}
             if(!r.ok || (j && j.ok===false)){ var m=(j && (j.hata||j.error||j.mesaj||j.message)) || ('Kasa hatası (HTTP '+r.status+')'); var er=new Error(m); er.durum=r.status; throw er; }
-            return j || {}; }); });
+            return j || {}; }); }), 15000,
+          'Kasaya ulaşılamadı ('+t.replace(/^https?:\/\//,'')+'). İnterneti değiştirip (Wi-Fi ↔ mobil veri) tekrar dene.');
       }
+      function kasaSaglik(){ if(oku('zkasa_kapali')==='1') return Promise.resolve(null); return zamanli(ham()(kasa()+'/saglik', { cache:'no-store' }).then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ return !!(r.ok && j && j.ok!==false); }); }), 8000, 'zaman').catch(function(){ return false; }); }
       function cihazId(){ var v=oku('zks_cihaz'); if(!v){ v='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); yaz('zks_cihaz',v); } return v; }
       function u8(b){ var p='='.repeat((4-b.length%4)%4), s=atob((b+p).replace(/-/g,'+').replace(/_/g,'/')), a=new Uint8Array(s.length); for(var i=0;i<s.length;i++) a[i]=s.charCodeAt(i); return a; }
       function ios(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1); }
@@ -1415,9 +1419,10 @@
         return swSoz;
       }
       function hazir(){
-        return swKaydet().then(function(reg){
+        var msj='Servis çalışanı hazır olmadı — sw.js dosyası HTML ile aynı klasörde mi? Uygulamayı kapatıp yeniden açıp tekrar dene.';
+        return zamanli(swKaydet(), 9000, msj).then(function(reg){
           if(!reg) throw new Error('Bildirimler yalnız https adresinde (GitHub Pages) çalışır.');
-          return Promise.race([ navigator.serviceWorker.ready, new Promise(function(_,rd){ setTimeout(function(){ rd(new Error('Servis çalışanı hazır olmadı — sw.js dosyası HTML ile aynı klasörde mi?')); }, 9000); }) ]);
+          return zamanli(navigator.serviceWorker.ready, 9000, msj);
         });
       }
       function abonelik(){
@@ -1431,22 +1436,25 @@
       function aboneOl(){
         if(!destek()) return Promise.reject(new Error(destekYok()));
         if(izin()!=='granted') return Promise.reject(new Error('Bildirim izni verilmedi.'));
+        adim('⚙️ Servis çalışanı hazırlanıyor…');
         return hazir().then(function(reg){
-          return reg.pushManager.getSubscription().then(function(s){ return s || reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:u8(VAPID) }); });
+          adim('🔑 Bildirim kaydı oluşturuluyor…');
+          return zamanli(reg.pushManager.getSubscription().then(function(s){ return s || reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:u8(VAPID) }); }), 20000, 'Telefon bildirim kaydını vermedi. Uygulamayı tamamen kapatıp ana ekrandaki simgeden yeniden aç.');
         }).then(function(sub){
+          adim('☁️ Kasaya kaydediliyor…');
           return post('/abone', aboneGovde(sub)).then(function(c){ yaz('zks_abone_t', String(Date.now())); yaz('zks_acik','1'); return { sub:sub, cevap:c }; });
         });
       }
       function destekYok(){
         if(!https()) return 'Bildirimler yalnız https adresinde (GitHub Pages) çalışır.';
-        if(ios() && !standalone()) return "iPhone/iPad'de bildirim için önce Safari → Paylaş (□↑) → Ana Ekrana Ekle, sonra ana ekrandaki simgeden açıp bu düğmeye dokunun.";
+        if(ios() && !standalone()) return "iPhone/iPad'de bildirim için önce Chrome (ya da Safari) → Paylaş (□↑) → Ana Ekrana Ekle, sonra ana ekrandaki simgeden açıp bu düğmeye dokunun.";
         return 'Bu tarayıcı bildirimleri desteklemiyor.';
       }
       // DİKKAT: kullanıcı dokunuşu içinde çağrılmalı (izin penceresi için)
       function ac(){
         if(!destek()) return Promise.reject(new Error(destekYok()));
-        var p=null; try{ p=Notification.requestPermission(); }catch(e){}
-        return Promise.resolve(p).then(function(sonuc){
+        var p=null; adim('🔔 İzin isteniyor…'); try{ p=Notification.requestPermission(); }catch(e){}
+        return zamanli(Promise.resolve(p), 60000, 'İzin penceresine yanıt gelmedi. Tekrar dokun.').then(function(sonuc){
           sonuc = sonuc || izin();
           if(sonuc!=='granted') throw new Error(sonuc==='denied' ? 'Bildirim izni reddedilmiş. Telefon/tarayıcı ayarlarından bu uygulamaya bildirim izni verin.' : 'Bildirim izni verilmedi.');
           return aboneOl();
@@ -1475,8 +1483,8 @@
         temizleZaman=[700,2500,6000].map(function(ms){ return setTimeout(function(){ if(document.visibilityState!=='hidden') temizleBir(); }, ms); });
       }
       function durum(){
-        return abonelik().then(function(s){
-          var d={ destek:destek(), https:https(), ios:ios(), standalone:standalone(), izin:izin(), abone:!!s, endpoint:(s && s.endpoint)||'' };
+        return Promise.all([zamanli(abonelik(), 6000, 'zaman').catch(function(){ return null; }), kasaSaglik()]).then(function(x){ var s=x[0];
+          var d={ destek:destek(), https:https(), ios:ios(), standalone:standalone(), izin:izin(), abone:!!s, endpoint:(s && s.endpoint)||'', kasaOk:x[1], kasaAdres:kasa().replace(/^https?:\/\//,'') };
           if(!d.endpoint){ d.kayitli=false; return d; }
           return post('/abone/durum', { endpoint:d.endpoint, uyg:UYG }).then(function(r){ d.kasa=r; d.kayitli=!!(r && Array.isArray(r.ben) && r.ben.length); return d; }, function(e){ d.hata=e.message; return d; });
         });
@@ -1502,7 +1510,7 @@
       // sw.js gerçekten bu klasörde mi ve bildirim dinleyicisi var mı?
       function swDosya(){
         if(!/^https?:$/.test(location.protocol)) return Promise.resolve({ var:false, push:false, durum:0 });
-        return ham()('sw.js?v='+Date.now(), { cache:'no-store' }).then(function(r){ return r.text().then(function(t){ return { var:r.ok, push:/addEventListener\(\s*['"]push['"]/.test(t), kutu:/zirve-kutu/.test(t), durum:r.status }; }); }).catch(function(){ return { var:false, push:false, durum:0 }; });
+        return zamanli(ham()('sw.js?v='+Date.now(), { cache:'no-store' }), 8000, 'zaman').then(function(r){ return r.text().then(function(t){ return { var:r.ok, push:/addEventListener\(\s*['"]push['"]/.test(t), kutu:/zirve-kutu/.test(t), durum:r.status }; }); }).catch(function(){ return { var:false, push:false, durum:0 }; });
       }
       // ===== 📬 KONU KANALLARI: her hazır bildirim kasada ayrı bir uyg kanalıdır; kullanıcı ŞİFRESİZ abone olur/çıkar =====
       // Rol her zaman 'kullanici' (kasa yalnız bilinen rolleri kabul edebilir). Açık/kapalı 'sube' alanıyla: 'acik' / 'kapali'
@@ -1512,7 +1520,7 @@
       function konuYaz(m){ yaz('zks_konular', JSON.stringify(m)); }
       function konuAyarla(uyg, acik){
         if(izin()!=='granted') return Promise.reject(new Error('Önce yukarıdan "🔔 Bildirimleri aç"a dokun.'));
-        return hazir().then(function(reg){ return reg.pushManager.getSubscription().then(function(s){ return s || reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:u8(VAPID) }); }); })
+        return hazir().then(function(reg){ return zamanli(reg.pushManager.getSubscription().then(function(s){ return s || reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:u8(VAPID) }); }), 20000, 'Telefon bildirim kaydını vermedi; biraz sonra tekrar dene.'); })
           .then(function(sub){ return post('/abone', aboneGovde(sub, uyg, 'kullanici', acik?'acik':'kapali')).then(function(){ var m=konular(); m[uyg]=!!acik; konuYaz(m); return sub; }); });
       }
       function uygKayitli(endpoint, uyg){
@@ -1541,9 +1549,9 @@
         var m=konular(); var u=Object.keys(m); if(!u.length || izin()!=='granted' || oku('zks_kanal_destek')!=='1') return Promise.resolve();
         return abonelik().then(function(s){ if(!s) return; return Promise.all(u.map(function(k){ return post('/abone', aboneGovde(s, k, 'kullanici', m[k]?'acik':'kapali')).catch(function(){}); })); }).catch(function(){});
       }
-      function swAktif(){ if(!('serviceWorker' in navigator)) return Promise.resolve(false); return navigator.serviceWorker.getRegistration().then(function(r){ return !!(r && (r.active||r.waiting||r.installing)); }).catch(function(){ return false; }); }
+      function swAktif(){ if(!('serviceWorker' in navigator)) return Promise.resolve(false); return zamanli(navigator.serviceWorker.getRegistration(), 6000, 'zaman').then(function(r){ return !!(r && (r.active||r.waiting||r.installing)); }).catch(function(){ return false; }); }
 
-      window.ZBILDIRIM={ UYG:UYG, AD:AD, kasa:kasa, post:post, cihazId:cihazId, destek:destek, destekYok:destekYok, https:https, ios:ios, standalone:standalone,
+      window.ZBILDIRIM={ UYG:UYG, AD:AD, kasa:kasa, post:post, kasaSaglik:kasaSaglik, cihazId:cihazId, destek:destek, destekYok:destekYok, https:https, ios:ios, standalone:standalone,
         izin:izin, ac:ac, kapat:kapat, acikMi:acikMi, aboneOl:aboneOl, abonelik:abonelik, durum:durum, dene:dene, olay:olay, hListe:hListe, hKaydet:hKaydet, hBilgi:hBilgi, swDosya:swDosya, swAktif:swAktif, konular:konular, konuAyarla:konuAyarla, kanalDestek:kanalDestek, konulariTazele:konulariTazele, uygKayitli:uygKayitli, ham:ham, hazir:hazir, taban:taban, temizle:temizle, swKaydet:swKaydet };
 
       function basla(){ swKaydet().catch(function(){}); tazele(); temizle(); }
@@ -1559,7 +1567,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='8'; // ⚠️ Sonraki sürüm 9, 10… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
+    const SURUM='9'; // ⚠️ Sonraki sürüm 10, 11… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -3483,9 +3491,14 @@ Kullanıcının isteği: `;
         const sahipMi = () => { try { return localStorage.getItem('zirve_sahip') === '1'; } catch(e){ return false; } };
         const SahipBolumu = ({ children, not }) => {
             const [acik, setAcik] = React.useState(sahipMi);
+            React.useEffect(() => { const f = () => setAcik(sahipMi()); window.addEventListener('zirve-sahip', f); return () => window.removeEventListener('zirve-sahip', f); }, []);
             const ayarla = (v) => { try { v ? localStorage.setItem('zirve_sahip', '1') : localStorage.removeItem('zirve_sahip'); } catch(e){} setAcik(v); window.dispatchEvent(new Event('zirve-sahip')); };
             if (!acik) return (
-                <button onClick={() => ayarla(true)} className="w-full text-[11px] text-slate-500 hover:text-slate-300 py-2 underline underline-offset-4 decoration-dotted">🛠️ Uygulama sahibi ayarları (yalnız yönetici için)</button>
+                <button onClick={() => ayarla(true)} className="w-full flex items-center gap-3 px-4 min-h-[56px] rounded-2xl bg-slate-800/60 border border-slate-700 text-left hover:bg-slate-800">
+                    <span className="text-xl">🔐</span>
+                    <span className="flex-1"><span className="block text-[13.5px] font-bold text-slate-100">Kasa · anahtarlar · hatırlatmalar</span><span className="block text-[11px] text-slate-400">Uygulama sahibi ayarları (kullanıcıların açmasına gerek yok)</span></span>
+                    <Icons.ChevronRight size={18} className="text-slate-400"/>
+                </button>
             );
             return (
                 <div className="rounded-2xl border border-dashed border-slate-600 p-3 space-y-3">
@@ -3504,14 +3517,17 @@ Kullanıcının isteği: `;
             const [acik, setAcik] = React.useState(() => !!(ZB && ZB.acikMi()));
             const [mesgul, setMesgul] = React.useState('');
             const [mesaj, setMesaj] = React.useState(null);
+            const [adimYazi, setAdimYazi] = React.useState('');
+            React.useEffect(() => { const f = (e) => setAdimYazi(String(e.detail || '')); window.addEventListener('zirve-bildirim-adim', f); return () => window.removeEventListener('zirve-bildirim-adim', f); }, []);
             const yenile = async () => {
                 if (!ZB) return;
                 try {
-                    const [x, sw, aktif] = await Promise.all([ZB.durum(), ZB.swDosya ? ZB.swDosya() : Promise.resolve(null), ZB.swAktif ? ZB.swAktif() : Promise.resolve(false)]);
+                    const [x, sw, aktif] = await Promise.all([ZB.durum().catch(() => ({ https: ZB.https(), ios: ZB.ios(), standalone: ZB.standalone(), izin: ZB.izin(), abone: false, kayitli: false, kasaOk: false })), ZB.swDosya ? ZB.swDosya() : Promise.resolve(null), ZB.swAktif ? ZB.swAktif() : Promise.resolve(false)]);
                     setD({ ...x, sw, swAktif: aktif, hat: ZB.hBilgi ? ZB.hBilgi() : null });
-                } catch (e) {}
+                    if (x && x.kayitli && ZB.izin() === 'granted' && !ZB.acikMi() && (() => { try { return localStorage.getItem('zks_acik') === null; } catch (e) { return false; } })()) { try { localStorage.setItem('zks_acik', '1'); } catch (e) {} setAcik(true); window.dispatchEvent(new Event('zirve-bildirim')); }
+                } catch (e) { setD({ https: ZB.https(), ios: ZB.ios(), standalone: ZB.standalone(), izin: ZB.izin(), abone: false, kayitli: false, kasaOk: false }); }
             };
-            React.useEffect(() => { yenile(); const f = () => yenile(); window.addEventListener('zirve-sahip', f); return () => window.removeEventListener('zirve-sahip', f); }, []);
+            React.useEffect(() => { yenile(); const f = () => yenile(); const g = () => { setAcik(!!(ZB && ZB.acikMi())); yenile(); }; window.addEventListener('zirve-sahip', f); window.addEventListener('zirve-bildirim', g); return () => { window.removeEventListener('zirve-sahip', f); window.removeEventListener('zirve-bildirim', g); }; }, []);
             if (!ZB) return null;
             // İzin penceresi için ZB.ac() dokunuşun içinde, beklemeden çağrılır
             const ac = async () => {
@@ -3519,7 +3535,7 @@ Kullanıcının isteği: `;
                 try { await ZB.ac(); setAcik(true); window.dispatchEvent(new Event('zirve-bildirim')); showToast && showToast('🔔 Bildirimler açıldı'); setMesaj({ tip: 'ok', metin: '✅ Bu cihaz kaydedildi. Aşağıdan hangi bildirimlerin geleceğini seç; "🧪 Bana dene" ile kontrol edebilirsin.' });
                     try { const ilk = Object.keys(ZB.konular()).length === 0; if (ilk && await ZB.kanalDestek()) { for (const k of KONU_KATALOG.filter(x => x.varsayilan)) await ZB.konuAyarla(k.uyg, true); window.dispatchEvent(new Event('zirve-konu')); } } catch (x) {} }
                 catch (e) { setMesaj({ tip: 'hata', metin: e.message }); }
-                setMesgul(''); yenile();
+                setMesgul(''); setAdimYazi(''); yenile();
             };
             const kapat = async () => { setMesgul('kapat'); await ZB.kapat(); setAcik(false); window.dispatchEvent(new Event('zirve-bildirim')); setMesgul(''); setMesaj({ tip: 'ok', metin: '🔕 Bildirimler bu cihazda kapatıldı.' }); yenile(); };
             const kaydet = async () => {
@@ -3542,10 +3558,16 @@ Kullanıcının isteği: `;
             return (
                 <>
                     <AyarKart ikon="🔔" baslik="Bildirimler" aciklama="Sabah ayeti, Cuma ve akşam Kur'an saati hatırlatmaları telefonuna bildirim olarak gelir. Tek yapman gereken aşağıdaki düğmeye dokunmak; şifre gerekmez.">
+                        {(() => {
+                            const izinVar = ZB.izin() === 'granted';
+                            const durumT = acik && d && d.kayitli ? 'yesil' : (izinVar && d && d.abone) ? 'sari' : 'kirmizi';
+                            const yazi = durumT === 'yesil' ? '🟢 Bildirimler AÇIK — bu cihaza bildirim gelir.' : durumT === 'sari' ? (d && d.kasaOk === false ? '🟡 İzin var ama kasaya ulaşılamadı; cihaz henüz kaydedilmedi.' : '🟡 İzin var, kasa kaydı bekleniyor — "📲 Bu cihazı kaydet"e dokun.') : (izinVar ? '🔴 İzin var ama bu cihaz kayıtlı değil.' : '🔴 Bildirimler kapalı.');
+                            return <div role="status" className={`mb-3 rounded-xl px-3.5 py-3 text-[13.5px] font-bold border ${durumT === 'yesil' ? 'bg-emerald-500/15 border-emerald-400/50 text-emerald-200' : durumT === 'sari' ? 'bg-amber-500/10 border-amber-400/40 text-amber-100' : 'bg-rose-500/10 border-rose-400/40 text-rose-100'}`}>{d ? yazi : '⏳ Durum denetleniyor…'}</div>;
+                        })()}
                         {acik
                             ? <button onClick={kapat} disabled={!!mesgul} className={`${ayarBtn()} w-full py-3.5 text-sm`}>🔕 Bildirimleri kapat</button>
-                            : <button onClick={ac} disabled={!!mesgul} className="w-full py-3.5 rounded-2xl text-sm font-extrabold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 shadow-lg shadow-emerald-500/20 disabled:opacity-60">{mesgul === 'ac' ? 'Açılıyor…' : '🔔 Bildirimleri aç'}</button>}
-                        <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">iPhone'da önce Safari → Paylaş (□↑) → Ana Ekrana Ekle, sonra ana ekrandaki simgeden açıp bu düğmeye dokunun.</p>
+                            : <button onClick={ac} disabled={!!mesgul} className="w-full py-3.5 rounded-2xl text-sm font-extrabold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 shadow-lg shadow-emerald-500/20 disabled:opacity-60">{mesgul === 'ac' ? (adimYazi || 'Açılıyor…') : '🔔 Bildirimleri aç'}</button>}
+                        <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">iPhone'da önce Chrome (ya da Safari) → Paylaş (□↑) → Ana Ekrana Ekle, sonra ana ekrandaki simgeden açıp bu düğmeye dokunun.</p>
                         {!ZB.https() && <p className="text-[11px] text-amber-300/90 mt-1.5">ℹ️ Bildirimler yalnız https adresinde (GitHub Pages) çalışır; bu önizlemede kapalıdır.</p>}
                         <Mesaj m={mesaj} />
                     </AyarKart>
@@ -3554,9 +3576,10 @@ Kullanıcının isteği: `;
                             if (!d) return <p className="text-[12px] text-slate-400">Denetleniyor…</p>;
                             const adimlar = [
                                 { ok: d.https, ad: 'Güvenli adres (https)', cozum: 'Uygulamayı GitHub Pages adresinden (https://…) aç.' },
+                                { ok: d.kasaOk !== false, yumusak: d.kasaOk === null, ad: `Kasaya ulaşılıyor${d.kasaAdres ? ' (' + d.kasaAdres + ')' : ''}`, cozum: "Kasaya bu internetten ulaşılamıyor. Wi-Fi ↔ mobil veri değiştirip 🔄 Yenile'ye bas. Sürerse aşağıdaki 🔐 Kasa kartından kasa adresini denetle." },
                                 { ok: d.sw ? d.sw.var : false, ad: 'sw.js dosyası bulundu', cozum: "GitHub'da index.html ile AYNI klasöre sw.js dosyasını yükle." },
                                 { ok: d.sw ? d.sw.push : false, ad: 'sw.js bildirim dinliyor', cozum: "Klasördeki sw.js eski ya da farklı; bu uygulamayla gelen sw.js'i yükle." },
-                                ...(d.ios ? [{ ok: d.standalone, ad: 'Ana ekrandaki simgeden açıldı', cozum: "iPhone'da bildirim yalnız ana ekrana eklenmiş uygulamada çalışır: Safari → Paylaş (□↑) → Ana Ekrana Ekle, sonra o simgeden aç." }] : []),
+                                ...(d.ios ? [{ ok: d.standalone, ad: 'Ana ekrandaki simgeden açıldı', cozum: "iPhone'da bildirim yalnız ana ekrana eklenmiş uygulamada çalışır: Chrome (ya da Safari) → Paylaş (□↑) → Ana Ekrana Ekle, sonra o simgeden aç." }] : []),
                                 { ok: d.izin === 'granted', ad: 'Bildirim izni', deger: izinMetin[d.izin] || d.izin, cozum: d.izin === 'denied' ? "İzin reddedilmiş: telefon Ayarlar → Bildirimler → Kur'an ve Siyer Atlası → İzin Ver'i aç." : 'Yukarıdaki "🔔 Bildirimleri aç" düğmesine dokun.' },
                                 { ok: d.sw ? !!d.sw.kutu : false, ad: 'sw.js güncel (bildirim kutusu, okununca silinme)', cozum: "GitHub'a bu sürümle gelen YENİ sw.js dosyasını yükle (index.html ile aynı klasöre)." },
                                 { ok: d.swAktif, ad: 'Servis çalışanı etkin', cozum: 'Uygulamayı kapatıp yeniden aç; sorun sürerse sw.js dosyasını kontrol et.' },
@@ -4365,6 +4388,9 @@ Kullanıcının isteği: `;
                 return d;
             };
             React.useEffect(() => { yzBak(false); const f = () => setBil(!!(ZB && ZB.acikMi())); window.addEventListener('zirve-bildirim', f); return () => window.removeEventListener('zirve-bildirim', f); }, []);
+            const [kasaOk, setKasaOk] = React.useState(undefined);
+            React.useEffect(() => { if (ZB && ZB.kasaSaglik) ZB.kasaSaglik().then(setKasaOk); }, []);
+            const kasaTikla = () => { if (sahipMi()) { sekmeSec('yz'); } if (ZB && ZB.kasaSaglik) { setKasaOk(undefined); ZB.kasaSaglik().then(v => { setKasaOk(v); showToast && showToast(v ? '🔐 Kasa bağlı — yapay zekâ ve bildirimler kasa üzerinden çalışır' : v === null ? '🔐 Kasa kapalı (kişisel anahtar kullanılıyor)' : '📶 Kasaya bu internetten ulaşılamıyor. Wi-Fi ↔ mobil veri değiştirip tekrar dokun.'); }); } };
             const yzTikla = async () => {
                 sekmeSec('yz'); setMesgul(true);
                 let d = await yzBak(true);
@@ -4381,7 +4407,7 @@ Kullanıcının isteği: `;
                 sekmeSec('bildirim');
                 if (!ZB || bil) return;
                 if (!ZB.destek()) { showToast && showToast(ZB.destekYok()); return; }
-                ZB.ac().then(() => { setBil(true); showToast && showToast('🔔 Bildirimler açıldı'); }).catch(e => showToast && showToast('⛔ ' + e.message));
+                ZB.ac().then(() => { setBil(true); window.dispatchEvent(new Event('zirve-bildirim')); showToast && showToast('🔔 Bildirimler açıldı'); }).catch(e => showToast && showToast('⛔ ' + e.message));
             };
             const roz = (iyi) => `flex items-center gap-1.5 text-[12px] font-bold rounded-full px-3 min-h-[36px] border transition-colors ${iyi ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-200 hover:bg-emerald-500/20' : 'bg-rose-500/10 border-rose-500/40 text-rose-200 hover:bg-rose-500/20'}`;
             const APP = window.ZIRVE_APP;
@@ -4392,7 +4418,10 @@ Kullanıcının isteği: `;
                             {mesgul || !yz ? '⏳ Yapay zekâ denetleniyor' : yz.ok ? `🟢 Yapay zekâ bağlı${yz.yol === 'kasa' ? ' · kasa' : ' · anahtar'}` : '🔴 Yapay zekâ bağlı değil · dokun'}
                         </button>
                         <button onClick={bilTikla} className={roz(bil)} aria-label={bil ? 'Bildirimler açık' : 'Bildirimler kapalı, açmak için dokun'}>
-                            {bil ? '🔔 Bildirim açık' : '🔕 Bildirim kapalı · aç'}
+                            {bil ? '🟢 Bildirim açık' : '🔕 Bildirim kapalı · aç'}
+                        </button>
+                        <button onClick={kasaTikla} className={roz(kasaOk !== false)} aria-label="Kasa durumu">
+                            {kasaOk === undefined ? '⏳ Kasa denetleniyor' : kasaOk === null ? '🔐 Kasa kapalı' : kasaOk ? '🔐 Kasa bağlı' : '🔐 Kasaya ulaşılamıyor · dokun'}
                         </button>
                     </div>
                     <p className="text-[10.5px] text-slate-500 mt-1.5 truncate">{APP ? APP.surum : ''} · Kasa: {kasaAdr || 'kapalı (kişisel anahtar)'}</p>
@@ -4895,6 +4924,7 @@ Kullanıcının isteği: `;
                             <BildirimKarti showToast={showToast} />
                             <BildirimKonulari showToast={showToast} />
                             <SahipBolumu not="Hatırlatmaları SEN bir kez kurarsın; kasa onları bildirimi açık olan herkese kendisi gönderir. Kullanıcılar yalnız '🔔 Bildirimleri aç'a dokunur, şifre girmez.">
+                                <KasaKarti showToast={showToast} />
                                 <TazeleKarti showToast={showToast} />
                                 <HatirlatmaKarti showToast={showToast} />
                             </SahipBolumu>
