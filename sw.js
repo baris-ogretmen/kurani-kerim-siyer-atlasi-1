@@ -1,8 +1,35 @@
-/* Barış Öğretmen — bildirim servis çalışanı (sw.js). HTML ile AYNI klasöre yükleyin.
-   Sayfa önbelleklenmez; yalnız gelen bildirimlerin metni "Bildirim Kutusu" için kısa süre saklanır (uygulama açılınca kutuya taşınır). */
-var KUTU = 'zirve-kutu';
+/* Barış Öğretmen — bildirim servis çalışanı (sw.js) · sürüm 4 (8. sürüm ile). HTML ile AYNI klasöre yükleyin.
+   Sayfa HER ZAMAN önce internetten taze alınır (eski sürüm asla geri gelmez); internet yoksa son taze kopya açılır.
+   Gelen bildirimlerin metni "Bildirim Kutusu" için kısa süre saklanır (uygulama açılınca kutuya taşınır). */
+var KUTU = 'zirve-kutu', SAYFA = 'zirve-sayfa', SAKLA = ['zirve-kutu', 'zirve-kuran-veri', 'zirve-sayfa'];
 self.addEventListener('install', function(e){ self.skipWaiting(); });
-self.addEventListener('activate', function(e){ e.waitUntil(self.clients.claim()); });
+self.addEventListener('activate', function(e){
+  // yalnız bu uygulamanın eski "zirve-" önbellekleri silinir (aynı github.io altındaki diğer uygulamalara dokunulmaz)
+  e.waitUntil(
+    (self.caches ? caches.keys().then(function(k){ return Promise.all(k.filter(function(x){ return /^zirve-/.test(x) && SAKLA.indexOf(x) < 0; }).map(function(x){ return caches.delete(x); })); }) : Promise.resolve())
+      .catch(function(){}).then(function(){ return self.clients.claim(); })
+  );
+});
+// Sayfa açılışı: önce internetten taze (304 ile hızlı); 4 sn içinde gelmezse ya da internet yoksa bu sayfanın son kopyası
+function anahtarUrl(u){ return String(u).split('#')[0].split('?')[0]; }
+self.addEventListener('fetch', function(e){
+  var r = e.request;
+  if (r.method !== 'GET' || r.mode !== 'navigate') return;
+  if (r.url.indexOf(self.registration.scope) !== 0) return;
+  var k = anahtarUrl(r.url);
+  if (!/\.html?$|\/$/.test(k)) return; // yalnız HTML sayfaları
+  var ag = fetch(r, { cache: 'no-cache' }).then(function(cevap){
+    if (cevap && cevap.ok && cevap.type === 'basic' && self.caches) { var kopya = cevap.clone(); caches.open(SAYFA).then(function(c){ return c.put(k, kopya); }).catch(function(){}); }
+    return cevap;
+  });
+  var kayitli = function(){ return self.caches ? caches.open(SAYFA).then(function(c){ return c.match(k); }) : Promise.resolve(null); };
+  e.respondWith(new Promise(function(coz){
+    var bitti = false; function ver(x){ if (!bitti && x) { bitti = true; coz(x); } }
+    var sure = setTimeout(function(){ kayitli().then(function(m){ ver(m); }).catch(function(){}); }, 4000);
+    ag.then(function(c){ clearTimeout(sure); ver(c); }, function(){ clearTimeout(sure); kayitli().then(function(m){ if (m) ver(m); else ag.then(ver, function(){ ver(Response.error()); }); }); });
+    ag.catch(function(){}).then(function(c){ if (c) ver(c); });
+  }));
+});
 
 function kutuYaz(o){
   if (!self.caches) return Promise.resolve();
