@@ -1362,9 +1362,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'9. sürüm', tarih:'20.11.2026', satir:9084, kb:1009,
-        onceki:{ surum:'8. sürüm', satir:9054, kb:1003 },
-        yenilikler:['🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'10. sürüm', tarih:'20.11.2026', satir:9102, kb:1012,
+        onceki:{ surum:'9. sürüm', satir:9084, kb:1009 },
+        yenilikler:['🎧 Kasaya ulaşılamasa da dinleme takılmaz: Arapça tilavet ayet ayet kesintisiz sürer, meal sesi geri gelince kendiliğinden okunur · 🔐 kasa sorununun nedenini söyler (ağ engeli mi, kasa hatası mı)','🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1402,6 +1402,18 @@
           'Kasaya ulaşılamadı ('+t.replace(/^https?:\/\//,'')+'). İnterneti değiştirip (Wi-Fi ↔ mobil veri) tekrar dene.');
       }
       function kasaSaglik(){ if(oku('zkasa_kapali')==='1') return Promise.resolve(null); return zamanli(ham()(kasa()+'/saglik', { cache:'no-store' }).then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ return !!(r.ok && j && j.ok!==false); }); }), 8000, 'zaman').catch(function(){ return false; }); }
+      // Kasa neden ulaşılamıyor? 'ok' | 'kasa-hata' (sunucuya ulaşılıyor ama hata/limit) | 'ag' (hiç ulaşılamıyor: internet/operatör engeli)
+      function kasaTani(){
+        return kasaSaglik().then(function(ok){
+          if(ok===null) return { durum:'kapali', metin:'Kasa kapalı (kişisel anahtar kullanılıyor).' };
+          if(ok) return { durum:'ok', metin:'Kasa bağlı.' };
+          return zamanli(ham()(kasa()+'/saglik?t='+Date.now(), { mode:'no-cors', cache:'no-store' }), 8000, 'zaman').then(function(){
+            return { durum:'kasa-hata', metin:'Kasa sunucusuna ulaşılıyor ama kasa hata veriyor (günlük istek sınırı dolmuş ya da kasa durmuş olabilir). Cloudflare panelinden Workers → baris-kasa sayfasına bak.' };
+          }, function(){
+            return { durum:'ag', metin:'Bu internetten kasaya hiç ulaşılamıyor (ağ ya da operatör engeli olabilir). Wi-Fi ↔ mobil veri değiştirip tekrar dene.' };
+          });
+        });
+      }
       function cihazId(){ var v=oku('zks_cihaz'); if(!v){ v='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); yaz('zks_cihaz',v); } return v; }
       function u8(b){ var p='='.repeat((4-b.length%4)%4), s=atob((b+p).replace(/-/g,'+').replace(/_/g,'/')), a=new Uint8Array(s.length); for(var i=0;i<s.length;i++) a[i]=s.charCodeAt(i); return a; }
       function ios(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1); }
@@ -1551,7 +1563,7 @@
       }
       function swAktif(){ if(!('serviceWorker' in navigator)) return Promise.resolve(false); return zamanli(navigator.serviceWorker.getRegistration(), 6000, 'zaman').then(function(r){ return !!(r && (r.active||r.waiting||r.installing)); }).catch(function(){ return false; }); }
 
-      window.ZBILDIRIM={ UYG:UYG, AD:AD, kasa:kasa, post:post, kasaSaglik:kasaSaglik, cihazId:cihazId, destek:destek, destekYok:destekYok, https:https, ios:ios, standalone:standalone,
+      window.ZBILDIRIM={ UYG:UYG, AD:AD, kasa:kasa, post:post, kasaSaglik:kasaSaglik, kasaTani:kasaTani, cihazId:cihazId, destek:destek, destekYok:destekYok, https:https, ios:ios, standalone:standalone,
         izin:izin, ac:ac, kapat:kapat, acikMi:acikMi, aboneOl:aboneOl, abonelik:abonelik, durum:durum, dene:dene, olay:olay, hListe:hListe, hKaydet:hKaydet, hBilgi:hBilgi, swDosya:swDosya, swAktif:swAktif, konular:konular, konuAyarla:konuAyarla, kanalDestek:kanalDestek, konulariTazele:konulariTazele, uygKayitli:uygKayitli, ham:ham, hazir:hazir, taban:taban, temizle:temizle, swKaydet:swKaydet };
 
       function basla(){ swKaydet().catch(function(){}); tazele(); temizle(); }
@@ -1567,7 +1579,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='9'; // ⚠️ Sonraki sürüm 10, 11… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
+    const SURUM='10'; // ⚠️ Sonraki sürüm 11, 12… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -1750,7 +1762,7 @@
         if(bekleyen[metin]) return bekleyen[metin];
         var govde={ contents:[{ parts:[{ text:'Ağırbaşlı, sakin, saygılı ve anlaşılır bir sesle, acele etmeden oku: '+metin }] }],
           generationConfig:{ responseModalities:['AUDIO'], speechConfig:{ voiceConfig:{ prebuiltVoiceConfig:{ voiceName:'Charon' } } } } };
-        var zaman=new Promise(function(_,red){ setTimeout(function(){ red(new Error('zaman')); }, 20000); });
+        var zaman=new Promise(function(_,red){ setTimeout(function(){ red(new Error('zaman')); }, 12000); });
         var p=Promise.race([fetch('https://generativelanguage.googleapis.com/v1beta/models/'+TTS_MODEL+':generateContent?key='+encodeURIComponent(anahtar()),
           { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(govde) }), zaman])
           .then(function(r){ if(!r.ok){ if(r.status===429||r.status>=500) sogumaBitis=Date.now()+10*60*1000; throw new Error('tts '+r.status); } return r.json(); })
@@ -1761,7 +1773,7 @@
             var m=/rate=(\d+)/.exec(d.mimeType||''); var url=pcmWav(d.data, m?+m[1]:24000);
             onbellek[metin]=url; sira.push(metin); if(sira.length>40){ var eski=sira.shift(); try{ URL.revokeObjectURL(onbellek[eski]); }catch(e){} delete onbellek[eski]; }
             return url;
-          });
+          }).catch(function(e){ if(Date.now()>sogumaBitis) sogumaBitis=Date.now()+5*60*1000; throw e; }); // ulaşılamazsa 5 dk denenmez: dinleme beklemeden Arapça sürer
         bekleyen[metin]=p; p.then(function(){ delete bekleyen[metin]; }, function(){ delete bekleyen[metin]; });
         return p;
       }
@@ -1780,7 +1792,7 @@
         p.forEach(function(x){ if((b+x).length>180 && b){ out.push(b.trim()); b=x; } else b+=x; }); if(b.trim()) out.push(b.trim()); return out; }
       function cihazSes(metin, hiz){
         if(!trSesi()){ // erkek ses yok → okumadan geç (meal ekranda yazılı)
-          if(!uyarildi){ uyarildi=true; try{ window.ZIRVE && window.ZIRVE.toast && window.ZIRVE.toast('🔇 Cihazında erkek Türkçe ses yok; meal sesi yalnız yapay zekâ erkek sesiyle (Charon) okunur. Şu an meal ekranda yazılı.', 'amber'); }catch(e){} }
+          if(!uyarildi){ uyarildi=true; try{ window.ZIRVE && window.ZIRVE.toast && window.ZIRVE.toast('🔇 Meal sesi şu an yok: yapay zekâya (kasaya) ulaşılamıyor. Arapça tilavet kesintisiz sürüyor; meal ekranda yazılı.', 'amber'); }catch(e){} }
           return Promise.resolve(); // arka planda zamanlayıcı beklemeden hemen sonraki ayete geç
         }
         var j=++cihazJeton, parca=cumleler(metin);
@@ -1798,7 +1810,7 @@
           }catch(e){ coz(); }
         });
       }
-      window.ZTTS={ yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, erkekSesVar:erkekSesVar, hazir:function(m){ return !!onbellek[String(m||'').replace(/\s+/g,' ').trim()]; }, onYukle:function(m){ if(m && yzSesAcik()) yzSes(m).catch(function(){}); } };
+      window.ZTTS={ sesYok:function(){ return !yzSesAcik() && !erkekSesVar(); }, sesYokNeden:function(){ if(oku('zirve_meal_ses')==='cihaz') return 'cihazda erkek ses yok'; if(!anahtar()) return 'yapay zekâ anahtarı yok'; return 'kasaya ulaşılamıyor'; }, yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, erkekSesVar:erkekSesVar, hazir:function(m){ return !!onbellek[String(m||'').replace(/\s+/g,' ').trim()]; }, onYukle:function(m){ if(m && yzSesAcik()) yzSes(m).catch(function(){}); } };
 
       // ---------- 🎧 TİLAVET ----------
       var ses=new Audio(); ses.preload='auto'; try{ ses.setAttribute('playsinline',''); }catch(e){}
@@ -1893,6 +1905,7 @@
             if(jeton!==mealJeton || !D.aktif) return;
             gercek(); ses.src=url; sesHiz(Math.min(1.25, D.hiz)); var p=ses.play(); if(p&&p.catch) p.catch(function(){ cihazYaDaGec(); });
           }, function(){ if(jeton!==mealJeton || !D.aktif) return;
+            if(!window.ZTTS.yzSesAcik()){ cihazYaDaGec(); return; }
             // bir kez daha Charon dene; olmazsa yalnız erkek cihaz sesi (yoksa sessiz geçer)
             window.ZTTS.yzSes(metin).then(function(url){ if(jeton!==mealJeton || !D.aktif) return; gercek(); ses.src=url; sesHiz(Math.min(1.25, D.hiz)); var p2=ses.play(); if(p2&&p2.catch) p2.catch(function(){ cihazYaDaGec(); }); },
               function(){ if(jeton!==mealJeton || !D.aktif) return; cihazYaDaGec(); }); });
@@ -3523,6 +3536,7 @@ Kullanıcının isteği: `;
                 if (!ZB) return;
                 try {
                     const [x, sw, aktif] = await Promise.all([ZB.durum().catch(() => ({ https: ZB.https(), ios: ZB.ios(), standalone: ZB.standalone(), izin: ZB.izin(), abone: false, kayitli: false, kasaOk: false })), ZB.swDosya ? ZB.swDosya() : Promise.resolve(null), ZB.swAktif ? ZB.swAktif() : Promise.resolve(false)]);
+                    if (x && x.kasaOk === false && ZB.kasaTani) { try { const t = await ZB.kasaTani(); x.kasaNeden = t.metin; } catch (e) {} }
                     setD({ ...x, sw, swAktif: aktif, hat: ZB.hBilgi ? ZB.hBilgi() : null });
                     if (x && x.kayitli && ZB.izin() === 'granted' && !ZB.acikMi() && (() => { try { return localStorage.getItem('zks_acik') === null; } catch (e) { return false; } })()) { try { localStorage.setItem('zks_acik', '1'); } catch (e) {} setAcik(true); window.dispatchEvent(new Event('zirve-bildirim')); }
                 } catch (e) { setD({ https: ZB.https(), ios: ZB.ios(), standalone: ZB.standalone(), izin: ZB.izin(), abone: false, kayitli: false, kasaOk: false }); }
@@ -3576,7 +3590,7 @@ Kullanıcının isteği: `;
                             if (!d) return <p className="text-[12px] text-slate-400">Denetleniyor…</p>;
                             const adimlar = [
                                 { ok: d.https, ad: 'Güvenli adres (https)', cozum: 'Uygulamayı GitHub Pages adresinden (https://…) aç.' },
-                                { ok: d.kasaOk !== false, yumusak: d.kasaOk === null, ad: `Kasaya ulaşılıyor${d.kasaAdres ? ' (' + d.kasaAdres + ')' : ''}`, cozum: "Kasaya bu internetten ulaşılamıyor. Wi-Fi ↔ mobil veri değiştirip 🔄 Yenile'ye bas. Sürerse aşağıdaki 🔐 Kasa kartından kasa adresini denetle." },
+                                { ok: d.kasaOk !== false, yumusak: d.kasaOk === null, ad: `Kasaya ulaşılıyor${d.kasaAdres ? ' (' + d.kasaAdres + ')' : ''}`, cozum: d.kasaNeden || "Kasaya bu internetten ulaşılamıyor. Wi-Fi ↔ mobil veri değiştirip 🔄 Yenile'ye bas." },
                                 { ok: d.sw ? d.sw.var : false, ad: 'sw.js dosyası bulundu', cozum: "GitHub'da index.html ile AYNI klasöre sw.js dosyasını yükle." },
                                 { ok: d.sw ? d.sw.push : false, ad: 'sw.js bildirim dinliyor', cozum: "Klasördeki sw.js eski ya da farklı; bu uygulamayla gelen sw.js'i yükle." },
                                 ...(d.ios ? [{ ok: d.standalone, ad: 'Ana ekrandaki simgeden açıldı', cozum: "iPhone'da bildirim yalnız ana ekrana eklenmiş uygulamada çalışır: Chrome (ya da Safari) → Paylaş (□↑) → Ana Ekrana Ekle, sonra o simgeden aç." }] : []),
@@ -4390,7 +4404,7 @@ Kullanıcının isteği: `;
             React.useEffect(() => { yzBak(false); const f = () => setBil(!!(ZB && ZB.acikMi())); window.addEventListener('zirve-bildirim', f); return () => window.removeEventListener('zirve-bildirim', f); }, []);
             const [kasaOk, setKasaOk] = React.useState(undefined);
             React.useEffect(() => { if (ZB && ZB.kasaSaglik) ZB.kasaSaglik().then(setKasaOk); }, []);
-            const kasaTikla = () => { if (sahipMi()) { sekmeSec('yz'); } if (ZB && ZB.kasaSaglik) { setKasaOk(undefined); ZB.kasaSaglik().then(v => { setKasaOk(v); showToast && showToast(v ? '🔐 Kasa bağlı — yapay zekâ ve bildirimler kasa üzerinden çalışır' : v === null ? '🔐 Kasa kapalı (kişisel anahtar kullanılıyor)' : '📶 Kasaya bu internetten ulaşılamıyor. Wi-Fi ↔ mobil veri değiştirip tekrar dokun.'); }); } };
+            const kasaTikla = () => { if (sahipMi()) { sekmeSec('yz'); } if (ZB && ZB.kasaSaglik) { setKasaOk(undefined); (ZB.kasaTani ? ZB.kasaTani() : ZB.kasaSaglik().then(v => ({ durum: v ? 'ok' : 'ag', metin: v ? 'Kasa bağlı.' : 'Kasaya ulaşılamıyor.' }))).then(t => { setKasaOk(t.durum === 'ok' ? true : t.durum === 'kapali' ? null : false); showToast && showToast('🔐 ' + t.metin); }); } };
             const yzTikla = async () => {
                 sekmeSec('yz'); setMesgul(true);
                 let d = await yzBak(true);
@@ -4399,7 +4413,7 @@ Kullanıcının isteği: `;
                     showToast && showToast('ℹ️ Kasa kapalı ve kişisel anahtar yok — aşağıdan kasayı aç ya da anahtar ekle');
                 } else if (!d.ok) {
                     try { const ozel = localStorage.getItem('zkasa_url'); if (ozel && ozel.replace(/\/+$/, '') !== KASA_VARSAYILAN) { localStorage.removeItem('zkasa_url'); window.ZKASA_URL = KASA_VARSAYILAN; d = await yzBak(true); if (d.ok) showToast && showToast('🔧 Kasa adresi varsayılana döndürüldü — yapay zekâ bağlandı'); } } catch(e){}
-                    if (!d.ok) showToast && showToast('🔴 Yapay zekâya ulaşılamadı — internetini kontrol et ya da aşağıdan anahtar ekle');
+                    if (!d.ok) { let neden = ''; try { if (ZB && ZB.kasaTani) neden = (await ZB.kasaTani()).metin; } catch (e) {} showToast && showToast('🔴 Yapay zekâya ulaşılamadı. ' + (neden || 'İnternetini kontrol et.') + ' Kasa olmadan da çalışması için aşağıdan kendi Gemini anahtarını ekleyebilirsin.'); }
                 } else showToast && showToast(d.yol === 'kasa' ? '🟢 Yapay zekâ kasa üzerinden bağlı' : '🟢 Yapay zekâ kişisel anahtarla bağlı');
                 setMesgul(false);
             };
@@ -5685,7 +5699,7 @@ JSON ŞEMASI:
                         <div className="flex items-center gap-2 px-3 py-2">
                             <button onClick={() => setGenis(!genis)} className="flex-1 min-w-0 text-left" aria-label="Oynatıcı ayarlarını aç/kapat">
                                 <p className="text-[13px] font-bold text-slate-100 truncate">{d.hatim ? '🚗 ' : ''}{d.sureAdi} · {d.ayet ? d.ayet + '. ayet' : 'Besmele'} <span className="text-slate-500 font-semibold">/ {d.son}</span></p>
-                                <p className="text-[11px] text-emerald-300/80 truncate">{d.asama === 'tr' ? '🇹🇷 Meal okunuyor' : '🕋 Tilavet'} · {(TILAVET_MODLARI.find(m => m.id === d.mod) || {}).ad}{d.tekrar !== 1 ? ` · ${d.tekrar === 0 ? '∞' : d.tekrar + '×'} tekrar` : ''}{kalan ? ` · 🌙 ${kalan}` : ''} <span className="text-slate-500">▾</span></p>
+                                <p className="text-[11px] text-emerald-300/80 truncate">{d.mod !== 'ar' && window.ZTTS && window.ZTTS.sesYok && window.ZTTS.sesYok() ? <span className="text-amber-300">🔇 Meal sesi yok ({window.ZTTS.sesYokNeden ? window.ZTTS.sesYokNeden() : 'kasaya ulaşılamıyor'}) · </span> : null}{d.asama === 'tr' ? '🇹🇷 Meal okunuyor' : '🕋 Tilavet'} · {(TILAVET_MODLARI.find(m => m.id === d.mod) || {}).ad}{d.tekrar !== 1 ? ` · ${d.tekrar === 0 ? '∞' : d.tekrar + '×'} tekrar` : ''}{kalan ? ` · 🌙 ${kalan}` : ''} <span className="text-slate-500">▾</span></p>
                             </button>
                             <button onClick={() => Z.onceki()} aria-label="Önceki ayet" className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-200"><Icons.ChevronLeft size={22}/></button>
                             <button onClick={() => d.caliyor ? Z.duraklat() : Z.devam()} aria-label={d.caliyor ? 'Duraklat' : 'Devam et'} className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-emerald-950 flex items-center justify-center shadow-lg">
@@ -9074,9 +9088,13 @@ JSON ŞEMASI:
 (function(){ var VARSAYILAN='https://baris-kasa.barilkay466.workers.dev'; try{ var u0=localStorage.getItem('zkasa_url'); if(u0) window.ZKASA_URL=u0; }catch(e){}
   if(window.ZKASA_URL===undefined) window.ZKASA_URL=VARSAYILAN; var onceki=window.fetch; var ham=window.ZIRVE_ORIG_FETCH||onceki;
   window.fetch=function(input,init){ try{ var kasa=String(window.ZKASA_URL||'').replace(/\/+$/,''); var url=(typeof input==='string')?input:(input&&input.url)||'';
+    var kisisel=false; try{ var zk=JSON.parse(localStorage.getItem('zirve_keys')||'[]'); kisisel=(Array.isArray(zk)&&zk.length>0)||!!(localStorage.getItem('geminiApiKey')||'').trim(); }catch(e){}
+    if(kasa && kisisel && window.__kasaHataT && Date.now()-window.__kasaHataT<180000) kasa=''; // kasaya ulaşılamıyorsa 3 dk doğrudan kişisel anahtarla
     if(kasa && url.indexOf('https://generativelanguage.googleapis.com/')===0){ var p=new URL(url); p.searchParams.delete('key'); var hedef=kasa+'/g'+p.pathname+p.search;
       var i2={}; if(init){ for(var a in init) i2[a]=init[a]; } if(i2.headers){ try{ var h=new Headers(i2.headers); h.delete('x-goog-api-key'); i2.headers=h; }catch(e){} }
-      var self=this,args=arguments; return ham.call(window,hedef,i2).then(function(r){ if(r.ok||(r.status>=400&&r.status<500&&[401,403,404,429].indexOf(r.status)<0)) return r; return onceki.apply(self,args); },function(){ return onceki.apply(self,args); }); } }catch(e){}
+      var self=this,args=arguments, ac=null, sure=null;
+      if(kisisel && !i2.signal && window.AbortController){ ac=new AbortController(); i2.signal=ac.signal; sure=setTimeout(function(){ try{ ac.abort(); }catch(e){} }, 6000); } // kişisel anahtar varsa kasa 6 sn'de yanıt vermezse doğrudan Google'a
+      return ham.call(window,hedef,i2).then(function(r){ clearTimeout(sure); if(r.ok||(r.status>=400&&r.status<500&&[401,403,404,429].indexOf(r.status)<0)) return r; if(r.status>=500||(r.status===429&&kisisel)) window.__kasaHataT=Date.now(); return onceki.apply(self,args); },function(e){ clearTimeout(sure); if(!(e && e.name==='AbortError' && !ac)) window.__kasaHataT=Date.now(); return onceki.apply(self,args); }); } }catch(e){}
     return onceki.apply(this,arguments); }; })();
   /* Kasa hata verirse istek eski yola düşer; uygulama asla bozulmaz. */
     </script>
