@@ -1362,9 +1362,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'7. sürüm', tarih:'20.11.2026', satir:8914, kb:987,
-        onceki:{ surum:'6. sürüm', satir:8801, kb:973 },
-        yenilikler:['🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'8. sürüm', tarih:'20.11.2026', satir:9054, kb:1003,
+        onceki:{ surum:'7. sürüm', satir:8914, kb:987 },
+        yenilikler:['🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1559,7 +1559,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='7'; // ⚠️ Sonraki sürüm 8, 9… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
+    const SURUM='8'; // ⚠️ Sonraki sürüm 9, 10… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -1614,7 +1614,13 @@
       }
       // Yazma bitince (odak çıkınca) bekleyen sürümü uygula
       document.addEventListener('focusout', function(){ if(bulunan) setTimeout(function(){ if(bulunan && !mesgul() && oku('zirve_guncel_denendi')!==bulunan){ yaz('zirve_guncel_denendi', bulunan); yenile(); } }, 1500); });
-      window.addEventListener('load', function(){ setTimeout(function(){ guncelleBak(true); }, 4000); });
+      window.addEventListener('load', function(){ setTimeout(function(){ guncelleBak(true); }, 4000); swTazele(); });
+      // 8. sürüm: eski sürümün geri gelmemesi için servis çalışanı her açılışta güncellenir, eski önbellekler silinir
+      var SAKLA=['zirve-kutu','zirve-kuran-veri','zirve-sayfa'];
+      function swTazele(){
+        try{ if(window.caches && caches.keys) caches.keys().then(function(k){ k.forEach(function(x){ if(/^zirve-/.test(x) && SAKLA.indexOf(x)<0) caches.delete(x); }); }).catch(function(){}); }catch(e){}
+        try{ if(/^https:$/.test(location.protocol) && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(function(r){ try{ var u=r.update(); if(u&&u.catch) u.catch(function(){}); }catch(e){} }).catch(function(){}); }catch(e){}
+      }
       document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') guncelleBak(false); });
 
       // 🛟 Beyaz ekran olmasın
@@ -1731,6 +1737,7 @@
         return URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
       }
       function yzSes(metin){
+        metin=String(metin||'').replace(/\s+/g,' ').trim();
         if(onbellek[metin]) return Promise.resolve(onbellek[metin]);
         if(bekleyen[metin]) return bekleyen[metin];
         var govde={ contents:[{ parts:[{ text:'Ağırbaşlı, sakin, saygılı ve anlaşılır bir sesle, acele etmeden oku: '+metin }] }],
@@ -1750,14 +1757,24 @@
         bekleyen[metin]=p; p.then(function(){ delete bekleyen[metin]; }, function(){ delete bekleyen[metin]; });
         return p;
       }
+      // 8. sürüm: meal YALNIZCA erkek sesle okunur. Cihazda erkek Türkçe ses yoksa cihaz sesi hiç kullanılmaz (kadın ses ya da perdesi bozulmuş ses yok).
+      var KADIN_SES=/yelda|emel|filiz|seda|zeynep|ay[sş]e|elif|female|kad[ıi]n|woman|google t[uü]rk|samantha|karen|-(tra|trb|trc)-|x-(mfm|efm|cfs)/i;
+      var ERKEK_SES=/tolga|ahmet|cem\b|kerem|mehmet|murat|emre|erkek|\bmale\b/i;
       function trSesi(){
-        try{ var s=speechSynthesis.getVoices()||[]; return s.find(function(v){ return /tr(-|_)?TR/i.test(v.lang) && /Yelda|Google|Siri|Premium|Enhanced/i.test(v.name); }) || s.find(function(v){ return /^tr/i.test(v.lang); }) || null; }catch(e){ return null; }
+        try{ var s=(speechSynthesis.getVoices()||[]).filter(function(v){ return /^tr/i.test(v.lang); });
+          return s.find(function(v){ var t=v.name+' '+(v.voiceURI||''); return ERKEK_SES.test(t) && !KADIN_SES.test(t) && !/female/i.test(t); }) || null; }catch(e){ return null; }
       }
+      function erkekSesVar(){ return !!trSesi(); }
+      var uyarildi=false;
       var cihazKonusma=null, cihazJeton=0;
       // Uzun metinler cümle cümle okunur (bazı tarayıcılar ~15 sn sonra konuşmayı keser)
       function cumleler(m){ var p=String(m||'').match(/[^.!?;:]+[.!?;:]*\s*/g)||[String(m||'')], out=[], b='';
         p.forEach(function(x){ if((b+x).length>180 && b){ out.push(b.trim()); b=x; } else b+=x; }); if(b.trim()) out.push(b.trim()); return out; }
       function cihazSes(metin, hiz){
+        if(!trSesi()){ // erkek ses yok → okumadan geç (meal ekranda yazılı)
+          if(!uyarildi){ uyarildi=true; try{ window.ZIRVE && window.ZIRVE.toast && window.ZIRVE.toast('🔇 Cihazında erkek Türkçe ses yok; meal sesi yalnız yapay zekâ erkek sesiyle (Charon) okunur. Şu an meal ekranda yazılı.', 'amber'); }catch(e){} }
+          return Promise.resolve(); // arka planda zamanlayıcı beklemeden hemen sonraki ayete geç
+        }
         var j=++cihazJeton, parca=cumleler(metin);
         return parca.reduce(function(pr, c){ return pr.then(function(){ if(j!==cihazJeton) return; return cihazParca(c, hiz); }); }, Promise.resolve());
       }
@@ -1766,17 +1783,28 @@
           try{
             if(!('speechSynthesis' in window)) return coz();
             speechSynthesis.cancel();
-            var u=new SpeechSynthesisUtterance(metin); u.lang='tr-TR'; var v=trSesi(); if(v) u.voice=v; u.rate=Math.max(.6, Math.min(1.4, (hiz||1)*0.95));
+            var u=new SpeechSynthesisUtterance(metin); u.lang='tr-TR'; var v=trSesi(); if(!v) return coz(); u.voice=v; u.pitch=1; u.rate=Math.max(.6, Math.min(1.4, (hiz||1)*0.95));
             var bitti=false; function son(){ if(bitti) return; bitti=true; cihazKonusma=null; coz(); }
             u.onend=son; u.onerror=son; cihazKonusma=u; speechSynthesis.speak(u);
             setTimeout(son, Math.max(4000, metin.length*140/(hiz||1))); // iOS bazen onend vermez
           }catch(e){ coz(); }
         });
       }
-      window.ZTTS={ yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, onYukle:function(m){ if(m && yzSesAcik()) yzSes(m).catch(function(){}); } };
+      window.ZTTS={ yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, erkekSesVar:erkekSesVar, hazir:function(m){ return !!onbellek[String(m||'').replace(/\s+/g,' ').trim()]; }, onYukle:function(m){ if(m && yzSesAcik()) yzSes(m).catch(function(){}); } };
 
       // ---------- 🎧 TİLAVET ----------
       var ses=new Audio(); ses.preload='auto'; try{ ses.setAttribute('playsinline',''); }catch(e){}
+      // Hız değişince ses perdesi DEĞİŞMEZ (incelme/kalınlaşma olmaz)
+      try{ ses.preservesPitch=true; ses.mozPreservesPitch=true; ses.webkitPreservesPitch=true; }catch(e){}
+      // 🔇 Kesintisiz arka plan: meal sesi ya da sonraki sure hazırlanırken aynı ses öğesi sessizlik çalar,
+      // böylece iPhone kilit ekranında/arka planda ses oturumu kapanmaz ve dinleme kendiliğinden durmaz.
+      var SUS=null, bekliyor=false;
+      function susUrl(){ if(SUS) return SUS; var n=16000, b=new ArrayBuffer(44+n), v=new DataView(b); function w(o,t){ for(var i=0;i<t.length;i++) v.setUint8(o+i,t.charCodeAt(i)); }
+        w(0,'RIFF'); v.setUint32(4,36+n,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,8000,true); v.setUint32(28,16000,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n,true);
+        SUS=URL.createObjectURL(new Blob([b],{type:'audio/wav'})); return SUS; }
+      function bekle(){ if(!D.aktif || !D.caliyor) return; try{ bekliyor=true; ses.loop=true; ses.src=susUrl(); var p=ses.play(); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
+      function gercek(){ bekliyor=false; try{ ses.loop=false; }catch(e){} }
+      function sesHiz(h){ try{ ses.preservesPitch=true; ses.webkitPreservesPitch=true; ses.playbackRate=h; }catch(e){} }
       var D={ aktif:false, caliyor:false, sure:0, sureAdi:'', ayetler:[], idx:0, asama:'ar', tekrarSayac:0,
         mod: oku('zirve_tilavet_mod')||'armeal', tekrar: +(oku('zirve_tilavet_tekrar')||1), hiz: +(oku('zirve_tilavet_hiz')||1),
         takip: oku('zirve_tilavet_takip')!=='0', uyku:0, uykuBitis:0, okuyucu:'', devamFn:null, geriFn:null, etiket:'' };
@@ -1828,7 +1856,7 @@
         D.caliyor=true; medyaOturumu(); yay();
         try{ if(D.mod!=='ar' && a.tr) window.ZTTS.onYukle(a.tr); var ileri= D.devamFn? 3 : 1; for(var oi=1; oi<=ileri; oi++){ var sonrakiA=D.ayetler[D.idx+oi]; if(D.mod!=='ar' && sonrakiA && sonrakiA.tr) window.ZTTS.onYukle(sonrakiA.tr); } }catch(e){} // sürekli dinlemede (araba/arka plan) 3 ayet önceden hazırlanır
         if(D.asama==='ar'){
-          ses.src=a.audio; ses.playbackRate=D.hiz; try{ ses.preservesPitch=true; ses.webkitPreservesPitch=true; }catch(e){}
+          gercek(); ses.src=a.audio; ses.playbackRate=D.hiz; try{ ses.preservesPitch=true; ses.webkitPreservesPitch=true; }catch(e){}
           var p=ses.play(); if(p&&p.catch) p.catch(function(e){ if(e && e.name==='AbortError') return; D.caliyor=false; yay(); if(e && e.name!=='NotAllowedError'){ try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('📶 Ses yüklenemedi. İnternet bağlantını kontrol edip ▶ ile devam et.','red'); }catch(_){} } });
           setTimeout(kelimeleriHazirla, 60);
         } else {
@@ -1843,17 +1871,29 @@
         if(!metin || metin==='...'){ ilerle(); return; }
         var on='';
         var git=function(){ if(jeton===mealJeton && D.aktif && D.caliyor) ilerle(); };
+        // Erkek cihaz sesi yoksa: "Yalnız meal"de o ayetin Arapça tilaveti çalınır, diğer modlarda meal atlanır (asla kadın ses, asla hızla atlama yok)
+        var cihazYaDaGec=function(){
+          if(jeton!==mealJeton || !D.aktif) return;
+          if(window.ZTTS.erkekSesVar()){ bekle(); window.ZTTS.cihazSes(metin, D.hiz).then(git); return; }
+          window.ZTTS.cihazSes('', D.hiz); // tek seferlik bilgilendirme
+          if(D.mod==='meal' && a.audio){ D.asama='ar'; gercek(); ses.src=a.audio; ses.playbackRate=D.hiz; var p3=ses.play(); if(p3&&p3.catch) p3.catch(function(){}); return; }
+          git();
+        };
         if(window.ZTTS.yzSesAcik()){
+          if(!window.ZTTS.hazir(on+metin)) bekle();
           window.ZTTS.yzSes(on+metin).then(function(url){
             if(jeton!==mealJeton || !D.aktif) return;
-            ses.src=url; ses.playbackRate=Math.min(1.25, D.hiz); var p=ses.play(); if(p&&p.catch) p.catch(function(){ window.ZTTS.cihazSes(metin, D.hiz).then(git); });
-          }, function(){ if(jeton!==mealJeton || !D.aktif) return; window.ZTTS.cihazSes(metin, D.hiz).then(git); });
+            gercek(); ses.src=url; sesHiz(Math.min(1.25, D.hiz)); var p=ses.play(); if(p&&p.catch) p.catch(function(){ cihazYaDaGec(); });
+          }, function(){ if(jeton!==mealJeton || !D.aktif) return;
+            // bir kez daha Charon dene; olmazsa yalnız erkek cihaz sesi (yoksa sessiz geçer)
+            window.ZTTS.yzSes(metin).then(function(url){ if(jeton!==mealJeton || !D.aktif) return; gercek(); ses.src=url; sesHiz(Math.min(1.25, D.hiz)); var p2=ses.play(); if(p2&&p2.catch) p2.catch(function(){ cihazYaDaGec(); }); },
+              function(){ if(jeton!==mealJeton || !D.aktif) return; cihazYaDaGec(); }); });
         } else {
-          window.ZTTS.cihazSes(metin, D.hiz).then(git);
+          cihazYaDaGec();
         }
       }
       ses.addEventListener('ended', function(){
-        if(!D.aktif) return;
+        if(!D.aktif || bekliyor) return;
         if(D.asama==='ar'){
           kelimeTemizle();
           if(D.mod==='armeal'){ D.asama='tr'; cal(); return; }
@@ -1864,8 +1904,17 @@
       });
       var hataSayac=0;
       ses.addEventListener('playing', function(){ hataSayac=0; });
+      // Dış kesinti (arama, Siri, navigasyon sesi) çalmayı durdurursa bir kez kendiliğinden sürdürmeyi dene
+      // Dış durdurma (kulaklık/Bluetooth ayrıldı, arama, Siri): ekrana "duraklatıldı" yansır; ▶ / direksiyon / kilit ekranı ile kaldığı yerden sürer.
+      // (Kulaklık çıkınca telefon hoparlöründen kendiliğinden çalmaz.) Uygulamanın kendi geçişleri sayılmaz.
+      var icDur=0; function sesDur(){ icDur=Date.now(); try{ ses.pause(); }catch(e){} }
+      try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+      ses.addEventListener('pause', function(){
+        if(!D.aktif || !D.caliyor || ses.ended || bekliyor || Date.now()-icDur<1500) return;
+        setTimeout(function(){ if(D.aktif && D.caliyor && ses.paused && !ses.ended && Date.now()-icDur>=1500){ D.caliyor=false; mealJeton++; yay(); try{ navigator.mediaSession.playbackState='paused'; }catch(e){} } }, 300);
+      });
       ses.addEventListener('error', function(){
-        if(!D.aktif || D.asama!=='ar' || !ses.getAttribute('src')) return;
+        if(!D.aktif || bekliyor || D.asama!=='ar' || !ses.getAttribute('src')) return;
         hataSayac++;
         if(hataSayac>=2){ hataSayac=0; duraklat(); try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('📶 Ses yüklenemedi. İnternet bağlantını kontrol edip ▶ ile devam et.','red'); }catch(e){} return; }
         setTimeout(function(){ if(D.aktif && D.caliyor) ilerle(); }, 600);
@@ -1876,7 +1925,7 @@
         var besmeleMi = D.ayetler[D.idx] && D.ayetler[D.idx].no===0; // besmele tekrar edilmez
         if(!besmeleMi && (D.tekrar===0 || D.tekrarSayac<D.tekrar)){ D.asama= D.mod==='meal'?'tr':'ar'; cal(); return; } // aynı ayeti tekrar et (0 = sonsuz)
         D.tekrarSayac=0; D.idx++; D.asama= D.mod==='meal'?'tr':'ar';
-        if(D.idx>=D.ayetler.length){ if(D.devamFn){ D.idx=D.ayetler.length-1; var f=D.devamFn; f(D.sure, 'dogal'); return; } bitir(); return; }
+        if(D.idx>=D.ayetler.length){ if(D.devamFn){ D.idx=D.ayetler.length-1; bekle(); var f=D.devamFn; f(D.sure, 'dogal'); return; } bitir(); return; }
         cal();
       }
       function bitir(){ D.caliyor=false; D.idx=Math.max(0, D.ayetler.length-1); D.aktif=false; kelimeTemizle(); yay(); try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('✅ '+D.sureAdi+' Suresi tamamlandı','green'); }catch(e){} }
@@ -1884,18 +1933,18 @@
       function kaydir(no){ try{ var el=kapBul(no); if(el) el.scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){} }
 
       function baslat(o){
-        mealJeton++; D.tek=false; hataSayac=0; try{ ses.pause(); }catch(e){} cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){}
+        mealJeton++; D.tek=false; hataSayac=0; sesDur(); cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){}
         try{ if('speechSynthesis' in window){ var u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); } }catch(e){} // iOS: sesi dokunuşla aç
         D.sure=o.sure; D.sureAdi=o.sureAdi||''; D.ayetler=o.ayetler||[]; D.okuyucu=o.okuyucu||''; D.devamFn=o.devamFn||null; D.geriFn=o.geriFn||null; D.etiket=o.etiket||'';
         D.idx=Math.max(0, D.ayetler.findIndex(function(a){ return a.no===(o.ayet||D.ayetler[0]&&D.ayetler[0].no); }));
         if(D.idx<0) D.idx=0; D.tekrarSayac=0; D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true;
-        if(o.bekle){ D.caliyor=false; try{ ses.removeAttribute('src'); ses.load(); }catch(e){} medyaOturumu(); try{ navigator.mediaSession.playbackState='paused'; }catch(e){} yay(); return; } // duraklatılmışken gelen sonraki sure: hazır bekler
+        if(o.bekle){ D.caliyor=false; gercek(); try{ ses.removeAttribute('src'); ses.load(); }catch(e){} medyaOturumu(); try{ navigator.mediaSession.playbackState='paused'; }catch(e){} yay(); return; } // duraklatılmışken gelen sonraki sure: hazır bekler
         cal();
       }
-      function duraklat(){ D.caliyor=false; mealJeton++; try{ ses.pause(); }catch(e){} cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} try{ navigator.mediaSession.playbackState='paused'; }catch(e){} yay(); }
-      function devam(){ if(D.tek && D.ayetler[0]){ D.aktif=true; D.caliyor=true; mealOku(D.ayetler[0]); yay(); return; } if(!D.aktif && D.ayetler.length){ D.aktif=true; } if(!D.aktif) return; D.caliyor=true; if(D.asama==='ar' && ses.src && ses.currentTime>0 && !ses.ended){ var p=ses.play(); if(p&&p.catch) p.catch(function(){}); yay(); } else cal(); try{ navigator.mediaSession.playbackState='playing'; }catch(e){} }
-      function sonraki(){ if(!D.ayetler.length) return; if(D.devamFn && D.idx>=D.ayetler.length-1){ mealJeton++; cihazJeton++; try{ ses.pause(); }catch(e){} try{ speechSynthesis.cancel(); }catch(e){} D.devamFn(D.sure, 'atla'); return; } mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.tekrarSayac=0; D.idx=Math.min(D.ayetler.length-1, D.idx+1); D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
-      function onceki(){ if(!D.ayetler.length) return; if(D.geriFn && D.idx<=0 && D.sure>1){ mealJeton++; cihazJeton++; try{ ses.pause(); }catch(e){} try{ speechSynthesis.cancel(); }catch(e){} D.geriFn(D.sure); return; } mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.tekrarSayac=0; D.idx=Math.max(0, D.idx-1); D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
+      function duraklat(){ D.caliyor=false; mealJeton++; sesDur(); if(bekliyor){ gercek(); try{ ses.removeAttribute('src'); ses.load(); }catch(e){} } cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} try{ navigator.mediaSession.playbackState='paused'; }catch(e){} yay(); }
+      function devam(){ if(D.tek && D.ayetler[0]){ D.aktif=true; D.caliyor=true; mealOku(D.ayetler[0]); yay(); return; } if(!D.aktif && D.ayetler.length){ D.aktif=true; } if(!D.aktif) return; D.caliyor=true; if(!bekliyor && D.asama==='ar' && ses.src && ses.currentTime>0 && !ses.ended){ var p=ses.play(); if(p&&p.catch) p.catch(function(){}); yay(); } else cal(); try{ navigator.mediaSession.playbackState='playing'; }catch(e){} }
+      function sonraki(){ if(!D.ayetler.length) return; if(D.devamFn && D.idx>=D.ayetler.length-1){ mealJeton++; cihazJeton++; if(D.caliyor) bekle(); else sesDur(); try{ speechSynthesis.cancel(); }catch(e){} D.devamFn(D.sure, 'atla'); return; } mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.tekrarSayac=0; D.idx=Math.min(D.ayetler.length-1, D.idx+1); D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
+      function onceki(){ if(!D.ayetler.length) return; if(D.geriFn && D.idx<=0 && D.sure>1){ mealJeton++; cihazJeton++; if(D.caliyor) bekle(); else sesDur(); try{ speechSynthesis.cancel(); }catch(e){} D.geriFn(D.sure); return; } mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.tekrarSayac=0; D.idx=Math.max(0, D.idx-1); D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
       function git(no){ var i=D.ayetler.findIndex(function(a){ return a.no===no; }); if(i<0) return; mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.idx=i; D.tekrarSayac=0; D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
       function durdur(){ D.devamFn=null; D.geriFn=null; duraklat(); D.aktif=false; D.tek=false; D.ayetler=[]; D.etiket=''; kelimeTemizle(); try{ navigator.mediaSession.metadata=null; }catch(e){} yay(); }
       var uykuZ=0;
@@ -1910,7 +1959,7 @@
       function abone(f){ dinleyiciler.push(f); return function(){ dinleyiciler=dinleyiciler.filter(function(x){ return x!==f; }); }; }
       // Tek bir metni (hadis, Esmâ, meal) seslendir — bildirim kartlarında kullanılır
       function tekMetin(metin){ durdur(); var a={ no:0, tr:metin, audio:'' }; D.ayetler=[a]; D.idx=0; D.sure=0; D.sureAdi=''; D.aktif=true; D.caliyor=true; D.asama='tr'; D.tek=true; mealOku(a); yay(); }
-      window.ZTILAVET={ baslat:baslat, duraklat:duraklat, devam:devam, sonraki:sonraki, onceki:onceki, git:git, durdur:durdur, ayarla:ayarla, abone:abone, durum:durum, tekMetin:tekMetin, ses:ses };
+      window.ZTILAVET={ bekle:bekle, beklemede:function(){ return bekliyor; }, baslat:baslat, duraklat:duraklat, devam:devam, sonraki:sonraki, onceki:onceki, git:git, durdur:durdur, ayarla:ayarla, abone:abone, durum:durum, tekMetin:tekMetin, ses:ses };
     })();
     </script>
 
@@ -2684,7 +2733,7 @@ Kullanıcının isteği: `;
                     contents: [{ parts: [{ text: textToSpeak }] }],
                     generationConfig: {
                         responseModalities: ["AUDIO"],
-                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
+                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Charon" } } } // 8. sürüm: her yerde erkek ses
                     }
                 };
 
@@ -5568,6 +5617,9 @@ JSON ŞEMASI:
         const TilavetCubugu = () => {
             const d = useTilavet();
             const [genis, setGenis] = React.useState(false);
+            // 8. sürüm: ✕ dinlemeyi durdurmaz, oynatıcıyı küçültür; dinleme her sayfada ve arka planda sürer
+            const [kucuk, setKucukH] = React.useState(() => { try { return localStorage.getItem('zirve_oynatici_kucuk') === '1'; } catch (e) { return false; } });
+            const setKucuk = (v) => { setKucukH(v); if (v) setGenis(false); try { localStorage.setItem('zirve_oynatici_kucuk', v ? '1' : '0'); } catch (e) {} };
             const Z = window.ZTILAVET;
             const [kalan, setKalan] = React.useState('');
             React.useEffect(() => {
@@ -5578,6 +5630,22 @@ JSON ŞEMASI:
             const gorunur = !!(Z && (d.aktif || d.toplam) && d.sure);
             React.useEffect(() => { try { document.body.classList.toggle('zk-tilavet', gorunur); } catch(e){} }, [gorunur]);
             if (!gorunur) return null;
+            if (kucuk) {
+                const yz = d.hatim && window.ZDINLE ? Math.min(100, window.ZDINLE.sira(d.sure, d.ayet) / 6236 * 100) : d.toplam ? Math.round(((d.ayet) / Math.max(1, d.son)) * 100) : 0;
+                return (
+                    <div className="fixed left-3 z-[45] flex items-center gap-1 pl-1 pr-1.5 h-[52px] rounded-full bg-slate-950/95 border border-emerald-500/40 shadow-2xl shadow-black/60 backdrop-blur" style={{ bottom: 'calc(5.4rem + env(safe-area-inset-bottom, 0px))' }} role="region" aria-label="Küçük oynatıcı">
+                        <button onClick={() => d.caliyor ? Z.duraklat() : Z.devam()} aria-label={d.caliyor ? 'Duraklat' : 'Devam et'} className="relative w-11 h-11 rounded-full flex items-center justify-center">
+                            <svg className="absolute inset-0 -rotate-90" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#1e293b" strokeWidth="3"/><circle cx="22" cy="22" r="19" fill="none" stroke="#34d399" strokeWidth="3" strokeDasharray={`${2 * Math.PI * 19}`} strokeDashoffset={`${2 * Math.PI * 19 * (1 - yz / 100)}`} strokeLinecap="round"/></svg>
+                            <span className="w-8 h-8 rounded-full bg-emerald-500 text-emerald-950 flex items-center justify-center">{d.caliyor ? <Icons.Pause size={15}/> : <Icons.Play size={15}/>}</span>
+                        </button>
+                        <button onClick={() => setKucuk(false)} aria-label="Oynatıcıyı büyüt" className="flex flex-col items-start leading-tight px-1 min-h-[44px] justify-center max-w-[150px]">
+                            <span className="text-[12px] font-bold text-white truncate max-w-[140px]">{d.sureAdi} {d.ayet || 'Besmele'}</span>
+                            <span className="text-[10px] text-emerald-300/80">{d.asama === 'tr' ? 'Meal' : 'Tilavet'} · büyüt</span>
+                        </button>
+                        <button onClick={() => Z.sonraki()} aria-label="Sonraki ayet" className="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-200"><Icons.ChevronRight size={18}/></button>
+                    </div>
+                );
+            }
             const cip = (on) => `px-3 min-h-[34px] rounded-full text-[11px] font-bold border transition-colors ${on ? 'bg-emerald-500 text-emerald-950 border-emerald-400' : 'bg-black/30 text-slate-300 border-slate-700 hover:bg-white/10'}`;
             const ilerleme = d.hatim && window.ZDINLE ? Math.min(100, window.ZDINLE.sira(d.sure, d.ayet) / 6236 * 100) : d.toplam ? Math.round(((d.ayet) / Math.max(1, d.son)) * 100) : 0;
             return (
@@ -5594,10 +5662,11 @@ JSON ŞEMASI:
                                 {d.caliyor ? <Icons.Pause size={22}/> : <Icons.Play size={22}/>}
                             </button>
                             <button onClick={() => Z.sonraki()} aria-label="Sonraki ayet" className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-200"><Icons.ChevronRight size={22}/></button>
-                            <button onClick={() => Z.durdur()} aria-label="Dinlemeyi kapat" className="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-400"><Icons.X size={18}/></button>
+                            <button onClick={() => { Z.durdur(); setGenis(false); }} aria-label="Dinlemeyi bitir" title="Dinlemeyi bitir" className="hidden sm:flex w-9 h-9 rounded-full hover:bg-rose-500/15 items-center justify-center text-rose-300/80"><span className="w-3.5 h-3.5 rounded-sm bg-current"></span></button>
+                            <button onClick={() => genis ? setGenis(false) : setKucuk(true)} aria-label={genis ? 'Ayarları gizle (dinleme sürer)' : 'Oynatıcıyı küçült (dinleme sürer)'} title="Küçült — dinleme durmaz" className="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-400"><Icons.ChevronLeft size={18} className="-rotate-90"/></button>
                         </div>
                         {genis && (
-                            <div className="px-3 pb-3 space-y-2.5 border-t border-white/5 pt-2.5 animate-fade-in">
+                            <div className="px-3 pb-3 space-y-2.5 border-t border-white/5 pt-2.5 animate-fade-in max-h-[52vh] overflow-y-auto custom-scrollbar">
                                 <div className="flex flex-wrap gap-1.5 items-center"><span className="text-[10px] text-slate-500 w-14">Dinle</span>
                                     {TILAVET_MODLARI.map(m => <button key={m.id} onClick={() => Z.ayarla('mod', m.id)} className={cip(d.mod === m.id)}>{m.ikon} {m.ad}</button>)}
                                 </div>
@@ -5613,7 +5682,11 @@ JSON ŞEMASI:
                                 </div>
                                 <button onClick={() => { try { window.dispatchEvent(new CustomEvent('zirve-dinle-ac')); } catch (e) {} }} className="w-full min-h-[40px] rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 text-[12px] font-bold">🎧 Kur'an'ı baştan sona dinle {d.hatim ? '— ayarlar (meal, hafız, cüz)' : '— buradan sure sure devam et'}</button>
                                 <label className="flex items-center gap-2 text-[12px] text-slate-300"><input type="checkbox" checked={d.takip} onChange={e => Z.ayarla('takip', e.target.checked)} className="accent-emerald-500 w-4 h-4"/> Okunan ayeti ekranda takip et</label>
-                                <p className="text-[10px] text-slate-500">Meal sesi: {window.ZTTS && window.ZTTS.yzSesAcik() ? 'yapay zekâ sesi (Charon); olmazsa cihazın sesi' : 'cihazın Türkçe sesi'} · Kilit ekranından da yönetebilirsin.</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button onClick={() => setKucuk(true)} className="min-h-[40px] rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-[12px] font-bold">⌄ Küçült · dinleme sürer</button>
+                                    <button onClick={() => { Z.durdur(); setGenis(false); }} className="min-h-[40px] rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-[12px] font-bold">⏹ Dinlemeyi bitir</button>
+                                </div>
+                                <p className="text-[10px] text-slate-500">Meal sesi: yalnız erkek ses — {window.ZTTS && window.ZTTS.yzSesAcik() ? 'yapay zekâ erkek sesi (Charon)' : (window.ZTTS && window.ZTTS.erkekSesVar() ? 'cihazın erkek sesi' : 'erkek ses yok, meal yazılı')} · Başka sayfaya geçebilir, ekranı kilitleyebilirsin; dinleme sürer.</p>
                             </div>
                         )}
                     </div>
@@ -5653,7 +5726,7 @@ JSON ŞEMASI:
                 const apiMeal = A.meal.indexOf('elle:') === 0 ? A.yedek : A.meal;
                 const anahtar = n + '|' + A.okuyucu + '|' + apiMeal + '|' + A.meal + (A.meal.indexOf('elle:') === 0 ? '|' + (localStorage.getItem('zirve_elle_meal') || '').length : '');
                 if (onbellek[anahtar]) return onbellek[anahtar];
-                const dene = (k) => fetch(`https://api.alquran.cloud/v1/surah/${n}/editions/${A.okuyucu},${apiMeal}`).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                const dene = (k) => Promise.race([fetch(`https://api.alquran.cloud/v1/surah/${n}/editions/${A.okuyucu},${apiMeal}`), new Promise((_, red) => setTimeout(() => red(new Error('zaman aşımı')), 15000))]).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
                     .catch(e => { if (k > 0) return new Promise(c => setTimeout(c, 2500)).then(() => dene(k - 1)); throw e; });
                 const p = dene(2).then(j => {
                     const ed = (j && j.data) || []; const ar = ed.find(e => e.edition && e.edition.identifier === A.okuyucu) || ed[0]; const tr = ed.find(e => e.edition && e.edition.identifier === apiMeal) || ed[1];
@@ -5729,6 +5802,13 @@ JSON ŞEMASI:
                 });
             };
             setTimeout(kur, 0);
+            // ⚡ Kaldığın yer önceden hazırlanır: "Dinlemeye devam"a basınca beklemeden başlar
+            setTimeout(() => {
+                try {
+                    const A = ayar(); if (!(A.sure > 1 || A.ayet > 0) || !navigator.onLine) return;
+                    veriAl(A.sure, A).catch(() => {}); // yalnız sure verisi (kota harcamaz)
+                } catch (e) {}
+            }, 2500);
             return { ayar, yaz, baslat, devam, durum, abone, sira, elleSayi, kur };
         })();
         window.ZDINLE = ZDINLE;
@@ -5880,8 +5960,8 @@ JSON ŞEMASI:
                             <div>
                                 <span className={etiket}>Meal sesi</span>
                                 <div className="flex gap-1.5">
-                                    <button onClick={() => { try { localStorage.setItem('zirve_meal_ses', 'yz'); } catch (e) {} setSesTur('yz'); }} aria-pressed={sesTur !== 'cihaz'} className={cip(sesTur !== 'cihaz')}>✨ Yapay zekâ sesi (Charon)</button>
-                                    <button onClick={() => { try { localStorage.setItem('zirve_meal_ses', 'cihaz'); } catch (e) {} setSesTur('cihaz'); }} aria-pressed={sesTur === 'cihaz'} className={cip(sesTur === 'cihaz')}>📱 Cihazın sesi</button>
+                                    <button onClick={() => { try { localStorage.setItem('zirve_meal_ses', 'yz'); } catch (e) {} setSesTur('yz'); }} aria-pressed={sesTur !== 'cihaz'} className={cip(sesTur !== 'cihaz')}>✨ Yapay zekâ erkek sesi (Charon)</button>
+                                    <button onClick={() => { try { localStorage.setItem('zirve_meal_ses', 'cihaz'); } catch (e) {} setSesTur('cihaz'); }} disabled={!(window.ZTTS && window.ZTTS.erkekSesVar())} aria-pressed={sesTur === 'cihaz'} className={cip(sesTur === 'cihaz') + ' disabled:opacity-40'}>📱 Cihazın erkek sesi</button>
                                 </div>
                                 <label className="flex items-center gap-2 mt-3 text-[13px] text-slate-200"><input type="checkbox" checked={ekran} onChange={e => { setEkran(e.target.checked); ZDINLE.yaz({ ekran: e.target.checked }); }} className="accent-emerald-500 w-5 h-5"/> Dinlerken ekran kapanmasın (araç tutucusunda)</label>
                             </div>
@@ -5890,7 +5970,8 @@ JSON ŞEMASI:
                                 <p className="font-bold text-sky-200">🚗 Arabada ve kilit ekranında dinlemek için</p>
                                 <p>• Telefonu aracın Bluetooth'una bağla; ⏯ ⏭ düğmeleri direksiyondan ve kilit ekranından çalışır.</p>
                                 <p>• iPhone'da en kesintisiz sonuç için uygulamayı <b>Ana Ekrana ekleyip</b> oradan aç ve meal sesini <b>"Yapay zekâ sesi"</b>nde bırak. Sonraki 3 ayetin meal sesi önceden hazırlanır.</p>
-                                <p>• "Cihazın sesi" seçiliyken iPhone kilitlenince Türkçe meal duraklayabilir; o durumda "Arapça" ya da yapay zekâ sesi daha güvenlidir.</p>
+                                <p>• Meal yalnız <b>erkek sesle</b> okunur. Cihazında erkek Türkçe ses yoksa cihaz sesi hiç kullanılmaz.</p>
+                                <p>• Oynatıcıdaki <b>⌄</b> dinlemeyi durdurmaz, küçültür; başka sayfalara geçebilir, ekranı kilitleyebilirsin.</p>
                                 <p>• İnternet kesilirse dinleme durur; kaldığın ayet saklanır, ▶ ile aynı yerden sürer.</p>
                             </div>
                         </div>
@@ -5917,7 +5998,7 @@ JSON ŞEMASI:
                         <label className="text-xs font-bold text-emerald-400 mb-2 block">🗣️ Meal sesi (dinlerken)</label>
                         <div className="flex gap-1.5">
                             <button onClick={() => sesAyarla('yz')} className={cip(ses !== 'cihaz')}>✨ Yapay zekâ sesi</button>
-                            <button onClick={() => sesAyarla('cihaz')} className={cip(ses === 'cihaz')}>📱 Cihazın sesi</button>
+                            <button onClick={() => sesAyarla('cihaz')} disabled={!(window.ZTTS && window.ZTTS.erkekSesVar())} className={cip(ses === 'cihaz') + ' disabled:opacity-40'}>📱 Cihazın erkek sesi</button>
                         </div>
                         <p className="text-[11px] text-slate-500 mt-1.5">Yapay zekâ sesi daha doğal okur; ulaşılamazsa kendiliğinden cihazın Türkçe sesine geçer.</p>
                     </div>
@@ -6255,8 +6336,13 @@ JSON ŞEMASI:
                 return () => { document.removeEventListener('visibilitychange', f); clearTimeout(ilk); };
             }, []);
         };
+        // 🧭 Kur'an Yolculuğum (8. sürüm): tek dokunuşla okumaya / dinlemeye devam · günlük hedef · 7 günlük çizelge
         const YolculukKarti = ({ onPanel }) => {
-            const Z = useCalisma(); if (!Z) return null;
+            const Z = useCalisma();
+            const [dn] = useDinle();
+            const [hedef, setHedef] = React.useState(() => { try { return +localStorage.getItem('zirve_gunluk_hedef') || 10; } catch (e) { return 10; } });
+            const [hedefAc, setHedefAc] = React.useState(false);
+            if (!Z) return null;
             const g = Z.genelOzet(Object.values(AYET_SAYILARI));
             const son = g.son;
             let lr = null; try { lr = JSON.parse(localStorage.getItem('lastRead') || 'null'); } catch (e) {}
@@ -6265,20 +6351,74 @@ JSON ŞEMASI:
             if (s && a) { const m = Z.ayetYapilan(s, a); const k = CEKIRDEK.find(id => !m[id]); if (k) uyari = Z.uyari(getTurkishName(s), a, Z.ayetById[k]); }
             const yuzde = g.ayetBaslanan * 100 / g.toplamAyet;
             const git = () => { if (!s) return; try { location.hash = `sure-${s}-${a || 1}`; } catch (e) {} };
+            // son 7 gün
+            const ham = (Z.ham && Z.ham()) || { g: {} };
+            const gunler = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); const k = Z.gun(d.getTime()); return { k, n: (ham.g && ham.g[k]) || 0, ad: ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'][d.getDay()], bugun: i === 6 }; });
+            const enCok = Math.max(1, ...gunler.map(x => x.n));
+            const bugunYuzde = Math.min(100, g.bugun * 100 / hedef);
+            const hedefYaz = (n) => { setHedef(n); setHedefAc(false); try { localStorage.setItem('zirve_gunluk_hedef', String(n)); } catch (e) {} };
+            const kalanSure = s && a ? Math.max(0, AYET_SAYILARI[s] - a) : 0;
+            const dinleVar = dn.aktif || dn.sure > 1 || dn.ayet > 0;
+            const dinleYazi = dn.aktif ? `${getTurkishName(dn.t.sure)} ${dn.t.ayet ? dn.t.ayet + '. ayet' : '· Besmele'}` : `${getTurkishName(dn.sure)}${dn.ayet ? ' ' + dn.ayet + '. ayet' : ''}`;
+            const dinleDugme = () => { const T = window.ZTILAVET; if (dn.aktif && T) { dn.caliyor ? T.duraklat() : T.devam(); } else ZDINLE.devam(); };
             return (
-                <div className="mb-5 rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-950/70 via-slate-900/80 to-slate-900/60 p-4 shadow-lg">
-                    <div className="flex items-center gap-3">
-                        <CalismaHalkasi yuzde={Math.max(yuzde, g.ayetBaslanan ? 1.5 : 0)} boyut={64} kalinlik={7}><span className="text-[11px] font-black text-white text-center leading-tight">{g.ayetBaslanan}<br/><span className="text-[8px] font-bold text-slate-400">ayet</span></span></CalismaHalkasi>
+                <div className="mb-5 rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-950/80 via-slate-900/85 to-slate-900/70 p-4 sm:p-5 shadow-lg shadow-black/30">
+                    <div className="flex items-center gap-3.5">
+                        <button onClick={() => setHedefAc(v => !v)} aria-label={`Bugünkü hedef: ${g.bugun} / ${hedef}. Hedefi değiştir`} className="shrink-0 rounded-full">
+                            <CalismaHalkasi yuzde={Math.max(bugunYuzde, g.bugun ? 3 : 0)} boyut={72} kalinlik={8} renk={bugunYuzde >= 100 ? '#fbbf24' : '#34d399'}>
+                                <span className="text-center leading-none"><span className="block text-[17px] font-black text-white">{g.bugun}</span><span className="block text-[9px] font-bold text-slate-400 mt-0.5">/ {hedef} bugün</span></span>
+                            </CalismaHalkasi>
+                        </button>
                         <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-300/80">Kur'an Yolculuğum</p>
-                            <p className="text-[15px] font-bold text-white leading-snug">{Z.ad() ? `${Z.ad()}, ` : ''}{g.ayetBaslanan ? `${g.toplamAyet} ayetin ${g.ayetBaslanan} tanesinde çalıştın` : 'Anlayarak okuma yolculuğuna başla'}</p>
-                            <p className="text-[11px] text-slate-400">{g.seri ? `🔥 ${g.seri} gün üst üste · ` : ''}Bugün {g.bugun} çalışma · Toplam {g.yapilan}</p>
+                            <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-300/80">Kur'an Yolculuğum{Z.ad() ? ` · ${Z.ad()}` : ''}</p>
+                            <p className="text-[15px] sm:text-[16px] font-bold text-white leading-snug">{bugunYuzde >= 100 ? '🌟 Bugünkü hedefini tamamladın, maşallah!' : g.ayetBaslanan ? `Bugünkü hedefine ${Math.max(0, hedef - g.bugun)} çalışma kaldı` : 'Anlayarak okuma yolculuğuna başla'}</p>
+                            <p className="text-[11.5px] text-slate-400 mt-0.5">{g.seri ? `🔥 ${g.seri} gün üst üste · ` : ''}{g.ayetBaslanan} ayet · toplam {g.yapilan} çalışma</p>
                         </div>
                     </div>
-                    {uyari && <p className="mt-3 text-[12.5px] text-amber-100 rounded-xl bg-amber-500/10 border border-amber-500/25 px-3 py-2">💡 {uyari}</p>}
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                        <button onClick={git} disabled={!s} className="min-h-[42px] rounded-xl bg-emerald-500 text-emerald-950 text-[13px] font-bold disabled:opacity-40">{s ? `▶ ${getTurkishName(s)} ${a || 1}. ayetten devam` : 'Önce bir sure aç'}</button>
-                        <button onClick={onPanel} className="min-h-[42px] rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-[13px] font-bold">📊 Tüm ilerlemem</button>
+
+                    {hedefAc && (
+                        <div className="mt-3 flex flex-wrap items-center gap-1.5 rounded-xl bg-black/25 p-2.5">
+                            <span className="text-[11px] text-slate-400 mr-1">Günlük hedef:</span>
+                            {[5, 10, 20, 30, 50].map(n => <button key={n} onClick={() => hedefYaz(n)} aria-pressed={hedef === n} className={`px-3 min-h-[34px] rounded-full text-[12px] font-bold ${hedef === n ? 'bg-emerald-500 text-emerald-950' : 'bg-slate-800 text-slate-300'}`}>{n}</button>)}
+                        </div>
+                    )}
+
+                    {/* Tek dokunuşla devam */}
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button onClick={git} disabled={!s} className="flex items-center gap-3 px-3.5 min-h-[58px] rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-emerald-950 text-left disabled:opacity-40 shadow-md shadow-emerald-900/40">
+                            <span className="w-9 h-9 rounded-xl bg-emerald-950/15 flex items-center justify-center shrink-0"><Icons.BookOpen size={19}/></span>
+                            <span className="min-w-0"><span className="block text-[11px] font-bold opacity-75">Okumaya devam</span><span className="block text-[15px] font-black truncate">{s ? `${getTurkishName(s)} · ${a || 1}. ayet` : 'Önce bir sure aç'}</span></span>
+                        </button>
+                        <button onClick={dinleDugme} disabled={dn.yukleniyor} className="flex items-center gap-3 px-3.5 min-h-[58px] rounded-2xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/40 text-left">
+                            <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${dn.caliyor ? 'bg-sky-400 text-sky-950' : 'bg-sky-400/20 text-sky-200'}`}>{dn.yukleniyor ? <span className="w-4 h-4 border-2 border-sky-200/40 border-t-sky-100 rounded-full animate-spin"></span> : dn.caliyor ? <Icons.Pause size={18}/> : <Icons.Headphones size={18}/>}</span>
+                            <span className="min-w-0"><span className="block text-[11px] font-bold text-sky-200/80">{dn.caliyor ? 'Dinleniyor · duraklat' : dinleVar ? 'Dinlemeye devam' : "Kur'an'ı baştan dinle"}</span><span className="block text-[15px] font-black text-white truncate">{dinleVar ? dinleYazi : 'Fâtiha · Arapça + meal'}</span></span>
+                        </button>
+                    </div>
+
+                    {uyari && (
+                        <button onClick={git} className="mt-2.5 w-full flex items-center gap-2 text-left text-[12.5px] text-amber-100 rounded-xl bg-amber-500/10 border border-amber-500/25 px-3 min-h-[44px]">
+                            <span>💡</span><span className="flex-1">{uyari}</span><span className="shrink-0 px-2.5 py-1 rounded-lg bg-amber-400 text-amber-950 text-[11px] font-black">Yap →</span>
+                        </button>
+                    )}
+
+                    {/* 7 günlük çizelge + genel ilerleme */}
+                    <div className="mt-3.5 grid grid-cols-[1fr_auto] gap-3 items-end">
+                        <div>
+                            <div className="flex items-end gap-1.5 h-12" aria-label="Son 7 günün çalışmaları">
+                                {gunler.map(x => (
+                                    <div key={x.k} className="flex-1 h-full flex flex-col justify-end" title={`${x.k}: ${x.n} çalışma`}>
+                                        <div className={`w-full rounded-md ${x.bugun ? 'bg-emerald-400' : x.n ? 'bg-emerald-600/70' : 'bg-slate-700/60'}`} style={{ height: `${x.n ? Math.max(14, x.n * 100 / enCok) : 8}%` }}></div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex gap-1.5 mt-1">{gunler.map(x => <span key={x.k} className={`flex-1 text-center text-[9.5px] font-bold ${x.bugun ? 'text-emerald-300' : 'text-slate-500'}`}>{x.ad}</span>)}</div>
+                        </div>
+                        <button onClick={onPanel} className="min-h-[48px] px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-[12.5px] font-bold">📊 Tüm<br className="sm:hidden"/> ilerlemem</button>
+                    </div>
+                    <div className="mt-3">
+                        <div className="flex justify-between text-[10.5px] text-slate-400 mb-1"><span>Kur'an genelinde: {g.ayetBaslanan} / {g.toplamAyet} ayet</span><span>%{yuzde.toFixed(1).replace('.', ',')}</span></div>
+                        <div className="h-1.5 rounded-full bg-black/40 overflow-hidden"><div className="h-full bg-gradient-to-r from-emerald-400 to-sky-400" style={{ width: `${Math.max(yuzde, g.ayetBaslanan ? 0.8 : 0)}%` }}></div></div>
+                        {s && kalanSure > 0 && <p className="text-[10.5px] text-slate-500 mt-1">{getTurkishName(s)} Suresi'ni bitirmene {kalanSure} ayet kaldı.</p>}
                     </div>
                 </div>
             );
