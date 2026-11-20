@@ -140,6 +140,9 @@
     @keyframes zkVurgu { 0%,100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); } 40% { box-shadow: 0 0 0 6px rgba(251,191,36,.55); } }
     /* ✨ AI Keşif & Analiz Atlası: Keşfet gibi sade çipler */
     .zk-atlas.zk-kapali > :not(.zk-atlas-bas) { display: none !important; }
+    .zk-yukari { bottom: calc(5.9rem + env(safe-area-inset-bottom, 0px)); }
+    body.zk-tilavet .zk-yukari { bottom: calc(11rem + env(safe-area-inset-bottom, 0px)); }
+    .zk-nav button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
     .zk-atlas .grid { display: flex !important; flex-wrap: wrap; gap: .5rem !important; }
     .zk-atlas .grid > button { flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; gap: .4rem !important; padding: .35rem .8rem .35rem .45rem !important; min-height: 40px; height: auto !important; border-radius: 9999px !important; width: auto !important; }
     .zk-atlas .grid > button > div:first-child { padding: .3rem !important; }
@@ -282,10 +285,10 @@
     try{
       let t=document.getElementById('zirve-toast');
       if(!t){ t=document.createElement('div'); t.id='zirve-toast';
-        t.style.cssText='position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2147483000;background:#0f172a;color:#fff;padding:10px 16px;border-radius:12px;font:600 13px system-ui;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90vw;text-align:center;transition:opacity .3s';
+        t.style.cssText='position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:2147483000;pointer-events:none;background:#0f172a;color:#fff;padding:10px 16px;border-radius:12px;font:600 13px system-ui;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90vw;text-align:center;transition:opacity .3s';
         document.body.appendChild(t); }
       t.innerHTML=msg; t.style.background = renk==='red'?'#7f1d1d':renk==='green'?'#14532d':'#0f172a';
-      t.style.opacity='1'; clearTimeout(t._h); t._h=setTimeout(()=>{ t.style.opacity='0'; },3200);
+      t.style.visibility='visible'; t.style.opacity='1'; clearTimeout(t._h); clearTimeout(t._g); t._h=setTimeout(()=>{ t.style.opacity='0'; t._g=setTimeout(()=>{ t.style.visibility='hidden'; },350); },3200); // 7. sürüm düzeltmesi: görünmez bildirim alt menüdeki Ara/Favoriler dokunuşlarını engelliyordu
     }catch(e){}
   }
 
@@ -1359,8 +1362,8 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'6. sürüm', tarih:'20.11.2026', satir:8801, kb:973,
-        onceki:{ surum:'5. sürüm', satir:8495, kb:940 },
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'7. sürüm', tarih:'20.11.2026', satir:8914, kb:987,
+        onceki:{ surum:'6. sürüm', satir:8801, kb:973 },
         yenilikler:['🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
       function goster(){
         try{
@@ -1556,7 +1559,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='6'; // ⚠️ Sonraki sürüm 7, 8… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
+    const SURUM='7'; // ⚠️ Sonraki sürüm 8, 9… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -2387,6 +2390,7 @@
             Copy: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>,
             Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
             Trash: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>,
+            MessageCircle: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>,
             Share2: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>,
             Compass: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>,
             Grid: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>,
@@ -2921,7 +2925,7 @@ Kullanıcının isteği: `;
         const Toast = ({ message, visible }) => {
             if (!visible) return null;
             return (
-                <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-full shadow-lg flex items-center gap-2 animate-slide-down">
+                <div className="pointer-events-none fixed top-5 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-full shadow-lg flex items-center gap-2 animate-slide-down">
                     <Icons.CheckCircle size={16} />
                     {message}
                 </div>
@@ -4356,19 +4360,67 @@ Kullanıcının isteği: `;
             return [d, ayarla];
         };
         // 6. sürüm: tek dokunuşla açılan bölüm (AI Keşif Atlası gibi) — açık/kapalı durumu hatırlanır
-        const Acilir = ({ id, baslik, alt, ikon, renk, children, sinif }) => {
-            const [acik, setAcik] = React.useState(() => { try { return localStorage.getItem('zirve_acilir_' + id) === '1'; } catch (e) { return false; } });
-            const degis = () => { const v = !acik; setAcik(v); try { localStorage.setItem('zirve_acilir_' + id, v ? '1' : '0'); } catch (e) {} };
+        const Acilir = ({ id, anahtar, baslik, alt, ikon, renk, children, sinif }) => {
+            const LSK = anahtar || ('zirve_acilir_' + id);
+            const [acik, setAcik] = React.useState(() => { try { return localStorage.getItem(LSK) === '1'; } catch (e) { return false; } });
+            const basRef = React.useRef(null), kutuRef = React.useRef(null);
+            const [yuzen, setYuzen] = React.useState(false); // başlık ekrandan çıktıysa üstte "✕ Kapat" görünür
+            const ayarla = (v) => { setAcik(v); try { localStorage.setItem(LSK, v ? '1' : '0'); } catch (e) {} };
+            const degis = () => ayarla(!acik);
+            const kapatVeDon = () => { ayarla(false); setYuzen(false); setTimeout(() => { try { basRef.current && basRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }, 30); };
+            React.useEffect(() => {
+                if (!acik) { setYuzen(false); return; }
+                const f = () => { const b = basRef.current, k = kutuRef.current; if (!b || !k) return; const rb = b.getBoundingClientRect(), rk = k.getBoundingClientRect(); setYuzen(rb.bottom < 0 && rk.bottom > 120); };
+                f(); window.addEventListener('scroll', f, { passive: true }); window.addEventListener('resize', f);
+                return () => { window.removeEventListener('scroll', f); window.removeEventListener('resize', f); };
+            }, [acik]);
             return (
-                <div className={`zk-acilir ${sinif || 'mb-6'}`} data-acik={acik ? '1' : '0'}>
-                    <button onClick={degis} aria-expanded={acik} className="w-full flex items-center gap-3 px-4 min-h-[56px] rounded-2xl bg-slate-800/70 border border-slate-700 hover:bg-slate-800 transition-colors text-left">
+                <div ref={kutuRef} className={`zk-acilir ${sinif || 'mb-6'}`} data-acik={acik ? '1' : '0'}>
+                    {yuzen && (
+                        <button onClick={kapatVeDon} className="fixed left-1/2 -translate-x-1/2 z-[46] flex items-center gap-2 pl-3 pr-4 min-h-[42px] max-w-[92vw] rounded-full bg-slate-900/95 border border-slate-600 shadow-2xl shadow-black/60 text-[13px] font-bold text-white backdrop-blur" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 10px)' }} aria-label={`${baslik} bölümünü kapat`}>
+                            <span className="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center"><Icons.X size={14}/></span><span className="truncate">{baslik}</span>
+                        </button>
+                    )}
+                    <button ref={basRef} onClick={degis} aria-expanded={acik} className="w-full flex items-center gap-3 px-4 min-h-[56px] rounded-2xl bg-slate-800/70 border border-slate-700 hover:bg-slate-800 transition-colors text-left">
                         <span className={`w-9 h-9 rounded-xl bg-gradient-to-br ${renk || 'from-emerald-500 to-indigo-600'} flex items-center justify-center shrink-0 text-white`}>{ikon}</span>
                         <span className="flex-1 min-w-0"><span className="block text-[14px] font-bold text-white">{baslik}</span>{alt && <span className="block text-[11px] text-slate-400 truncate">{alt}</span>}</span>
                         <Icons.ChevronLeft size={16} className={`text-slate-400 transition-transform ${acik ? 'rotate-90' : '-rotate-90'}`}/>
                     </button>
-                    {acik && <div className="mt-3 zk-acilir-ic">{children}</div>}
+                    {acik && <div className="mt-3 zk-acilir-ic">{children}
+                        <button onClick={kapatVeDon} className="mt-3 w-full flex items-center justify-center gap-2 min-h-[44px] rounded-xl bg-slate-800/60 border border-slate-700 text-[13px] font-bold text-slate-300 hover:bg-slate-800"><Icons.X size={15}/> {baslik} · kapat</button>
+                    </div>}
                 </div>
             );
+        };
+        // 📖 7. sürüm: 114 sure listesi tek düğmenin altında (ana sayfanın en üstünde)
+        const SureListesiAcilir = ({ surahs, ac }) => {
+            const [f, setF] = React.useState('');
+            const kat = (t) => String(t || '').toLocaleLowerCase('tr').replace(/[âàá]/g, 'a').replace(/[îı]/g, 'i').replace(/[ûü]/g, 'u').replace(/[’'`-]/g, '');
+            const liste = (surahs || []).filter(s => { if (!f.trim()) return true; const q = kat(f); return kat(getTurkishName(s.number)).includes(q) || String(s.number) === f.trim() || kat(SURE_ANLAMLARI[s.number] || '').includes(q); });
+            return (
+                <Acilir id="sureler" baslik="Kur'an-ı Kerîm · 114 Sure" alt="Okumak istediğin sureyi seç · adla ya da numarayla bul" ikon={<Icons.BookOpen size={18}/>} renk="from-emerald-500 to-teal-700" sinif="mb-4">
+                    <div className="relative mb-3">
+                        <Icons.Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"/>
+                        <input value={f} onChange={e => setF(e.target.value)} placeholder="Sure ara: Yasin, Mülk, 18…" aria-label="Sure ara" className="w-full pl-9 pr-3 min-h-[46px] rounded-xl bg-slate-900 border border-slate-700 text-[15px] text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/60"/>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+                        {liste.map(surah => (
+                            <button key={surah.number} onClick={() => ac(surah)} className="flex items-center p-3.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-left">
+                                <span className="w-10 h-10 shrink-0 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 font-bold mr-3">{surah.number}</span>
+                                <span className="min-w-0"><span className="block font-bold text-white">{getTurkishName(surah.number)}</span><span className="block text-xs text-slate-500 truncate">{surah.numberOfAyahs} Ayet{SURE_ANLAMLARI[surah.number] ? ` · ${SURE_ANLAMLARI[surah.number]}` : ''}</span></span>
+                            </button>
+                        ))}
+                        {!liste.length && <p className="text-[13px] text-slate-400 p-2">“{f}” adında sure bulunamadı.</p>}
+                    </div>
+                </Acilir>
+            );
+        };
+        // ⬆️ Yukarı çık düğmesi (uzun sayfalarda)
+        const YukariDugmesi = () => {
+            const [g, setG] = React.useState(false);
+            React.useEffect(() => { const f = () => setG(window.scrollY > 700); f(); window.addEventListener('scroll', f, { passive: true }); return () => window.removeEventListener('scroll', f); }, []);
+            if (!g) return null;
+            return <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Sayfanın başına çık" className="zk-yukari fixed left-3 z-[44] w-11 h-11 rounded-full bg-slate-800/95 border border-slate-600 text-emerald-300 shadow-xl shadow-black/50 flex items-center justify-center backdrop-blur"><Icons.ChevronLeft size={22} className="rotate-90"/></button>;
         };
         const KartAkisi = ({ children }) => {
             const [d, ayarla] = useKartDuzen();
@@ -6323,7 +6375,7 @@ JSON ŞEMASI:
             const parcalar = String(metin).split(/(\s+)/);
             return parcalar.map((p, i) => { const f = window.ZARAMA.katla(p).replace(/^[^a-z0-9çğıöşü]+/, ''); return kokler.some(k => f.indexOf(k) === 0) ? <mark key={i} className="bg-amber-400/30 text-amber-50 rounded px-0.5">{p}</mark> : p; });
         };
-        const AramaPaneli = ({ acik, kapat, ilk, ilkT }) => {
+        const AramaPaneli = ({ acik, kapat, ilk, ilkT, favorites, toggleFavorite }) => {
             const [q, setQ] = React.useState('');
             const [s, setS] = React.useState(null); // sonuç
             const [yuk, setYuk] = React.useState('');
@@ -6353,7 +6405,32 @@ JSON ŞEMASI:
             const [gecmis, setGecmis] = React.useState(() => { try { return JSON.parse(localStorage.getItem('zirve_arama_gecmis') || '[]'); } catch (e) { return []; } });
             const gecmiseEkle = (t) => { const g = [t, ...gecmis.filter(x => x.toLocaleLowerCase('tr') !== t.toLocaleLowerCase('tr'))].slice(0, 8); setGecmis(g); try { localStorage.setItem('zirve_arama_gecmis', JSON.stringify(g)); } catch (e) {} };
             const ozet = () => { if (!s || !s.ar) return ''; const ad = s.kavram ? s.kavram.ad : `“${s.q}”`; return `${ad}: Kur'an'da ${s.ar.sayi} kez, ${s.ar.ayetSayi} ayette geçer.${etiket ? ' ' + etiket + '.' : ''}${s.kavram && s.kavram.not ? ' ' + s.kavram.not : ''}\n(Sayım: Quranic Arabic Corpus · Kur'an ve Siyer Atlası)`; };
-            const paylasSonuc = async () => { const t = ozet(); if (!t) return; try { if (navigator.share) await navigator.share({ text: t }); else { await navigator.clipboard.writeText(t); window.ZIRVE && window.ZIRVE.toast('📋 Sonuç kopyalandı', 'green'); } } catch (e) {} };
+            // ⭐ Kayıtlı aramalar + WhatsApp paylaşımı (6. sürüm)
+            const uygLink = (hh) => location.origin + location.pathname + '#' + hh;
+            const kayitli = useAramaKayit();
+            const kayitliMi = (t) => kayitli.some(k => ARAMA_KAYIT.ayni(k.q, t));
+            const kayitDegis = () => {
+                if (!s) return; const guncel = ARAMA_KAYIT.oku(); const var_ = guncel.some(k => ARAMA_KAYIT.ayni(k.q, s.q));
+                const yeni = var_ ? guncel.filter(k => !ARAMA_KAYIT.ayni(k.q, s.q)) : [{ q: s.q, ad: s.kavram ? s.kavram.ad : s.q, sayi: s.ar ? s.ar.sayi : null, ayetSayi: s.ar ? s.ar.ayetSayi : null, t: Date.now() }, ...guncel].slice(0, 60);
+                ARAMA_KAYIT.yaz(yeni);
+                try { window.ZIRVE && window.ZIRVE.toast(var_ ? 'Kayıtlı aramalardan çıkarıldı' : '⭐ Aramalarıma kaydedildi (Favoriler sayfasında da görünür)', 'green'); } catch (e) {}
+            };
+            const whatsapp = whatsappAc;
+            const paylasMetin = async (metin) => { try { if (navigator.share) await navigator.share({ text: metin }); else { await navigator.clipboard.writeText(metin); window.ZIRVE && window.ZIRVE.toast('📋 Kopyalandı', 'green'); } } catch (e) {} };
+            const sonucMetni = () => { const t = ozet(); return t ? `${t}\n\n🔍 Uygulamada aç: ${uygLink('ara-' + encodeURIComponent(s.q))}` : ''; };
+            const ayetArapca = (x) => V && V.w[x.vi] ? V.w[x.vi].join(' ').replace(/\u00a0/g, ' ') : '';
+            const ayetMealMetni = (x) => (meal && meal.m && meal.m.metin[x.vi]) ? meal.m.metin[x.vi] : '';
+            const ayetMetni = (x) => { const ar = ayetArapca(x), tr = ayetMealMetni(x); return `${ar}${tr ? '\n\n“' + tr + '”' : ''}\n— ${getTurkishName(x.s)} Suresi, ${x.a}. ayet\n\n📖 ${uygLink('ayet-' + x.s + '-' + x.a)}`; };
+            const favMi = (x) => (favorites || []).some(f => f.uid === `${x.s}:${x.a}`);
+            const favDegis = (x) => { if (!toggleFavorite || !(x.s >= 1 && x.a >= 1)) return; const ar = ayetArapca(x), tr = ayetMealMetni(x); toggleFavorite({ numberInSurah: x.a, text: tr || '', arabic: ar }, { number: x.s }); };
+            const ayetAraclari = (x) => (
+                <div className="flex items-center gap-1">
+                    <button onClick={() => favDegis(x)} aria-label={favMi(x) ? 'Favorilerden çıkar' : 'Favorilere ekle'} aria-pressed={favMi(x)} className={`w-9 h-9 rounded-full flex items-center justify-center ${favMi(x) ? 'text-rose-500' : 'text-slate-400 hover:text-rose-400'}`}><Icons.Heart size={18} fill={favMi(x) ? 'currentColor' : 'none'}/></button>
+                    <button onClick={() => whatsapp(ayetMetni(x))} aria-label="WhatsApp ile paylaş" className="w-9 h-9 rounded-full flex items-center justify-center text-emerald-400 hover:bg-white/5"><Icons.MessageCircle size={18}/></button>
+                    <button onClick={() => paylasMetin(ayetMetni(x))} aria-label="Paylaş" className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:bg-white/5"><Icons.Share2 size={17}/></button>
+                </div>
+            );
+            const paylasSonuc = async () => { const t = sonucMetni(); if (!t) return; try { if (navigator.share) await navigator.share({ text: t }); else { await navigator.clipboard.writeText(t); window.ZIRVE && window.ZIRVE.toast('📋 Sonuç kopyalandı', 'green'); } } catch (e) {} };
             const notaEkle = () => { const t = ozet(); if (!t || !window.ZKULLIYAT) return; const ilk = s.ar.ayetler.slice(0, 40).map(x => `${getTurkishName(x.s)} ${x.s}:${x.a}`).join(', '); window.ZKULLIYAT.ekle({ tur: 'serbest', baslik: `🔍 ${s.kavram ? s.kavram.ad : s.q} · Kur'an'da ${s.ar.sayi} kez`, metin: `${t}\n\n**Geçtiği ayetler:** ${ilk}${s.ar.ayetler.length > 40 ? ' …' : ''}` }); window.ZIRVE && window.ZIRVE.toast('📌 Not Külliyatına eklendi', 'green'); };
             const ara = async (t) => {
                 t = String(t || '').trim(); if (!t) return;
@@ -6415,6 +6492,7 @@ JSON ŞEMASI:
                             {!s && !yuk && (
                                 <>
                                     <p className="text-[13px] text-slate-300 mb-3">Bir kelime ya da kavram yaz: Kur'an'da <b>gerçekte kaç kez</b> geçtiğini, hangi ayetlerde geçtiğini renkli olarak gösteririm. Arapça kök (عقل), ifade (أفلا تعقلون) ya da ayet numarası (2:255, Bakara 255) da yazabilirsin.</p>
+                                    {kayitli.length > 0 && <><p className="text-[11px] font-bold tracking-widest uppercase text-amber-400/90 mb-2">⭐ Kaydettiğim aramalar</p><div className="flex flex-wrap gap-2 mb-4">{kayitli.map(k => <button key={k.q} onClick={() => { setQ(k.q); ara(k.q); }} className="px-3 min-h-[38px] rounded-full bg-amber-500/10 border border-amber-500/40 text-[13px] font-semibold text-amber-100">{k.ad}{k.sayi != null ? ` · ${k.sayi}` : ''}</button>)}</div></>}
                                     {gecmis.length > 0 && <><p className="text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-2">Son aramaların</p><div className="flex flex-wrap gap-2 mb-4">{gecmis.map(o => <button key={o} onClick={() => { setQ(o); ara(o); }} className="px-3 min-h-[38px] rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[13px] font-semibold text-emerald-100" dir="auto">🕘 {o}</button>)}<button onClick={() => { setGecmis([]); try { localStorage.removeItem('zirve_arama_gecmis'); } catch (e) {} }} className="px-3 min-h-[38px] text-[12px] text-slate-500">Temizle</button></div><p className="text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-2">Örnekler</p></>}
                                     <div className="flex flex-wrap gap-2 mb-5">{ARAMA_ONERI.map(o => <button key={o} onClick={() => { setQ(o); ara(o); }} className="px-3 min-h-[38px] rounded-full bg-slate-800 border border-slate-700 text-[13px] font-semibold text-slate-100 hover:border-emerald-400" dir="auto">{o}</button>)}</div>
                                     <button onClick={() => setHarita(!harita)} aria-expanded={harita} className="w-full flex items-center gap-3 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 px-4 min-h-[56px] text-left"><span className="text-2xl" aria-hidden="true">📜</span><span className="flex-1"><b className="block text-[14px] text-cyan-100">Ayet ↔ Hadis haritası</b><span className="text-[11.5px] text-cyan-200/70">Hangi ayet hangi olay üzerine indi? {AYET_HADIS.length} kaynaklı bağlantı (iniş sebebi ve açıklama)</span></span><Icons.ChevronLeft size={16} className={`text-cyan-300 transition-transform ${harita ? 'rotate-90' : '-rotate-90'}`}/></button>
@@ -6453,7 +6531,9 @@ JSON ŞEMASI:
                                             <div className="flex flex-wrap gap-2 mt-3">
                                                 <button onClick={paylasSonuc} className="px-3 min-h-[38px] rounded-xl bg-black/30 border border-emerald-500/40 text-emerald-100 text-[12.5px] font-bold">🔗 Sonucu paylaş</button>
                                                 <button onClick={notaEkle} className="px-3 min-h-[38px] rounded-xl bg-black/30 border border-amber-500/40 text-amber-100 text-[12.5px] font-bold">📌 Notlarıma ekle</button>
-                                                {(() => { const k = s.kavram && s.kavram.kok && s.kavram.kok.length === 1 ? s.kavram.kok[0] : (s.ar.tur === 'kok' ? s.ar.etiket.replace(/\s+/g, '') : null); return k ? <a href={`https://furqan.co/quran-roots/${encodeURIComponent(k)}`} target="_blank" rel="noopener" className="px-3 min-h-[38px] inline-flex items-center rounded-xl bg-black/30 border border-slate-600 text-slate-200 text-[12.5px] font-bold">📖 Kök sözlüğünde aç</a> : null; })()}
+                                                <button onClick={kayitDegis} aria-pressed={kayitliMi(s.q)} className={`px-3 min-h-[38px] rounded-xl border text-[12.5px] font-bold ${kayitliMi(s.q) ? 'bg-amber-400 text-amber-950 border-amber-300' : 'bg-black/30 border-amber-400/40 text-amber-100'}`}>{kayitliMi(s.q) ? '⭐ Kaydedildi' : '☆ Aramayı kaydet'}</button>
+                                                <button onClick={() => whatsapp(sonucMetni())} className="px-3 min-h-[38px] rounded-xl bg-[#25D366] text-[#052e16] text-[12.5px] font-bold">WhatsApp'ta paylaş</button>
+                                                {(() => { const k = s.kavram && s.kavram.kok && s.kavram.kok.length === 1 ? s.kavram.kok[0] : null; return (k && s.ar.tur !== 'kok') ? <button onClick={() => { const t = k.split('').join(' '); setQ(t); ara(t); }} className="px-3 min-h-[38px] rounded-xl bg-black/30 border border-sky-500/40 text-sky-100 text-[12.5px] font-bold">🌱 Kökün bütün türevleri ({k.split('').join(' ')})</button> : null; })()}
                                             </div>
                                             <p className="text-[10.5px] text-slate-500 mt-3">Sayım: Kur'an'ın kelime kelime dil çözümlemesi (Quranic Arabic Corpus) üzerinden; her geçiş bir kez sayılır.</p>
                                         </div>
@@ -6485,7 +6565,7 @@ JSON ŞEMASI:
                                                 <div key={x.vi} className="rounded-2xl bg-slate-900/80 border border-slate-800 p-3.5">
                                                     <div className="flex items-center justify-between gap-2 mb-1.5">
                                                         <button onClick={() => git(`ayet-${x.s}-${x.a}`)} className="text-[12.5px] font-bold text-amber-300 min-h-[30px]">{getTurkishName(x.s)} {x.s}:{x.a} →</button>
-                                                        <button onClick={() => git(`sure-${x.s}-${x.a}`)} className="text-[11px] text-slate-400 min-h-[30px] px-2">Surede aç</button>
+                                                        <span className="flex items-center">{ayetAraclari(x)}<button onClick={() => git(`sure-${x.s}-${x.a}`)} className="text-[11px] text-slate-400 min-h-[30px] px-2">Surede aç</button></span>
                                                     </div>
                                                     <p dir="rtl" className="font-amiri text-[22px] leading-[2.1] text-slate-200 text-right">{V.w[x.vi].map((w, wi) => { const li = V.l[x.vi][wi]; const ad = li >= 0 ? V.lem[li] : w; const v = x.pos.indexOf(wi) >= 0; return <React.Fragment key={wi}>{v ? <span className="rounded px-0.5" style={{ color: lemRenk[ad] || '#34d399', background: (lemRenk[ad] || '#34d399') + '22' }}>{w}</span> : w}{' '}</React.Fragment>; })}</p>
                                                     {meal && meal.m && <p className="text-[13.5px] text-slate-300 leading-relaxed mt-1 font-serif">{vurgulaTr(meal.m.metin[x.vi], meal.r ? meal.r.kokler : [])}</p>}
@@ -6499,7 +6579,7 @@ JSON ŞEMASI:
                                         <div className="space-y-2.5">
                                             {meal.r.ayetler.slice(0, goster).map(x => (
                                                 <div key={x.vi} className="rounded-2xl bg-slate-900/80 border border-slate-800 p-3.5">
-                                                    <button onClick={() => git(`ayet-${x.s}-${x.a}`)} className="text-[12.5px] font-bold text-amber-300 min-h-[30px]">{getTurkishName(x.s)} {x.s}:{x.a} →</button>
+                                                    <div className="flex items-center justify-between gap-2"><button onClick={() => git(`ayet-${x.s}-${x.a}`)} className="text-[12.5px] font-bold text-amber-300 min-h-[30px]">{getTurkishName(x.s)} {x.s}:{x.a} →</button>{ayetAraclari(x)}</div>
                                                     <p className="text-[14px] text-slate-200 leading-relaxed font-serif">{vurgulaTr(meal.m.metin[x.vi], meal.r.kokler)}</p>
                                                     <AyetHadisKutusu s={x.s} a={x.a} kucuk />
                                                 </div>
@@ -7005,6 +7085,35 @@ JSON ŞEMASI:
             );
         };
 
+        // ⭐ Kayıtlı aramalar ortak deposu + WhatsApp yardımcısı (7. sürüm)
+        const ARAMA_KAYIT = {
+            oku: () => { try { const x = JSON.parse(localStorage.getItem('zirve_arama_kayit') || '[]'); return Array.isArray(x) ? x : []; } catch (e) { return []; } },
+            yaz: (l) => { try { localStorage.setItem('zirve_arama_kayit', JSON.stringify(l)); } catch (e) {} try { window.dispatchEvent(new CustomEvent('zirve-arama-kayit')); } catch (e) {} },
+            ayni: (a, b) => String(a || '').toLocaleLowerCase('tr') === String(b || '').toLocaleLowerCase('tr')
+        };
+        const useAramaKayit = () => { const [l, setL] = React.useState(ARAMA_KAYIT.oku); React.useEffect(() => { const f = () => setL(ARAMA_KAYIT.oku()); window.addEventListener('zirve-arama-kayit', f); return () => window.removeEventListener('zirve-arama-kayit', f); }, []); return l; };
+        const whatsappAc = (metin) => {
+            const u = 'https://wa.me/?text=' + encodeURIComponent(metin);
+            try { const a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { try { window.open(u, '_blank'); } catch (e2) {} }
+        };
+        // ⭐ Kaydedilen "Kur'an'da kaç kez geçiyor" aramaları — Favoriler sayfasında
+        const KayitliAramalar = () => {
+            const l = useAramaKayit();
+            if (!l.length) return null;
+            const sil = (q) => ARAMA_KAYIT.yaz(ARAMA_KAYIT.oku().filter(k => !ARAMA_KAYIT.ayni(k.q, q)));
+            const wa = (k) => whatsappAc(`${k.ad}: Kur'an'da ${k.sayi} kez${k.ayetSayi != null ? `, ${k.ayetSayi} ayette` : ''} geçer.\n(Sayım: Quranic Arabic Corpus · Kur'an ve Siyer Atlası)\n\n🔍 ${location.origin + location.pathname}#ara-${encodeURIComponent(k.q)}`);
+            return (
+                <div className="mb-5 rounded-2xl bg-amber-500/5 border border-amber-500/25 p-3.5">
+                    <p className="text-[11px] font-bold tracking-widest uppercase text-amber-400 mb-2">⭐ Kaydettiğim aramalar · {l.length}</p>
+                    <div className="space-y-1.5">{l.map(k => (
+                        <div key={k.q} className="flex items-center gap-1.5">
+                            <button onClick={() => window.dispatchEvent(new CustomEvent('zirve-ara', { detail: { q: k.q } }))} className="flex-1 min-w-0 text-left rounded-xl bg-slate-900/70 border border-slate-800 px-3 min-h-[44px] text-[13px] text-slate-100 truncate">🔍 {k.ad}{k.sayi != null ? <span className="text-emerald-300 font-bold"> · {k.sayi} kez</span> : null}</button>
+                            {k.sayi != null && <button onClick={() => wa(k)} aria-label="WhatsApp ile paylaş" className="w-10 h-10 rounded-xl bg-[#25D366]/15 text-[#25D366] flex items-center justify-center"><Icons.MessageCircle size={17}/></button>}
+                            <button onClick={() => sil(k.q)} aria-label="Kayıtlı aramayı sil" className="w-10 h-10 rounded-xl text-slate-500 hover:text-rose-400 flex items-center justify-center"><Icons.X size={16}/></button>
+                        </div>))}</div>
+                </div>
+            );
+        };
         const Favorites = ({ favorites, toggleFavorite, clearAllFavorites, surahs, setCurrentSurah, setView, showToast, mealSource }) => {
             React.useEffect(() => { window.scrollTo(0, 0); }, []);
             const [ara, setAra] = React.useState('');
@@ -7103,6 +7212,7 @@ JSON ŞEMASI:
                     </div>
                     <p className="text-xs text-slate-400 mb-5">Kalbine dokunan ayetleri burada topla; dokununca ayete git, kopyala, paylaş ya da kaldır. Kopyala/Görsel/PDF <b className="text-emerald-300/90">Arapça + Türkçe</b> birlikte verir.</p>
 
+                    <KayitliAramalar />
                     {favorites.length > 1 && (
                         <button onClick={tumunuPdf} className="mb-4 w-full flex items-center justify-center gap-2 text-xs font-bold text-rose-100 bg-gradient-to-r from-rose-600/80 to-pink-600/80 hover:brightness-110 rounded-xl py-2.5 transition-all shadow-lg shadow-rose-500/20" title="Tüm favori ayetleri tek renkli PDF olarak indir">
                             <Icons.FileText size={15}/> Tümünü Renkli PDF Yap ({favorites.length} ayet)
@@ -7145,6 +7255,7 @@ JSON ŞEMASI:
                                             <button onClick={(e) => { e.stopPropagation(); pdfFav(fav); }} className="text-[11px] font-semibold text-rose-200 bg-rose-600/20 hover:bg-rose-600/30 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors" title="Renkli PDF (Arapça + Türkçe)"><Icons.FileText size={13}/> PDF</button>
                                             <button onClick={(e) => { e.stopPropagation(); kopyala(fav); }} className="text-[11px] font-semibold text-slate-300 hover:bg-slate-700/50 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors"><Icons.Copy size={13}/> Kopyala</button>
                                             <button onClick={(e) => { e.stopPropagation(); paylas(fav); }} className="text-[11px] font-semibold text-slate-300 hover:bg-slate-700/50 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors"><Icons.Share2 size={13}/> Paylaş</button>
+                                            <button onClick={(e) => { e.stopPropagation(); whatsappAc(metinYap(fav) + '\n\n📖 ' + location.origin + location.pathname + '#ayet-' + fav.surahNo + '-' + fav.ayahNo); }} className="text-[11px] font-semibold text-emerald-300 hover:bg-slate-700/50 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors"><Icons.MessageCircle size={13}/> WhatsApp</button>
                                         </div>
                                     </div>
                                 ))}
@@ -7798,6 +7909,7 @@ JSON ŞEMASI:
                             <h1 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-3xl md:text-4xl font-amiri text-white drop-shadow-md cursor-pointer inline-flex items-center justify-center gap-2.5">{window.ZIRVE_E && window.ZIRVE_E.ikon() && <img src={window.ZIRVE_E.ikon()} alt="" aria-hidden="true" className="w-9 h-9 md:w-11 md:h-11 rounded-xl shadow-lg ring-1 ring-amber-300/30" />}<span>Kur'an ve Siyer Atlası</span></h1>
                         </div>
 
+                        <SureListesiAcilir surahs={surahs} ac={(su) => { setCurrentSurah(su); setView('surah'); }} />
                         <YolculukKarti onPanel={() => setCalismaPanel(true)} />
                         <CalismaPaneli acik={calismaPanel} kapat={() => setCalismaPanel(false)} showToast={(m) => { try { window.ZIRVE && window.ZIRVE.toast(m, 'green'); } catch (e) {} }} />
                         <NamazKarti />
@@ -7977,12 +8089,8 @@ JSON ŞEMASI:
                         </Acilir>
 
                         {/* YENİDEN DÜZENLENMİŞ HARİKA AI KEŞİF ARAÇLARI KATEGORİSİ */}
-                        <div className={`mb-6 zk-atlas ${atlasAcik ? '' : 'zk-kapali'}`}>
-                            <button onClick={() => atlasAc(!atlasAcik)} aria-expanded={atlasAcik} className="zk-atlas-bas w-full flex items-center gap-3 px-4 min-h-[56px] mb-3 rounded-2xl bg-slate-800/70 border border-slate-700 hover:bg-slate-800 transition-colors text-left">
-                                <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-indigo-600 flex items-center justify-center shrink-0"><Icons.Sparkles size={18} className="text-white"/></span>
-                                <span className="flex-1 min-w-0"><span className="block text-[14px] font-bold text-white">AI Keşif & Analiz Atlası</span><span className="block text-[11px] text-slate-400 truncate">Siyer turu, Kur'an sözlüğü, sahabe, rüya, aile, fıkıh… 22 araç</span></span>
-                                <Icons.ChevronLeft size={16} className={`text-slate-400 transition-transform ${atlasAcik ? 'rotate-90' : '-rotate-90'}`}/>
-                            </button>
+                        <Acilir id="atlas" anahtar="zirve_atlas_acik" baslik="AI Keşif & Analiz Atlası" alt="Siyer turu, Kur'an sözlüğü, sahabe, rüya, aile, fıkıh… 22 araç" ikon={<Icons.Sparkles size={18}/>}>
+                        <div className="zk-atlas">
                             
                             {/* GRUP 1: KİŞİSEL GELİŞİM & PSİKOLOJİ */}
                             <div className="mb-4">
@@ -8122,6 +8230,7 @@ JSON ŞEMASI:
                                 </div>
                             </div>
                         </div>
+                        </Acilir>
 
                         {/* CHAT & SEARCH */}
                         <div className="flex gap-2 mb-4 mt-6">
@@ -8184,16 +8293,9 @@ JSON ŞEMASI:
                                 </div>
                             ))}
                         </div>
-                    ) : (
-                        <div className="px-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4 pb-10 max-w-6xl mx-auto">
-                            {surahs.filter(s => getTurkishName(s.number).toLowerCase().includes(searchQuery.toLowerCase())).map(surah => (
-                                <div key={surah.number} onClick={() => { setCurrentSurah(surah); setView('surah'); }} className="flex items-center p-4 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition-all group shadow-sm">
-                                    <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 font-bold mr-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors">{surah.number}</div>
-                                    <div><h4 className="font-bold text-white">{getTurkishName(surah.number)}</h4><p className="text-xs text-slate-500">{surah.numberOfAyahs} Ayet{SURE_ANLAMLARI[surah.number] ? ` · ${SURE_ANLAMLARI[surah.number]}` : ''}</p></div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    ) : searchQuery.trim() ? (
+                        <p className="px-4 py-6 text-center text-[13px] text-slate-400">“{searchQuery}” için ayrıntılı sonuç görmek için <b className="text-emerald-300">ARA</b>'ya bas · sureyi bulmak için en üstteki <b className="text-emerald-300">114 Sure</b> listesini aç.</p>
+                    ) : null}
 
                     <HomePromptModal 
                         isOpen={!!homePromptConfig}
@@ -8215,6 +8317,15 @@ JSON ŞEMASI:
             const [kutuAcik, setKutuAcik] = React.useState(false); // 📬 bildirim kutusu
             const [arama, setArama] = React.useState(null); // 🔍 {ilk}
             React.useEffect(() => { const f = (e) => setArama({ ilk: (e.detail && e.detail.q) || '', t: Date.now() }); window.addEventListener('zirve-ara', f); return () => window.removeEventListener('zirve-ara', f); }, []);
+            // 📱 iPhone: alt menüde dokunuş bazen "click"e dönüşmüyor → kısa, kaymayan dokunuşu doğrudan düğmeye ilet (çift tetiklenme olmaz)
+            const navDokun = React.useRef(null);
+            const navDokunBasla = (e) => { const t = e.touches && e.touches[0]; navDokun.current = t ? { x: t.clientX, y: t.clientY, z: Date.now() } : null; };
+            const navDokunBitir = (e) => {
+                const b = navDokun.current; navDokun.current = null; const t = e.changedTouches && e.changedTouches[0]; if (!b || !t) return;
+                if (Math.abs(t.clientX - b.x) > 12 || Math.abs(t.clientY - b.y) > 12 || Date.now() - b.z > 800) return;
+                const btn = e.target && e.target.closest ? e.target.closest('button') : null; if (!btn) return;
+                e.preventDefault(); try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (er) {} btn.click();
+            };
             React.useEffect(() => { const f = () => setKutuAcik(true); window.addEventListener('zirve-kutu-ac', f); return () => window.removeEventListener('zirve-kutu-ac', f); }, []); // bildirimden açılan ayet/hadis/Esmâ kartı
             useOtoTazele();
             useCalismaBildirimTazele(); // 🌙 kişisel 21:00 hatırlatmasının metni
@@ -8260,7 +8371,7 @@ JSON ŞEMASI:
             React.useEffect(() => { const f = () => setHashTik(t => t + 1); window.addEventListener('hashchange', f); return () => window.removeEventListener('hashchange', f); }, []);
             React.useEffect(() => {
                 const h = (location.hash || '').replace(/^#/, '');
-                if (!h || (!surahs.length && !/^(ayet|hadis|esma|soz)-/.test(h))) return;
+                if (!h || (!surahs.length && !/^(ayet|hadis|esma|soz|ara)(-|$)/.test(h))) return;
                 const sureAc = (no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) sessionStorage.setItem('jumpToAyah', ayet); } };
                 let m = null;
                 if (h === 'kaldigim') { if (lastRead) sureAc(lastRead.surahNo, lastRead.ayahNo); else setView('home'); }
@@ -8268,6 +8379,7 @@ JSON ŞEMASI:
                 else if (h === 'dinle') { setView('home'); setTimeout(() => { try { window.dispatchEvent(new CustomEvent('zirve-dinle-ac')); } catch (e) {} }, 300); }
                 else if (h === 'kutu' || h === 'bildirimler') setKutuAcik(true);
                 else if (h === 'ara') setArama({ ilk: '', t: Date.now() });
+                else if ((m = h.match(/^ara-(.+)$/))) { let q = m[1]; try { q = decodeURIComponent(q); } catch (e) {} setArama({ ilk: q.slice(0, 80), t: Date.now() }); }
                 else if (h === 'favoriler') setView('favorites');
                 else if (h === 'notlar') setView('notes');
                 else if (h === 'anasayfa') setView('home');
@@ -8738,13 +8850,14 @@ JSON ŞEMASI:
                         error={aiImageError}
                     />
                     
-                    <AramaPaneli acik={!!arama} ilk={arama ? arama.ilk : ''} ilkT={arama ? arama.t : 0} kapat={() => setArama(null)} />
+                    <AramaPaneli acik={!!arama} ilk={arama ? arama.ilk : ''} ilkT={arama ? arama.t : 0} kapat={() => setArama(null)} favorites={favorites} toggleFavorite={toggleFavorite} />
                     <BildirimKutusu acik={kutuAcik} kapat={() => setKutuAcik(false)} ac={(h) => { try { location.hash = h; } catch(e){} }} showToast={showToast} />
                     <AnKarti kart={anKart} setKart={setAnKart} mealSource={mealSource} reciterSource={reciterSource} toggleFavorite={toggleFavorite} favorites={favorites} surahs={surahs} showToast={showToast}
                         sureAc={(no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) sessionStorage.setItem('jumpToAyah', ayet); } }} />
                     <TilavetCubugu />
                     <DinlePaneli />
-                    <div className="fixed bottom-0 left-0 right-0 py-3 px-6 flex justify-around items-center border-t border-slate-800 bg-slate-900/95 backdrop-blur-lg z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))", paddingLeft: "max(1.5rem, calc((100% - 52rem) / 2))", paddingRight: "max(1.5rem, calc((100% - 52rem) / 2))" }}>
+                    <YukariDugmesi />
+                    <div onTouchStart={navDokunBasla} onTouchEnd={navDokunBitir} className="zk-nav fixed bottom-0 left-0 right-0 py-3 px-6 flex justify-around items-center border-t border-slate-800 bg-slate-900/95 backdrop-blur-lg z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))", paddingLeft: "max(1.5rem, calc((100% - 52rem) / 2))", paddingRight: "max(1.5rem, calc((100% - 52rem) / 2))" }}>
                         <button onClick={() => setView('home')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'home' ? 'text-emerald-500' : 'text-slate-500 hover:text-emerald-400'}`}><Icons.BookOpen size={24} /><span className="text-[10px] font-bold">Kuran</span></button>
                         <button onClick={() => setView('hatim')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'hatim' ? 'text-emerald-500' : 'text-slate-500 hover:text-emerald-400'}`}><Icons.Grid size={24} /><span className="text-[10px] font-bold">Hatim</span></button>
                         <button onClick={() => setView('favorites')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'favorites' ? 'text-rose-500' : 'text-slate-500 hover:text-rose-400'}`}><Icons.Heart size={24} fill={view === 'favorites' ? "currentColor" : "none"} /><span className="text-[10px] font-bold">Favoriler</span></button>
