@@ -1362,9 +1362,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'10. sürüm', tarih:'20.11.2026', satir:9102, kb:1012,
-        onceki:{ surum:'9. sürüm', satir:9084, kb:1009 },
-        yenilikler:['🎧 Kasaya ulaşılamasa da dinleme takılmaz: Arapça tilavet ayet ayet kesintisiz sürer, meal sesi geri gelince kendiliğinden okunur · 🔐 kasa sorununun nedenini söyler (ağ engeli mi, kasa hatası mı)','🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'11. sürüm', tarih:'20.11.2026', satir:9127, kb:1014,
+        onceki:{ surum:'10. sürüm', satir:9102, kb:1012 },
+        yenilikler:['🗣️ Meal sesi yeniden kesintisiz: uzun ayetlerde de bekler (35 sn), kasa gelince hemen sürer · 🔑 mobil veride yedek anahtar','🎧 Kasaya ulaşılamasa da dinleme takılmaz: Arapça tilavet ayet ayet kesintisiz sürer, meal sesi geri gelince kendiliğinden okunur · 🔐 kasa sorununun nedenini söyler (ağ engeli mi, kasa hatası mı)','🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1406,7 +1406,7 @@
       function kasaTani(){
         return kasaSaglik().then(function(ok){
           if(ok===null) return { durum:'kapali', metin:'Kasa kapalı (kişisel anahtar kullanılıyor).' };
-          if(ok) return { durum:'ok', metin:'Kasa bağlı.' };
+          if(ok){ try{ window.ZTTS && window.ZTTS.sifirla(); }catch(e){} return { durum:'ok', metin:'Kasa bağlı.' }; }
           return zamanli(ham()(kasa()+'/saglik?t='+Date.now(), { mode:'no-cors', cache:'no-store' }), 8000, 'zaman').then(function(){
             return { durum:'kasa-hata', metin:'Kasa sunucusuna ulaşılıyor ama kasa hata veriyor (günlük istek sınırı dolmuş ya da kasa durmuş olabilir). Cloudflare panelinden Workers → baris-kasa sayfasına bak.' };
           }, function(){
@@ -1579,7 +1579,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='10'; // ⚠️ Sonraki sürüm 11, 12… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
+    const SURUM='11'; // ⚠️ Sonraki sürüm 12, 13… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -1742,7 +1742,7 @@
 
       // ---------- 🗣️ MEAL SESİ: yapay zekâ sesi (Gemini TTS "Charon", baris-kasa üzerinden) → olmazsa cihazın Türkçe sesi ----------
       var TTS_MODEL='gemini-2.5-flash-preview-tts';
-      var onbellek={}, sira=[], bekleyen={}, sogumaBitis=0;
+      var onbellek={}, sira=[], bekleyen={}, sogumaBitis=0, ardHata=0;
       function anahtar(){
         try{ var k=(localStorage.getItem('geminiApiKey')||'').trim(); if(k) return k; var z=JSON.parse(localStorage.getItem('zirve_keys')||'[]'); if(Array.isArray(z)&&z[0]) return z[0]; }catch(e){}
         return window.ZKASA_URL ? 'KASA-anahtar-kasada-saklaniyor-00' : '';
@@ -1762,10 +1762,10 @@
         if(bekleyen[metin]) return bekleyen[metin];
         var govde={ contents:[{ parts:[{ text:'Ağırbaşlı, sakin, saygılı ve anlaşılır bir sesle, acele etmeden oku: '+metin }] }],
           generationConfig:{ responseModalities:['AUDIO'], speechConfig:{ voiceConfig:{ prebuiltVoiceConfig:{ voiceName:'Charon' } } } } };
-        var zaman=new Promise(function(_,red){ setTimeout(function(){ red(new Error('zaman')); }, 12000); });
+        var zaman=new Promise(function(_,red){ setTimeout(function(){ red(new Error('zaman')); }, 35000); }); // uzun ayetlerde ses üretimi 15-25 sn sürebilir
         var p=Promise.race([fetch('https://generativelanguage.googleapis.com/v1beta/models/'+TTS_MODEL+':generateContent?key='+encodeURIComponent(anahtar()),
           { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(govde) }), zaman])
-          .then(function(r){ if(!r.ok){ if(r.status===429||r.status>=500) sogumaBitis=Date.now()+10*60*1000; throw new Error('tts '+r.status); } return r.json(); })
+          .then(function(r){ if(!r.ok){ if(r.status===429||r.status>=500) sogumaBitis=Date.now()+90*1000; throw new Error('tts '+r.status); } return r.json(); })
           .then(function(j){
             var p0=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[];
             var d=null; for(var i=0;i<p0.length;i++){ if(p0[i].inlineData&&p0[i].inlineData.data){ d=p0[i].inlineData; break; } }
@@ -1773,7 +1773,7 @@
             var m=/rate=(\d+)/.exec(d.mimeType||''); var url=pcmWav(d.data, m?+m[1]:24000);
             onbellek[metin]=url; sira.push(metin); if(sira.length>40){ var eski=sira.shift(); try{ URL.revokeObjectURL(onbellek[eski]); }catch(e){} delete onbellek[eski]; }
             return url;
-          }).catch(function(e){ if(Date.now()>sogumaBitis) sogumaBitis=Date.now()+5*60*1000; throw e; }); // ulaşılamazsa 5 dk denenmez: dinleme beklemeden Arapça sürer
+          }).then(function(u){ ardHata=0; return u; }, function(e){ ardHata++; if(((e && e.name==='TypeError') || ardHata>=2) && Date.now()>sogumaBitis) sogumaBitis=Date.now()+60*1000; throw e; }); // ağ yoksa ya da üst üste 2 hata: 1 dk denenmez, Arapça beklemeden sürer
         bekleyen[metin]=p; p.then(function(){ delete bekleyen[metin]; }, function(){ delete bekleyen[metin]; });
         return p;
       }
@@ -1810,7 +1810,8 @@
           }catch(e){ coz(); }
         });
       }
-      window.ZTTS={ sesYok:function(){ return !yzSesAcik() && !erkekSesVar(); }, sesYokNeden:function(){ if(oku('zirve_meal_ses')==='cihaz') return 'cihazda erkek ses yok'; if(!anahtar()) return 'yapay zekâ anahtarı yok'; return 'kasaya ulaşılamıyor'; }, yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, erkekSesVar:erkekSesVar, hazir:function(m){ return !!onbellek[String(m||'').replace(/\s+/g,' ').trim()]; }, onYukle:function(m){ if(m && yzSesAcik()) yzSes(m).catch(function(){}); } };
+      window.addEventListener('online', function(){ sogumaBitis=0; });
+      window.ZTTS={ sifirla:function(){ sogumaBitis=0; ardHata=0; }, sesYok:function(){ return !yzSesAcik() && !erkekSesVar(); }, sesYokNeden:function(){ if(oku('zirve_meal_ses')==='cihaz') return 'cihazda erkek ses yok'; if(!anahtar()) return 'yapay zekâ anahtarı yok'; return 'kasaya ulaşılamıyor'; }, yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, erkekSesVar:erkekSesVar, hazir:function(m){ return !!onbellek[String(m||'').replace(/\s+/g,' ').trim()]; }, onYukle:function(m){ if(m && yzSesAcik()) yzSes(m).catch(function(){}); } };
 
       // ---------- 🎧 TİLAVET ----------
       var ses=new Audio(); ses.preload='auto'; try{ ses.setAttribute('playsinline',''); }catch(e){}
@@ -1954,6 +1955,7 @@
       function kaydir(no){ try{ var el=kapBul(no); if(el) el.scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){} }
 
       function baslat(o){
+        try{ window.ZTTS.sifirla(); }catch(e){}
         mealJeton++; D.tek=false; hataSayac=0; sesDur(); cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){}
         try{ if('speechSynthesis' in window){ var u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); } }catch(e){} // iOS: sesi dokunuşla aç
         D.sure=o.sure; D.sureAdi=o.sureAdi||''; D.ayetler=o.ayetler||[]; D.okuyucu=o.okuyucu||''; D.devamFn=o.devamFn||null; D.geriFn=o.geriFn||null; D.etiket=o.etiket||'';
@@ -1963,7 +1965,7 @@
         cal();
       }
       function duraklat(){ D.caliyor=false; mealJeton++; sesDur(); if(bekliyor){ gercek(); try{ ses.removeAttribute('src'); ses.load(); }catch(e){} } cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} try{ navigator.mediaSession.playbackState='paused'; }catch(e){} yay(); }
-      function devam(){ if(D.tek && D.ayetler[0]){ D.aktif=true; D.caliyor=true; mealOku(D.ayetler[0]); yay(); return; } if(!D.aktif && D.ayetler.length){ D.aktif=true; } if(!D.aktif) return; D.caliyor=true; if(!bekliyor && D.asama==='ar' && ses.src && ses.currentTime>0 && !ses.ended){ var p=ses.play(); if(p&&p.catch) p.catch(function(){}); yay(); } else cal(); try{ navigator.mediaSession.playbackState='playing'; }catch(e){} }
+      function devam(){ try{ window.ZTTS.sifirla(); }catch(e){} if(D.tek && D.ayetler[0]){ D.aktif=true; D.caliyor=true; mealOku(D.ayetler[0]); yay(); return; } if(!D.aktif && D.ayetler.length){ D.aktif=true; } if(!D.aktif) return; D.caliyor=true; if(!bekliyor && D.asama==='ar' && ses.src && ses.currentTime>0 && !ses.ended){ var p=ses.play(); if(p&&p.catch) p.catch(function(){}); yay(); } else cal(); try{ navigator.mediaSession.playbackState='playing'; }catch(e){} }
       function sonraki(){ if(!D.ayetler.length) return; if(D.devamFn && D.idx>=D.ayetler.length-1){ mealJeton++; cihazJeton++; if(D.caliyor) bekle(); else sesDur(); try{ speechSynthesis.cancel(); }catch(e){} D.devamFn(D.sure, 'atla'); return; } mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.tekrarSayac=0; D.idx=Math.min(D.ayetler.length-1, D.idx+1); D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
       function onceki(){ if(!D.ayetler.length) return; if(D.geriFn && D.idx<=0 && D.sure>1){ mealJeton++; cihazJeton++; if(D.caliyor) bekle(); else sesDur(); try{ speechSynthesis.cancel(); }catch(e){} D.geriFn(D.sure); return; } mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.tekrarSayac=0; D.idx=Math.max(0, D.idx-1); D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
       function git(no){ var i=D.ayetler.findIndex(function(a){ return a.no===no; }); if(i<0) return; mealJeton++; cihazJeton++; try{ speechSynthesis.cancel(); }catch(e){} D.idx=i; D.tekrarSayac=0; D.asama= D.mod==='meal'?'tr':'ar'; D.aktif=true; cal(); }
@@ -5882,6 +5884,28 @@ JSON ŞEMASI:
             );
         };
 
+        // 🔑 Mobil veride kasaya ulaşılamazsa meal sesi kendi anahtarınla doğrudan Google'dan gelir (anahtar yalnız bu telefonda saklanır)
+        const AnahtarYedegi = () => {
+            const kayitli = () => { try { const a = JSON.parse(localStorage.getItem('zirve_keys') || '[]'); return (Array.isArray(a) && a.length) || !!(localStorage.getItem('geminiApiKey') || '').trim(); } catch (e) { return false; } };
+            const [var_, setVar] = React.useState(kayitli);
+            const [k, setK] = React.useState('');
+            const kaydet = () => {
+                const t = k.trim(); if (t.length < 20) { try { window.ZIRVE.toast('Anahtar eksik görünüyor', 'red'); } catch (e) {} return; }
+                try { if (window.ZIRVE && window.ZIRVE.ringSet) window.ZIRVE.ringSet(t); } catch (e) {}
+                try { localStorage.setItem('geminiApiKey', t.split(/[\s,;]+/)[0]); } catch (e) {}
+                try { window.ZTTS && window.ZTTS.sifirla(); } catch (e) {}
+                setK(''); setVar(true); try { window.ZIRVE.toast('🔑 Kaydedildi: kasaya ulaşılamazsa meal sesi doğrudan gelir', 'green'); } catch (e) {}
+            };
+            return (
+                <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4 text-[12px] text-amber-100 space-y-2">
+                    <p className="font-bold text-amber-200">🔑 Mobil veride (arabada) meal sesi için yedek</p>
+                    {var_ ? <p>✅ Kendi anahtarın kayıtlı. Kasaya ulaşılamazsa meal sesi doğrudan Google'dan gelir.</p> : <>
+                        <p>Bazı mobil hatlarda kasaya ulaşılamıyor (Wi-Fi'da çalışıp 5G'de çalışmıyorsa sebep bu). Kendi ücretsiz Gemini anahtarından birini buraya bir kez yapıştırırsan meal sesi her yerde gelir. Anahtar yalnız bu telefonda saklanır.</p>
+                        <div className="flex gap-2"><input value={k} onChange={e => setK(e.target.value)} placeholder="AIza… anahtarını yapıştır" className="flex-1 min-w-0 min-h-[42px] rounded-xl bg-slate-900 border border-slate-700 px-3 text-[13px] text-white" autoComplete="off"/><button onClick={kaydet} className="min-h-[42px] px-4 rounded-xl bg-amber-400 text-amber-950 font-bold text-[13px]">Kaydet</button></div>
+                    </>}
+                </div>
+            );
+        };
         const DinlePaneli = () => {
             const [acik, setAcik] = React.useState(false);
             const [d, tazele] = useDinle();
@@ -6010,6 +6034,7 @@ JSON ŞEMASI:
                                 <label className="flex items-center gap-2 mt-3 text-[13px] text-slate-200"><input type="checkbox" checked={ekran} onChange={e => { setEkran(e.target.checked); ZDINLE.yaz({ ekran: e.target.checked }); }} className="accent-emerald-500 w-5 h-5"/> Dinlerken ekran kapanmasın (araç tutucusunda)</label>
                             </div>
 
+                            <AnahtarYedegi />
                             <div className="rounded-2xl bg-sky-500/10 border border-sky-500/25 p-4 text-[12px] text-sky-100 space-y-1.5">
                                 <p className="font-bold text-sky-200">🚗 Arabada ve kilit ekranında dinlemek için</p>
                                 <p>• Telefonu aracın Bluetooth'una bağla; ⏯ ⏭ düğmeleri direksiyondan ve kilit ekranından çalışır.</p>
