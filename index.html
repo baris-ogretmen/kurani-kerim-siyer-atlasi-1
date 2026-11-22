@@ -1362,9 +1362,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'11. sürüm', tarih:'20.11.2026', satir:9127, kb:1014,
-        onceki:{ surum:'10. sürüm', satir:9102, kb:1012 },
-        yenilikler:['🗣️ Meal sesi yeniden kesintisiz: uzun ayetlerde de bekler (35 sn), kasa gelince hemen sürer · 🔑 mobil veride yedek anahtar','🎧 Kasaya ulaşılamasa da dinleme takılmaz: Arapça tilavet ayet ayet kesintisiz sürer, meal sesi geri gelince kendiliğinden okunur · 🔐 kasa sorununun nedenini söyler (ağ engeli mi, kasa hatası mı)','🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'13. sürüm', tarih:'22.11.2026', satir:9246, kb:1028,
+        onceki:{ surum:'12. sürüm', satir:9142, kb:1016 },
+        yenilikler:['✨ Kur\'an\'da Dikkat Çekici Eşleşmeler: Âdem 25 = İsa 25, Melek 88 = Şeytan 88, Dünya 115 = Âhire 115, Erkek 24 = Kadın 24, Gün 365, Ay 12, Yedi gök 7 — hepsi cihazda canlı sayılır, yöntemiyle; tutmayan iddialar ayrıca gösterilir','📍 Aramada "Surede aç" artık her zaman o ayete gider ve vurgular (aynı sure açıkken de)','🗣️ Meal sesi yeniden kesintisiz: uzun ayetlerde de bekler (35 sn), kasa gelince hemen sürer · 🔑 mobil veride yedek anahtar','🎧 Kasaya ulaşılamasa da dinleme takılmaz: Arapça tilavet ayet ayet kesintisiz sürer, meal sesi geri gelince kendiliğinden okunur · 🔐 kasa sorununun nedenini söyler (ağ engeli mi, kasa hatası mı)','🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1579,7 +1579,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='11'; // ⚠️ Sonraki sürüm 12, 13… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
+    const SURUM='13'; // ⚠️ Sonraki sürüm 14, 15… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -2293,7 +2293,7 @@
     })();
 </script>
 <!-- ===== 🔍 KUR'AN'DA ARA (v3.4): gerçek sayım — Quranic Arabic Corpus morfolojisi + meal metni ===== -->
-<script type="application/json" id="zk-kavramlar">[{"ad":"Akıl, akletmek","t":["akıl","akl","akletmek","aklet","akıllı"],"kok":["عقل"],"meal":["akıl","akl"]},{"ad":"“Akletmez misiniz?” (e-fe lâ ta'kılûn)","t":["akletmez misiniz","efela takilun","e fe la takilun","afala taqilun","akıl erdirmez misiniz"],"ifade":"أفلا تعقلون"},{"ad":"Tefekkür, düşünmek","t":["tefekkür","düşünmek","düşün","fikir","tefekkur"],"kok":["فكر"]},{"ad":"Sabır","t":["sabır","sabr","sabret","sabırlı"],"kok":["صبر"],"meal":["sabır","sabr"]},{"ad":"Şükür","t":["şükür","şükr","şükret","şükreden"],"kok":["شكر"],"meal":["şükr","şükür"]},{"ad":"Rahmet, merhamet","t":["rahmet","merhamet","esirge"],"kok":["رحم"],"meal":["rahmet","merhamet"],"not":"Rahmân ve Rahîm isimleri de bu köktendir; sayıma dahildir."},{"ad":"Evlilik, nikâh","t":["evlilik","evlenmek","evlen","nikah","nikâh"],"kok":["نكح","زوج"],"meal":["evlen","evlil","nikâh","nikah"],"not":"Kur'an evliliği iki kökle anlatır: nikâh (ن ك ح, evlenmek) ve zevc (ز و ج, eş/çift). Zevc kökü bitki ve hayvan çiftleri için de kullanılır."},{"ad":"Eş, zevc, çift","t":["zevc","zevce","eşler","eşi","eşim","çift","ezvac","zevcat"],"kok":["زوج"],"meal":["zevc","eşler","eşi","eşin","eşleri","eşiniz","eşlerin"]},{"ad":"Mutluluk, saadet","t":["mutluluk","mutlu","saadet","saîd"],"kok":["سعد"],"ek":[{"ad":"Felâh (kurtuluş, başarı)","kok":["فلح"]}],"not":"Saadet kökü (س ع د) yalnız 2 kez geçer (Hûd 105 ve 108). Kur'an'ın daha sık kullandığı karşılık kurtuluş ve başarı anlamındaki felâhtır (ف ل ح)."},{"ad":"Felâh, kurtuluş","t":["felah","felâh","kurtuluş","müflih","kurtuluşa"],"kok":["فلح"]},{"ad":"İlim, bilgi","t":["ilim","bilgi","alim","âlim","bilmek","ilm"],"kok":["علم"]},{"ad":"Hikmet","t":["hikmet"],"lem":["حِكْمَة"]},{"ad":"Namaz (salât)","t":["namaz","salat","salât"],"lem":["صَلاة"],"meal":["namaz"]},{"ad":"Zekât","t":["zekat","zekât"],"lem":["زَكاة"],"meal":["zekât","zekat"]},{"ad":"Oruç","t":["oruç","savm","sıyam"],"kok":["صوم"],"meal":["oruç"]},{"ad":"Hac","t":["hac","hacc"],"lem":["حَجّ","حِجّ"]},{"ad":"Cennet","t":["cennet","cennetler"],"lem":["جَنَّة"],"not":"Cennet (جَنَّة) kelimesi dünyadaki bahçeler için de kullanılır; sayıma dahildir."},{"ad":"Cehennem","t":["cehennem"],"lem":["جَهَنَّم"]},{"ad":"Âhiret","t":["ahiret","âhiret","ahret"],"bicim":{"lem":"آخِر","son":"ه"},"haric":["38:7"],"not":"“Âhire” kelimesi 116 kez geçer; Sâd 7'deki “son din” anlamındaki kullanım çıkarılınca âhiret anlamında 115 kez kalır."},{"ad":"Dünya","t":["dünya"],"lem":["دُنْيا"]},{"ad":"Melek","t":["melek","melekler","melaike"],"lem":["مَلَك"]},{"ad":"Şeytan","t":["şeytan","şeytanlar"],"lem":["شَيْطان"]},{"ad":"İblis","t":["iblis"],"lem":["إِبْلِيس"]},{"ad":"Nebî, peygamber","t":["peygamber","nebi","nebî"],"lem":["نَبِيّ"]},{"ad":"Resul, elçi","t":["resul","resûl","elçi"],"lem":["رَسُول"]},{"ad":"Kitap","t":["kitap","kitab"],"lem":["كِتاب"]},{"ad":"Kur'an","t":["kur'an","kuran","kur an","kuran-ı"],"lem":["قُرْءان"]},{"ad":"Tövbe","t":["tövbe","tevbe","tevbe et"],"kok":["توب"]},{"ad":"Mağfiret, bağışlama","t":["mağfiret","bağışla","affet","gufran","istiğfar"],"kok":["غفر"]},{"ad":"Dua","t":["dua","dua et"],"kok":["دعو"],"not":"Bu kök çağırmak, davet etmek anlamlarını da kapsar."},{"ad":"Adalet","t":["adalet","adil","âdil","adl"],"kok":["عدل"]},{"ad":"Zulüm","t":["zulüm","zalim","zâlim","zulm"],"kok":["ظلم"]},{"ad":"Takva","t":["takva","muttaki","sakın"],"kok":["وقي"]},{"ad":"İman","t":["iman","mümin","mü'min","inanmak","güven"],"kok":["أمن"],"not":"Bu kök güven ve emniyet anlamlarını da kapsar."},{"ad":"İhsan, iyilik, güzellik","t":["ihsan","iyilik","güzellik","hasene","muhsin"],"kok":["حسن"]},{"ad":"Kalp","t":["kalp","kalb","kalpler","gönül"],"lem":["قَلْب"]},{"ad":"Ruh","t":["ruh","rûh"],"lem":["رُوح"]},{"ad":"Nefis","t":["nefis","nefs","can"],"lem":["نَفْس"]},{"ad":"Ölüm","t":["ölüm","ölmek","mevt","ölü"],"kok":["موت"]},{"ad":"Hayat, diriltmek","t":["hayat","diri","diriltmek","yaşam","hayy"],"kok":["حيي"]},{"ad":"Gün (yevm)","t":["gün","yevm"],"lem":["يَوْم"]},{"ad":"Ay (şehr, zaman)","t":["şehr","aylar","haram aylar","ay (zaman)"],"lem":["شَهْر"]},{"ad":"Deniz","t":["deniz","bahr"],"lem":["بَحْر"]},{"ad":"Güneş","t":["güneş","şems"],"lem":["شَمْس"]},{"ad":"Ay (kamer)","t":["ay","kamer"],"lem":["قَمَر"]},{"ad":"Yıldız","t":["yıldız","necm"],"lem":["نَجْم"]},{"ad":"Anne (ümm)","t":["anne","ana","ümm"],"lem":["أُمّ"],"not":"Ümm kelimesi “ümmü'l-kitâb” gibi “asıl, ana” anlamlarında da geçer."},{"ad":"Baba (eb)","t":["baba","eb"],"lem":["أَب"],"not":"Çoğulu (âbâ, atalar) ayrı kelime olarak sayılır."},{"ad":"Anne-baba (vâlid)","t":["anne baba","anne-baba","valideyn","vâlid"],"lem":["والِد"]},{"ad":"Çocuk, evlat","t":["çocuk","evlat","veled"],"lem":["وَلَد"]},{"ad":"Yetim","t":["yetim"],"lem":["يَتِيم"]},{"ad":"Kadınlar (nisâ)","t":["kadın","kadınlar","nisa","nisâ"],"lem":["نِساء"]},{"ad":"İnsan","t":["insan","insanlık"],"lem":["إِنسان"]},{"ad":"Faiz (ribâ)","t":["faiz","riba","ribâ","tefecilik"],"lem":["رِبا","رِب"],"not":"Ribâ kelimesi 8 kez geçer: Bakara 275–278, Âl-i İmrân 130, Nisâ 161 ve Rûm 39 (Rûm 39'daki yazım ayrı kayıtlı olduğu için ikisi birlikte sayılır)."},{"ad":"Borç (deyn)","t":["borç","deyn","borçlu"],"lem":["دَيْن"]},{"ad":"Din","t":["din"],"lem":["دِين"]},{"ad":"Rızık","t":["rızık","rızk","rezzak","geçim"],"kok":["رزق"]},{"ad":"Sadaka","t":["sadaka"],"lem":["صَدَقَة"]},{"ad":"İnfak","t":["infak","harcamak","infak et"],"lem":["أَنفَقَ"]},{"ad":"Hidayet","t":["hidayet","doğru yol","hüda"],"kok":["هدي"]},{"ad":"Nur","t":["nur","nûr","ışık"],"lem":["نُور"]},{"ad":"Korku (havf)","t":["korku","korkmak","havf"],"kok":["خوف"]},{"ad":"Ümit (recâ)","t":["ümit","umut","reca","recâ"],"kok":["رجو"]},{"ad":"Sevgi (hubb)","t":["sevgi","sevmek","muhabbet","hubb"],"kok":["حبب"]},{"ad":"Cihad, gayret","t":["cihad","cihat","gayret","mücahede"],"kok":["جهد"]},{"ad":"Kıyamet","t":["kıyamet"],"lem":["قِيامَة"]},{"ad":"Mekke","t":["mekke","bekke"],"lem":["مَكَّة","بَكَّة"]},{"ad":"Kâbe","t":["kabe","kâbe"],"lem":["كَعْبَة"]},{"ad":"Ramazan","t":["ramazan"],"lem":["رَمَضان"]},{"ad":"Kadir Gecesi","t":["kadir gecesi","leyletül kadr"],"ifade":"ليلة القدر"},{"ad":"Allah lafzı","t":["allah"],"lem":["اللَّه"]},{"ad":"Rab","t":["rab","rabb","rabbim"],"lem":["رَبّ"]},{"ad":"Hz. Muhammed","t":["muhammed","hz muhammed","peygamberimiz"],"lem":["مُحَمَّد"],"not":"İsmen 4 yerde geçer; Ahmed ismi Saf 6'da ayrıca geçer."},{"ad":"Hz. İsa","t":["isa","îsâ"],"lem":["عِيسَى"]},{"ad":"Hz. Musa","t":["musa","mûsâ"],"lem":["مُوسَى"]},{"ad":"Hz. İbrahim","t":["ibrahim"],"lem":["إِبْراهِيم"]},{"ad":"Hz. Meryem","t":["meryem"],"lem":["مَرْيَم"]},{"ad":"Hz. Yusuf","t":["yusuf"],"lem":["يُوسُف"]},{"ad":"Hz. Nuh","t":["nuh","nûh"],"lem":["نُوح"]},{"ad":"Hz. Âdem","t":["adem","âdem"],"lem":["آدَم"]},{"ad":"Su","t":["su","mâ"],"lem":["ماء"]},{"ad":"Ağaç","t":["ağaç","şecer"],"lem":["شَجَرَة"]},{"ad":"Bal","t":["bal"],"lem":["عَسَل"]},{"ad":"Arı","t":["arı","nahl"],"lem":["نَحْل"]},{"ad":"Kalem","t":["kalem"],"lem":["قَلَم"]},{"ad":"Okumak (kırâat)","t":["okumak","oku","kıraat","kırâat"],"kok":["قرأ"],"not":"Kur'an kelimesi de bu köktendir."},{"ad":"Secde","t":["secde","secde et"],"kok":["سجد"]}]</script>
+<script type="application/json" id="zk-kavramlar">[{"ad":"Akıl, akletmek","t":["akıl","akl","akletmek","aklet","akıllı"],"kok":["عقل"],"meal":["akıl","akl"]},{"ad":"“Akletmez misiniz?” (e-fe lâ ta'kılûn)","t":["akletmez misiniz","efela takilun","e fe la takilun","afala taqilun","akıl erdirmez misiniz"],"ifade":"أفلا تعقلون"},{"ad":"Tefekkür, düşünmek","t":["tefekkür","düşünmek","düşün","fikir","tefekkur"],"kok":["فكر"]},{"ad":"Sabır","t":["sabır","sabr","sabret","sabırlı"],"kok":["صبر"],"meal":["sabır","sabr"]},{"ad":"Şükür","t":["şükür","şükr","şükret","şükreden"],"kok":["شكر"],"meal":["şükr","şükür"]},{"ad":"Rahmet, merhamet","t":["rahmet","merhamet","esirge"],"kok":["رحم"],"meal":["rahmet","merhamet"],"not":"Rahmân ve Rahîm isimleri de bu köktendir; sayıma dahildir."},{"ad":"Evlilik, nikâh","t":["evlilik","evlenmek","evlen","nikah","nikâh"],"kok":["نكح","زوج"],"meal":["evlen","evlil","nikâh","nikah"],"not":"Kur'an evliliği iki kökle anlatır: nikâh (ن ك ح, evlenmek) ve zevc (ز و ج, eş/çift). Zevc kökü bitki ve hayvan çiftleri için de kullanılır."},{"ad":"Eş, zevc, çift","t":["zevc","zevce","eşler","eşi","eşim","çift","ezvac","zevcat"],"kok":["زوج"],"meal":["zevc","eşler","eşi","eşin","eşleri","eşiniz","eşlerin"]},{"ad":"Mutluluk, saadet","t":["mutluluk","mutlu","saadet","saîd"],"kok":["سعد"],"ek":[{"ad":"Felâh (kurtuluş, başarı)","kok":["فلح"]}],"not":"Saadet kökü (س ع د) yalnız 2 kez geçer (Hûd 105 ve 108). Kur'an'ın daha sık kullandığı karşılık kurtuluş ve başarı anlamındaki felâhtır (ف ل ح)."},{"ad":"Felâh, kurtuluş","t":["felah","felâh","kurtuluş","müflih","kurtuluşa"],"kok":["فلح"]},{"ad":"İlim, bilgi","t":["ilim","bilgi","alim","âlim","bilmek","ilm"],"kok":["علم"]},{"ad":"Hikmet","t":["hikmet"],"lem":["حِكْمَة"]},{"ad":"Namaz (salât)","t":["namaz","salat","salât"],"lem":["صَلاة"],"meal":["namaz"]},{"ad":"Zekât","t":["zekat","zekât"],"lem":["زَكاة"],"meal":["zekât","zekat"]},{"ad":"Oruç","t":["oruç","savm","sıyam"],"kok":["صوم"],"meal":["oruç"]},{"ad":"Hac","t":["hac","hacc"],"lem":["حَجّ","حِجّ"]},{"ad":"Cennet","t":["cennet","cennetler"],"lem":["جَنَّة"],"not":"Cennet (جَنَّة) kelimesi dünyadaki bahçeler için de kullanılır; sayıma dahildir."},{"ad":"Cehennem","t":["cehennem"],"lem":["جَهَنَّم"]},{"ad":"Âhiret","t":["ahiret","âhiret","ahret"],"bicim":{"lem":"آخِر","son":"ه"},"haric":["38:7","3:72"],"not":"“El-Âhire” kelimesi 115 kez geçer; bunlardan Sâd 7'deki “son din” (el-milletü'l-âhire) anlamındadır, çıkarılınca âhiret anlamında 114 kalır. (Âl-i İmrân 72'deki “âhirehû” = “günün sonu” ayrı kelimedir.)"},{"ad":"Dünya","t":["dünya"],"lem":["دُنْيا"]},{"ad":"Melek","t":["melek","melekler","melaike"],"lem":["مَلَك"]},{"ad":"Şeytan","t":["şeytan","şeytanlar"],"lem":["شَيْطان"]},{"ad":"İblis","t":["iblis"],"lem":["إِبْلِيس"]},{"ad":"Nebî, peygamber","t":["peygamber","nebi","nebî"],"lem":["نَبِيّ"]},{"ad":"Resul, elçi","t":["resul","resûl","elçi"],"lem":["رَسُول"]},{"ad":"Kitap","t":["kitap","kitab"],"lem":["كِتاب"]},{"ad":"Kur'an","t":["kur'an","kuran","kur an","kuran-ı"],"lem":["قُرْءان"]},{"ad":"Tövbe","t":["tövbe","tevbe","tevbe et"],"kok":["توب"]},{"ad":"Mağfiret, bağışlama","t":["mağfiret","bağışla","affet","gufran","istiğfar"],"kok":["غفر"]},{"ad":"Dua","t":["dua","dua et"],"kok":["دعو"],"not":"Bu kök çağırmak, davet etmek anlamlarını da kapsar."},{"ad":"Adalet","t":["adalet","adil","âdil","adl"],"kok":["عدل"]},{"ad":"Zulüm","t":["zulüm","zalim","zâlim","zulm"],"kok":["ظلم"]},{"ad":"Takva","t":["takva","muttaki","sakın"],"kok":["وقي"]},{"ad":"İman","t":["iman","mümin","mü'min","inanmak","güven"],"kok":["أمن"],"not":"Bu kök güven ve emniyet anlamlarını da kapsar."},{"ad":"İhsan, iyilik, güzellik","t":["ihsan","iyilik","güzellik","hasene","muhsin"],"kok":["حسن"]},{"ad":"Kalp","t":["kalp","kalb","kalpler","gönül"],"lem":["قَلْب"]},{"ad":"Ruh","t":["ruh","rûh"],"lem":["رُوح"]},{"ad":"Nefis","t":["nefis","nefs","can"],"lem":["نَفْس"]},{"ad":"Ölüm","t":["ölüm","ölmek","mevt","ölü"],"kok":["موت"]},{"ad":"Hayat, diriltmek","t":["hayat","diri","diriltmek","yaşam","hayy"],"kok":["حيي"]},{"ad":"Gün (yevm)","t":["gün","yevm"],"lem":["يَوْم"]},{"ad":"Ay (şehr, zaman)","t":["şehr","aylar","haram aylar","ay (zaman)"],"lem":["شَهْر"]},{"ad":"Deniz","t":["deniz","bahr"],"lem":["بَحْر"]},{"ad":"Güneş","t":["güneş","şems"],"lem":["شَمْس"]},{"ad":"Ay (kamer)","t":["ay","kamer"],"lem":["قَمَر"]},{"ad":"Yıldız","t":["yıldız","necm"],"lem":["نَجْم"]},{"ad":"Anne (ümm)","t":["anne","ana","ümm"],"lem":["أُمّ"],"not":"Ümm kelimesi “ümmü'l-kitâb” gibi “asıl, ana” anlamlarında da geçer."},{"ad":"Baba (eb)","t":["baba","eb"],"lem":["أَب"],"not":"Çoğulu (âbâ, atalar) ayrı kelime olarak sayılır."},{"ad":"Anne-baba (vâlid)","t":["anne baba","anne-baba","valideyn","vâlid"],"lem":["والِد"]},{"ad":"Çocuk, evlat","t":["çocuk","evlat","veled"],"lem":["وَلَد"]},{"ad":"Yetim","t":["yetim"],"lem":["يَتِيم"]},{"ad":"Kadınlar (nisâ)","t":["kadın","kadınlar","nisa","nisâ"],"lem":["نِساء"]},{"ad":"İnsan","t":["insan","insanlık"],"lem":["إِنسان"]},{"ad":"Faiz (ribâ)","t":["faiz","riba","ribâ","tefecilik"],"lem":["رِبا","رِب"],"not":"Ribâ kelimesi 8 kez geçer: Bakara 275–278, Âl-i İmrân 130, Nisâ 161 ve Rûm 39 (Rûm 39'daki yazım ayrı kayıtlı olduğu için ikisi birlikte sayılır)."},{"ad":"Borç (deyn)","t":["borç","deyn","borçlu"],"lem":["دَيْن"]},{"ad":"Din","t":["din"],"lem":["دِين"]},{"ad":"Rızık","t":["rızık","rızk","rezzak","geçim"],"kok":["رزق"]},{"ad":"Sadaka","t":["sadaka"],"lem":["صَدَقَة"]},{"ad":"İnfak","t":["infak","harcamak","infak et"],"lem":["أَنفَقَ"]},{"ad":"Hidayet","t":["hidayet","doğru yol","hüda"],"kok":["هدي"]},{"ad":"Nur","t":["nur","nûr","ışık"],"lem":["نُور"]},{"ad":"Korku (havf)","t":["korku","korkmak","havf"],"kok":["خوف"]},{"ad":"Ümit (recâ)","t":["ümit","umut","reca","recâ"],"kok":["رجو"]},{"ad":"Sevgi (hubb)","t":["sevgi","sevmek","muhabbet","hubb"],"kok":["حبب"]},{"ad":"Cihad, gayret","t":["cihad","cihat","gayret","mücahede"],"kok":["جهد"]},{"ad":"Kıyamet","t":["kıyamet"],"lem":["قِيامَة"]},{"ad":"Mekke","t":["mekke","bekke"],"lem":["مَكَّة","بَكَّة"]},{"ad":"Kâbe","t":["kabe","kâbe"],"lem":["كَعْبَة"]},{"ad":"Ramazan","t":["ramazan"],"lem":["رَمَضان"]},{"ad":"Kadir Gecesi","t":["kadir gecesi","leyletül kadr"],"ifade":"ليلة القدر"},{"ad":"Allah lafzı","t":["allah"],"lem":["اللَّه"]},{"ad":"Rab","t":["rab","rabb","rabbim"],"lem":["رَبّ"]},{"ad":"Hz. Muhammed","t":["muhammed","hz muhammed","peygamberimiz"],"lem":["مُحَمَّد"],"not":"İsmen 4 yerde geçer; Ahmed ismi Saf 6'da ayrıca geçer."},{"ad":"Hz. İsa","t":["isa","îsâ"],"lem":["عِيسَى"]},{"ad":"Hz. Musa","t":["musa","mûsâ"],"lem":["مُوسَى"]},{"ad":"Hz. İbrahim","t":["ibrahim"],"lem":["إِبْراهِيم"]},{"ad":"Hz. Meryem","t":["meryem"],"lem":["مَرْيَم"]},{"ad":"Hz. Yusuf","t":["yusuf"],"lem":["يُوسُف"]},{"ad":"Hz. Nuh","t":["nuh","nûh"],"lem":["نُوح"]},{"ad":"Hz. Âdem","t":["adem","âdem"],"lem":["آدَم"]},{"ad":"Su","t":["su","mâ"],"lem":["ماء"]},{"ad":"Ağaç","t":["ağaç","şecer"],"lem":["شَجَرَة"]},{"ad":"Bal","t":["bal"],"lem":["عَسَل"]},{"ad":"Arı","t":["arı","nahl"],"lem":["نَحْل"]},{"ad":"Kalem","t":["kalem"],"lem":["قَلَم"]},{"ad":"Okumak (kırâat)","t":["okumak","oku","kıraat","kırâat"],"kok":["قرأ"],"not":"Kur'an kelimesi de bu köktendir."},{"ad":"Secde","t":["secde","secde et"],"kok":["سجد"]}]</script>
 <script>
     (function(){
       var VERI_URL=(function(){ var l=['kuran-veri.json?v=2'];
@@ -4516,6 +4516,124 @@ Kullanıcının isteği: `;
             if (!g) return null;
             return <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Sayfanın başına çık" className="zk-yukari fixed left-3 z-[44] w-11 h-11 rounded-full bg-slate-800/95 border border-slate-600 text-emerald-300 shadow-xl shadow-black/50 flex items-center justify-center backdrop-blur"><Icons.ChevronLeft size={22} className="rotate-90"/></button>;
         };
+        // 📍 Sure açılınca (aynı sure zaten açıksa bile) ilgili ayete kaydırır ve vurgular; ayet yüklenene kadar 8 sn dener
+        const ayeteKaydir = (s, a) => {
+            let n = 0;
+            const dene = () => {
+                const el = document.getElementById(`ayah-${a}`);
+                const baslik = document.body.innerText.indexOf(getTurkishName(s)) >= 0;
+                if (el && baslik && n > 1) {
+                    const y = el.getBoundingClientRect().top + window.scrollY - 100; window.scrollTo({ top: y, behavior: 'smooth' });
+                    el.classList.add('ring-4', 'ring-emerald-500'); setTimeout(() => el.classList.remove('ring-4', 'ring-emerald-500'), 3000);
+                    return;
+                }
+                if (++n < 27) setTimeout(dene, 300);
+            };
+            setTimeout(dene, 300);
+        };
+        // ✨ 13. sürüm: Kur'an'daki dikkat çekici eşleşmeler (tevafuklar) — her sayı cihazda Kur'an kelime verisinden CANLI sayılır
+        const TEV_SAYIM = (() => {
+            const strip = (s) => String(s || '').normalize('NFC').replace(/[ً-ٰۖ-ۭـ]/g, '').replace(/[ٱأإآ]/g, 'ا').replace(/ى/g, 'ي');
+            let hazir = null;
+            const kur = (V) => {
+                if (hazir) return hazir;
+                const refs = window.ZARAMA.refs();
+                const W = []; for (let v = 0; v < V.w.length; v++) for (let i = 0; i < V.w[v].length; i++) W.push({ v, w: strip(V.w[v][i]), l: V.l[v][i] });
+                const L = (t) => { const n = t.normalize('NFC'); let i = V.lem.findIndex(x => x.normalize('NFC') === n); return i; };
+                const lem = (t, suz) => { const id = L(t); return W.filter(x => x.l === id && (!suz || suz(x.w))); };
+                const ay = (xs) => [...new Set(xs.map(x => refs[x.v][0] + ':' + refs[x.v][1]))];
+                const ikiKelime = () => { const c = []; for (let k = 0; k < W.length - 1; k++) { const a = W[k], b = W[k + 1]; if (a.v !== b.v) continue; if ((/^(و)?سبع$/.test(a.w) && /^(ال)?سموا?ت$/.test(b.w)) || (/^(ال)?سموا?ت$/.test(a.w) && /^(ال)?سبع$/.test(b.w))) c.push(a); } return c; };
+                hazir = { lem, ay, ikiKelime, W };
+                return hazir;
+            };
+            return { kur, strip };
+        })();
+        const TEVAFUKLAR = [
+            { id: 'adem-isa', baslik: 'Hz. Âdem ve Hz. İsa', sol: 'Âdem', sag: 'İsa', ara: ['Âdem', 'İsa'],
+              say: (T) => [T.lem('آدَم'), T.lem('عِيسَى')],
+              not: 'Âl-i İmrân 59: "Allah katında İsa\'nın durumu Âdem\'in durumu gibidir; onu (Âdem\'i) topraktan yarattı, sonra ona \'Ol!\' dedi, o da oluverdi." İkisi de babasız yaratılmıştır; Hz. Âdem ayrıca anasız.',
+              yontem: 'Özel isim olarak geçtiği her yer (ön ekli biçimler ve "Ey Âdem / Ey İsa" hitapları dahil).' },
+            { id: 'melek-seytan', baslik: 'Melek ve şeytan', sol: 'Melek', sag: 'Şeytan', ara: ['Melek', 'Şeytan'],
+              say: (T) => [T.lem('مَلَك'), T.lem('شَيْطان')],
+              not: 'Bu yöntemle sayıldığında "melek" ve "şeytan" kelimeleri Kur\'an\'da eşit sayıda geçer.',
+              yontem: 'Tekil, ikil ve çoğul bütün biçimler (melâike, şeyâtîn dahil). "Melik" (hükümdar) ve "mülk" ayrı kelimeler olduğu için sayılmaz.' },
+            { id: 'dunya-ahiret', baslik: 'Dünya ve âhiret', sol: 'Dünya', sag: 'Âhiret', ara: ['Dünya', 'Âhiret'],
+              say: (T) => [T.lem('دُنْيا'), T.lem('آخِر', w => /اخرة$/.test(w))],
+              not: 'Bu dünya ile sonraki hayat, Kur\'an\'da yan yana ve dengeli anılır.',
+              yontem: 'Kelime düzeyinde sayım: "ed-dünyâ" ve "el-âhire" kelimelerinin bütün biçimleri. Dikkat: iki kelime de birkaç yerde başka anlamdadır — "dünyâ" 4 yerde "en yakın" anlamında (Enfâl 42 "yakın vadi"; Sâffât 6, Fussilet 12, Mülk 5 "en yakın gök"), "âhire" Sâd 7\'de "son din" anlamında. Yalnız "âhiret hayatı" anlamı sayılırsa 114 çıkar.' },
+            { id: 'erkek-kadin', baslik: 'Erkek ve kadın', sol: 'Erkek (racul)', sag: 'Kadın (imraa)', ara: ['racul', 'imraa'],
+              say: (T) => [T.lem('رَجُل', w => !/رجلين|رجلان/.test(w)), T.lem('امْرَأَت', w => !/امراتان|امراتين/.test(w))],
+              not: 'Tekil "erkek" ve tekil "kadın" kelimeleri eşit sayıdadır.',
+              yontem: 'Yalnız tekil biçimler, zamirli hâller dahil (ör. "imraetuhû" = onun karısı); ikil hariç. Çoğullar (ricâl, nisâ) farklı kelimeler olduğu için sayılmaz.' },
+            { id: 'gun', baslik: 'Gün (yevm) ve bir yıl', tek: true, sol: 'Tekil "gün"', hedef: 365, hedefAd: 'bir yılın gün sayısı', ara: ['يوم'],
+              say: (T) => [T.lem('يَوْم', w => /^(و|ف)?(ب|ل)?(ال)?يوما?$/.test(w))],
+              not: 'Tekil "gün" kelimesi, bir güneş yılındaki gün sayısı kadar geçer.',
+              yontem: 'Yalnız tekil "yevm" (yevmen, el-yevm, ön ekli hâller). Zamirli biçimler (yevmuhum), "yevmeizin" (o gün), ikil ve çoğul (eyyâm) sayılmaz — yöntem değişirse sayı değişir.' },
+            { id: 'ay', baslik: 'Ay (şehr) ve bir yıl', tek: true, sol: 'Tekil "ay"', hedef: 12, hedefAd: 'bir yıldaki ay sayısı', ara: ['شهر'],
+              say: (T) => [T.lem('شَهْر', w => /^(و|ب|ف|ل)?(ال)?شهرا?$/.test(w))],
+              not: 'Tevbe 36: "Allah katında ayların sayısı on ikidir." Tekil "ay" kelimesi de on iki kez geçer.',
+              yontem: 'Yalnız tekil "şehr" biçimleri. İkil (şehreyn) ve çoğul (eşhur, şuhûr) sayılmaz.' },
+            { id: 'yedi-gok', baslik: 'Yedi gök', tek: true, sol: '"Yedi gök" ifadesi', hedef: 7, hedefAd: 'yedi', ara: ['سبع سموات'],
+              say: (T) => [T.ikiKelime()],
+              not: '"Yedi gök" ifadesi Kur\'an\'da tam yedi kez geçer.',
+              yontem: '"Seb\'a semâvât" ve "es-semâvâtu\'s-seb\'" (iki sıralama) yan yana geçtiği her yer.' }
+        ];
+        const TUTMAYANLAR = [
+            { baslik: 'Hayat ve ölüm "145\'er kez"', neden: 'Sayınca "hayat" (hayât) 76, "ölüm" (mevt) 50 çıkıyor. Eşitlik ancak farklı kelimeler keyfî eklenince tutturuluyor.' },
+            { baslik: 'Zekât ve bereket "32\'şer kez"', neden: '"Zekât" kelimesi 32 kez, "bereket" kelimesi 3 kez geçer. İddia bereket tarafında b-r-k kökünün bütün türevlerini (32) sayıyor; aynı yöntemle zekât kökü (z-k-v) 59 olur. Yani iki tarafa farklı yöntem uygulanıyor.' },
+            { baslik: 'Kara ve deniz oranı "%29 / %71"', neden: 'Harekesiz yazıda "البر" hem "berr" (kara) hem "birr" (iyilik) okunabilir; "berr" ayrıca Allah\'ın ismi (Tûr 28) ve "iyi, itaatkâr" (Meryem 14) anlamında da geçer. Hangi kullanımların sayıldığına göre oran değişir; tek ve kesin bir sayım yoktur.' }
+        ];
+        const TevafukAcilir = () => {
+            const [V, setV] = React.useState(null);
+            const [hata, setHata] = React.useState('');
+            const [acik, setAcik] = React.useState(null);
+            const [tutmayan, setTutmayan] = React.useState(false);
+            React.useEffect(() => { try { if (localStorage.getItem('zirve_acilir_tevafuk') === '1') yukle(); } catch (e) {} }, []);
+            const yukle = () => { if (V || !window.ZARAMA) return; setHata(''); window.ZARAMA.veriYukle().then(v => setV(v)).catch(e => setHata(e && e.message ? e.message : 'Kelime verisi yüklenemedi')); };
+            const T = V ? TEV_SAYIM.kur(V) : null;
+            const sonuc = (t) => { try { const r = t.say(T); return r.map(xs => ({ n: xs.length, ayet: T.ay(xs) })); } catch (e) { return null; } };
+            const paylas = (t, r) => {
+                const sayilar = t.tek ? `${t.sol}: ${r[0].n} (${t.hedefAd})` : `${t.sol}: ${r[0].n} · ${t.sag}: ${r[1].n}`;
+                const m = `✨ Kur'an'da dikkat çekici bir eşleşme: ${t.baslik}\n${sayilar}\n\n${t.not}\n\nSayma yöntemi: ${t.yontem}\n(Sayım: Quranic Arabic Corpus kelime verisi · Kur'an ve Siyer Atlası)\n${location.origin + location.pathname}`;
+                whatsappAc(m);
+            };
+            const git = (ref) => { const [s, a] = ref.split(':'); try { location.hash = `sure-${s}-${a}`; } catch (e) {} };
+            return (
+                <div onClick={yukle}>
+                <Acilir id="tevafuk" baslik="Kur'an'da Dikkat Çekici Eşleşmeler" alt="Âdem 25 · İsa 25 · Melek 88 · Şeytan 88 · Gün 365 · Ay 12 — cihazında canlı sayılır" ikon={<span className="text-[18px]">✨</span>} renk="from-amber-400 to-rose-600">
+                    <p className="text-[12px] text-slate-400 mb-3 leading-relaxed">Bu sayılar internetten kopyalanmadı; her biri <b className="text-slate-200">telefonunda, Kur'an'ın kelime verisinden şu an sayılıyor</b>. Her kartta sayma yöntemi açıkça yazıyor; yöntem değişirse sayı da değişir. Bu eşleşmeler imanın dayanağı değil, tefekkür vesilesidir.</p>
+                    {!V && !hata && <div className="text-[13px] text-slate-300 py-3">⏳ Kur'an kelime verisi yükleniyor…</div>}
+                    {hata && <div className="text-[13px] text-rose-200 rounded-xl bg-rose-500/10 border border-rose-500/30 p-3">{hata} <button onClick={yukle} className="underline ml-1">Tekrar dene</button></div>}
+                    {T && <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        {TEVAFUKLAR.map(t => { const r = sonuc(t); if (!r) return null; const tutuyor = t.tek ? r[0].n === t.hedef : r[0].n === r[1].n; const ac = acik === t.id; return (
+                            <div key={t.id} className="rounded-2xl bg-slate-900/80 border border-amber-500/20 p-4">
+                                <div className="flex items-start justify-between gap-2">
+                                    <p className="text-[15px] font-bold text-white">{t.baslik}</p>
+                                    <span className={`shrink-0 text-[10.5px] font-bold px-2 py-1 rounded-full ${tutuyor ? 'bg-emerald-500/15 text-emerald-300' : 'bg-slate-700 text-slate-300'}`}>{tutuyor ? '✓ canlı sayıldı' : 'sayıldı'}</span>
+                                </div>
+                                <div className="flex items-end justify-center gap-4 my-3">
+                                    <div className="text-center"><div className="text-[34px] font-black text-amber-300 leading-none">{r[0].n}</div><div className="text-[11.5px] text-slate-400 mt-1">{t.sol}</div></div>
+                                    <div className="text-[22px] text-slate-500 pb-4">{t.tek ? '=' : (tutuyor ? '=' : '·')}</div>
+                                    <div className="text-center"><div className="text-[34px] font-black text-emerald-300 leading-none">{t.tek ? t.hedef : r[1].n}</div><div className="text-[11.5px] text-slate-400 mt-1">{t.tek ? t.hedefAd : t.sag}</div></div>
+                                </div>
+                                <p className="text-[12.5px] text-slate-300 leading-relaxed">{t.not}</p>
+                                <div className="flex flex-wrap gap-1.5 mt-3">
+                                    <button onClick={() => setAcik(ac ? null : t.id)} aria-expanded={ac} className="px-3 min-h-[36px] rounded-full bg-black/30 border border-slate-700 text-[12px] font-bold text-slate-200">{ac ? 'Gizle' : '📖 Yöntem ve ayetler'}</button>
+                                    <button onClick={() => paylas(t, r)} className="px-3 min-h-[36px] rounded-full bg-[#25D366] text-[#052e16] text-[12px] font-bold">WhatsApp'ta paylaş</button>
+                                </div>
+                                {ac && <div className="mt-3 rounded-xl bg-black/30 p-3 space-y-2">
+                                    <p className="text-[11.5px] text-slate-400"><b className="text-slate-200">Sayma yöntemi:</b> {t.yontem}</p>
+                                    {r.map((x, i) => <div key={i}><p className="text-[11px] font-bold text-slate-400 mb-1">{i === 0 ? t.sol : t.sag} · {x.ayet.length} ayette</p><div className="flex flex-wrap gap-1">{x.ayet.map(ref => <button key={ref} onClick={() => git(ref)} className="px-2 min-h-[28px] rounded-md bg-slate-800 text-[11px] text-amber-200 hover:bg-slate-700">{ref}</button>)}</div></div>)}
+                                </div>}
+                            </div>
+                        ); })}
+                    </div>}
+                    <button onClick={() => setTutmayan(v => !v)} aria-expanded={tutmayan} className="mt-4 w-full text-left rounded-2xl bg-slate-900/70 border border-slate-700 px-4 min-h-[50px] text-[13px] font-bold text-slate-200">⚠️ İnternette dolaşan ama sayınca tutmayan iddialar {tutmayan ? '▴' : '▾'}</button>
+                    {tutmayan && <div className="mt-2 space-y-2">{TUTMAYANLAR.map(x => <div key={x.baslik} className="rounded-xl bg-rose-500/5 border border-rose-500/20 p-3"><p className="text-[13px] font-bold text-rose-200">{x.baslik}</p><p className="text-[12px] text-slate-300 mt-1">{x.neden}</p></div>)}<p className="text-[11px] text-slate-500">Doğru bilinen bir sayıyı yanlış iddialarla süslemek yerine, gerçekten tutanları yöntemiyle birlikte paylaşmak daha güvenilirdir.</p></div>}
+                </Acilir>
+                </div>
+            );
+        };
         const KartAkisi = ({ children }) => {
             const [d, ayarla] = useKartDuzen();
             const sayi = React.Children.toArray(children).filter(Boolean).length;
@@ -6676,7 +6794,7 @@ JSON ŞEMASI:
                 } catch (e) { setHata('Yapay zekâya ulaşılamadı: ' + ((e && e.message) || '')); }
                 setYuk('');
             };
-            const git = (h) => { kapat(); setTimeout(() => { try { location.hash = h; } catch (e) {} }, 60); };
+            const git = (h) => { kapat(); setTimeout(() => { try { if (location.hash === '#' + h) window.dispatchEvent(new HashChangeEvent('hashchange')); else location.hash = h; } catch (e) { try { location.hash = h; } catch (e2) {} } }, 60); }; // aynı adres tekrar seçilse de açılır
             if (!acik) return null;
             const V = Z.veri();
             const lemRenk = {}; if (s && s.ar) Object.keys(s.ar.lemDag).sort((a, b) => s.ar.lemDag[b] - s.ar.lemDag[a]).forEach((l, i) => { lemRenk[l] = ARAMA_RENK[i % ARAMA_RENK.length]; });
@@ -8298,6 +8416,7 @@ JSON ŞEMASI:
                         </Acilir>
 
                         {/* YENİDEN DÜZENLENMİŞ HARİKA AI KEŞİF ARAÇLARI KATEGORİSİ */}
+                        <TevafukAcilir />
                         <Acilir id="atlas" anahtar="zirve_atlas_acik" baslik="AI Keşif & Analiz Atlası" alt="Siyer turu, Kur'an sözlüğü, sahabe, rüya, aile, fıkıh… 22 araç" ikon={<Icons.Sparkles size={18}/>}>
                         <div className="zk-atlas">
                             
@@ -8581,7 +8700,7 @@ JSON ŞEMASI:
             React.useEffect(() => {
                 const h = (location.hash || '').replace(/^#/, '');
                 if (!h || (!surahs.length && !/^(ayet|hadis|esma|soz|ara)(-|$)/.test(h))) return;
-                const sureAc = (no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) sessionStorage.setItem('jumpToAyah', ayet); } };
+                const sureAc = (no, ayet) => { const su = surahs.find(x => x.number === no); if (su) { setCurrentSurah(su); setView('surah'); if (ayet) { sessionStorage.setItem('jumpToAyah', ayet); ayeteKaydir(no, ayet); } } };
                 let m = null;
                 if (h === 'kaldigim') { if (lastRead) sureAc(lastRead.surahNo, lastRead.ayahNo); else setView('home'); }
                 else if (h === 'hatim') setView('hatim');
