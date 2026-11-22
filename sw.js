@@ -1,7 +1,11 @@
-/* Barış Öğretmen — bildirim servis çalışanı (sw.js) · sürüm 4 (8. sürüm ile). HTML ile AYNI klasöre yükleyin.
+/* Barış Öğretmen — bildirim servis çalışanı (sw.js) · sürüm 5 (14. sürüm ile). HTML ile AYNI klasöre yükleyin.
    Sayfa HER ZAMAN önce internetten taze alınır (eski sürüm asla geri gelmez); internet yoksa son taze kopya açılır.
    Gelen bildirimlerin metni "Bildirim Kutusu" için kısa süre saklanır (uygulama açılınca kutuya taşınır). */
-var KUTU = 'zirve-kutu', SAYFA = 'zirve-sayfa', SAKLA = ['zirve-kutu', 'zirve-kuran-veri', 'zirve-sayfa'];
+var KUTU = 'zirve-kutu', SAYFA = 'zirve-sayfa', KUTUPHANE = 'zirve-kutuphane',
+    SAKLA = ['zirve-kutu', 'zirve-kuran-veri', 'zirve-sayfa', 'zirve-kutuphane', 'zirve-derleme', 'zirve-meal-ses', 'zirve-tilavet-ses'];
+// 14. sürüm: uygulamanın kullandığı kütüphaneler (React, Tailwind, Firebase, yazı tipleri…) cihazda saklanır →
+// açılış hızlanır, internet yokken de uygulama açılır. Önce saklanan kopya verilir, arkada sessizce tazelenir.
+var KUTUPHANE_ADRES = /^https:\/\/(unpkg\.com\/|cdn\.tailwindcss\.com\/?|www\.gstatic\.com\/firebasejs\/|cdn\.jsdelivr\.net\/npm\/|fonts\.googleapis\.com\/|fonts\.gstatic\.com\/)/;
 self.addEventListener('install', function(e){ self.skipWaiting(); });
 self.addEventListener('activate', function(e){
   // yalnız bu uygulamanın eski "zirve-" önbellekleri silinir (aynı github.io altındaki diğer uygulamalara dokunulmaz)
@@ -14,6 +18,16 @@ self.addEventListener('activate', function(e){
 function anahtarUrl(u){ return String(u).split('#')[0].split('?')[0]; }
 self.addEventListener('fetch', function(e){
   var r = e.request;
+  if (r.method === 'GET' && r.mode !== 'navigate' && self.caches && KUTUPHANE_ADRES.test(r.url) && !r.headers.has('range')) {
+    e.respondWith(caches.open(KUTUPHANE).then(function(c){
+      return c.match(r).then(function(eski){
+        var taze = fetch(r).then(function(cevap){ if (cevap && (cevap.ok || cevap.type === 'opaque')) c.put(r, cevap.clone()).catch(function(){}); return cevap; });
+        if (eski) { e.waitUntil(taze.catch(function(){})); return eski; }
+        return taze;
+      });
+    }).catch(function(){ return fetch(r); }));
+    return;
+  }
   if (r.method !== 'GET' || r.mode !== 'navigate') return;
   if (r.url.indexOf(self.registration.scope) !== 0) return;
   var k = anahtarUrl(r.url);

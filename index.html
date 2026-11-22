@@ -25,7 +25,15 @@
         lang:"tr", dir:"ltr", start_url:location.origin+yol, scope:location.origin+kapsam, id:location.origin+yol,
         display:"standalone", display_override:["fullscreen","standalone"], orientation:"any",
         background_color:"#0b1220", theme_color:"#0b1220",
-        icons:[{src:ikon192,sizes:"192x192",type:"image/png",purpose:"any maskable"},{src:ikon,sizes:"512x512",type:"image/png",purpose:"any maskable"}] };
+        icons:[{src:ikon192,sizes:"192x192",type:"image/png",purpose:"any maskable"},{src:ikon,sizes:"512x512",type:"image/png",purpose:"any maskable"}],
+        categories:["education","books","lifestyle"],
+        // 14. sürüm: simgeye basılı tutunca çıkan kısayollar (destekleyen Android/bilgisayar tarayıcılarında; iPhone göstermez)
+        shortcuts:[
+          {name:"Kur'an'ı dinle", short_name:"Dinle", description:"Kaldığın yerden baştan sona dinle", url:location.origin+yol+"#dinle", icons:[{src:ikon192,sizes:"192x192",type:"image/png"}]},
+          {name:"Kaldığım yer", short_name:"Kaldığım yer", url:location.origin+yol+"#kaldigim", icons:[{src:ikon192,sizes:"192x192",type:"image/png"}]},
+          {name:"Kur'an'da ara", short_name:"Ara", url:location.origin+yol+"#ara", icons:[{src:ikon192,sizes:"192x192",type:"image/png"}]},
+          {name:"Favorilerim", short_name:"Favoriler", url:location.origin+yol+"#favoriler", icons:[{src:ikon192,sizes:"192x192",type:"image/png"}]}
+        ] };
       var l=document.createElement('link'); l.rel='manifest'; l.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(man));
       document.head.appendChild(l);
       var t=document.createElement('meta'); t.name='msapplication-TileImage'; t.content=ikon; document.head.appendChild(t);
@@ -34,7 +42,7 @@
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Babel artık yalnız gerektiğinde yüklenir (bkz. body sonundaki ⚡ HIZLI AÇILIŞ) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Arapça Font -->
@@ -1362,9 +1370,9 @@
     <!-- ===== SÜRÜM (ZİRVE madde 26) — satır/KB teslimde dosyadan ölçülür ===== -->
     <script>
     (function(){
-      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'13. sürüm', tarih:'22.11.2026', satir:9246, kb:1028,
-        onceki:{ surum:'12. sürüm', satir:9142, kb:1016 },
-        yenilikler:['✨ Kur\'an\'da Dikkat Çekici Eşleşmeler: Âdem 25 = İsa 25, Melek 88 = Şeytan 88, Dünya 115 = Âhire 115, Erkek 24 = Kadın 24, Gün 365, Ay 12, Yedi gök 7 — hepsi cihazda canlı sayılır, yöntemiyle; tutmayan iddialar ayrıca gösterilir','📍 Aramada "Surede aç" artık her zaman o ayete gider ve vurgular (aynı sure açıkken de)','🗣️ Meal sesi yeniden kesintisiz: uzun ayetlerde de bekler (35 sn), kasa gelince hemen sürer · 🔑 mobil veride yedek anahtar','🎧 Kasaya ulaşılamasa da dinleme takılmaz: Arapça tilavet ayet ayet kesintisiz sürer, meal sesi geri gelince kendiliğinden okunur · 🔐 kasa sorununun nedenini söyler (ağ engeli mi, kasa hatası mı)','🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
+      window.ZIRVE_APP={ ad:"Kur'an ve Siyer Atlası", surum:'14. sürüm', tarih:'22.11.2026', satir:9521, kb:1056,
+        onceki:{ surum:'13. sürüm', satir:9246, kb:1028 },
+        yenilikler:['🎙️ Meal sesi seçimi: 8 erkek ses (Charon, Algenib, Orus…) — her birini 🔊 dinleyip seç · "Tok anlatıcı" okuyuşu (derin, ağır, vakur)','🚗 Yolculuğa hazırla: Wi-Fi\'dayken kaldığın yerden 50/100/250 ayetin tilaveti ve (kasanın günlük kotası izin verdikçe) meal sesi cihaza kaydedilir → hazırlanan kısım arabada mobil veride, tünelde, kasa kapalıyken bile çalar','💾 Dinlerken üretilen meal sesi cihazda saklanır; aynı ayet bir daha kasaya gitmez','⚡ Uygulama gibi hızlı açılış: kod bir kez derlenip saklanır, sonraki açılışlarda anında açılır; kütüphaneler cihazda → internetsiz de açılır','📲 Destekleyen Android/bilgisayar tarayıcılarında simgeye basılı tutunca kısayollar: Dinle, Kaldığım yer, Ara, Favoriler','✨ Kur\'an\'da Dikkat Çekici Eşleşmeler: Âdem 25 = İsa 25, Melek 88 = Şeytan 88, Dünya 115 = Âhire 115, Erkek 24 = Kadın 24, Gün 365, Ay 12, Yedi gök 7 — hepsi cihazda canlı sayılır, yöntemiyle; tutmayan iddialar ayrıca gösterilir','📍 Aramada "Surede aç" artık her zaman o ayete gider ve vurgular (aynı sure açıkken de)','🗣️ Meal sesi yeniden kesintisiz: uzun ayetlerde de bekler (35 sn), kasa gelince hemen sürer · 🔑 mobil veride yedek anahtar','🎧 Kasaya ulaşılamasa da dinleme takılmaz: Arapça tilavet ayet ayet kesintisiz sürer, meal sesi geri gelince kendiliğinden okunur · 🔐 kasa sorununun nedenini söyler (ağ engeli mi, kasa hatası mı)','🔔 Bildirim durumu açıkça: 🟢 açık / 🟡 kayıt bekliyor / 🔴 kapalı · adım adım ilerleme · takılma yok (zaman aşımı) · 🔐 Kasa durumu rozeti ve görünür Kasa kartı','🎧 Kesintisiz dinleme: ⌄ ile küçült, başka sayfalara geç, ekranı kilitle — dinleme sürer · meal yalnız erkek sesle','🧭 Kur\'an Yolculuğum: tek dokunuşla okumaya/dinlemeye devam, günlük hedef, 7 günlük çizelge','📖 114 Sure en üstte · ⭐ aramaları kaydet · 💬 WhatsApp paylaşımı','🔍 Kur\'an\'da Ara: kelimenin gerçek sayısı, renkli ayetler, son aramalar, sonucu paylaş/notlara ekle','📜 Ayet ↔ Hadis haritası: 37 kaynaklı bağlantı (iniş sebebi ve açıklama)','✅ kuran-veri.json eksik yüklenirse uyarır','✏️ Ekran kalemi ve renkli Not Külliyatı','🪶 Risale-i Nur ve 🎓 eğitim sözleri bildirimi'] };
       function goster(){
         try{
           var A=window.ZIRVE_APP, eski=localStorage.getItem('zirve_surum');
@@ -1579,7 +1587,7 @@
 
     <!-- ===== 🔄 GELECEĞE HAZIR (v2.1): sürüm/otomatik güncelleme · 🛟 beyaz ekran koruması · 📶 çevrimdışı şeridi · ♿ aria-label · 💾 yedek · 📲 paylaş ===== -->
     <script>
-    const SURUM='13'; // ⚠️ Sonraki sürüm 14, 15… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
+    const SURUM='14'; // ⚠️ Sonraki sürüm 15, 16… olmalı (büyüyen tam sayı); küçük sayı yazılırsa güncelleme gelmez
     (function(){
       "use strict";
       function oku(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -1636,7 +1644,7 @@
       document.addEventListener('focusout', function(){ if(bulunan) setTimeout(function(){ if(bulunan && !mesgul() && oku('zirve_guncel_denendi')!==bulunan){ yaz('zirve_guncel_denendi', bulunan); yenile(); } }, 1500); });
       window.addEventListener('load', function(){ setTimeout(function(){ guncelleBak(true); }, 4000); swTazele(); });
       // 8. sürüm: eski sürümün geri gelmemesi için servis çalışanı her açılışta güncellenir, eski önbellekler silinir
-      var SAKLA=['zirve-kutu','zirve-kuran-veri','zirve-sayfa'];
+      var SAKLA=['zirve-kutu','zirve-kuran-veri','zirve-sayfa','zirve-kutuphane','zirve-derleme','zirve-meal-ses','zirve-tilavet-ses']; // 14: ses deposu + hızlı açılış önbellekleri korunur
       function swTazele(){
         try{ if(window.caches && caches.keys) caches.keys().then(function(k){ k.forEach(function(x){ if(/^zirve-/.test(x) && SAKLA.indexOf(x)<0) caches.delete(x); }); }).catch(function(){}); }catch(e){}
         try{ if(/^https:$/.test(location.protocol) && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(function(r){ try{ var u=r.update(); if(u&&u.catch) u.catch(function(){}); }catch(e){} }).catch(function(){}); }catch(e){}
@@ -1660,7 +1668,7 @@
       function temizleYenile(){
         var is=[];
         try{ sessionStorage.clear(); }catch(e){}
-        try{ if(window.caches && caches.keys) is.push(caches.keys().then(function(k){ return Promise.all(k.filter(function(x){ return x!=='zirve-kutu'; }).map(function(x){ return caches.delete(x); })); /* bildirim kutusu korunur */ })); }catch(e){}
+        try{ if(window.caches && caches.keys) is.push(caches.keys().then(function(k){ return Promise.all(k.filter(function(x){ return ['zirve-kutu','zirve-meal-ses','zirve-tilavet-ses'].indexOf(x)<0; }).map(function(x){ return caches.delete(x); })); /* bildirim kutusu ve indirilen sesler korunur */ })); }catch(e){}
         Promise.all(is).catch(function(){}).then(yenile);
       }
       function bosMu(){ var r=document.getElementById('root'); return !r || !r.children.length; }
@@ -1748,35 +1756,122 @@
         return window.ZKASA_URL ? 'KASA-anahtar-kasada-saklaniyor-00' : '';
       }
       function yzSesAcik(){ return oku('zirve_meal_ses')!=='cihaz' && !!anahtar() && Date.now()>sogumaBitis; }
+      function yzMod(){ return oku('zirve_meal_ses')!=='cihaz'; }
+      // 14. sürüm: 🎙️ meal sesi seçimi — YALNIZ Google'ın ERKEK hazır sesleri (Gemini TTS). Varsayılan Charon (önceki sürümlerdeki ses).
+      var SES_LISTESI=[
+        { id:'Charon', not:'Dengeli, anlatıcı (önceki ses)' },
+        { id:'Algenib', not:'Kalın, pürüzlü, tok' },
+        { id:'Orus', not:'Sağlam, otoriter' },
+        { id:'Alnilam', not:'Kararlı, güçlü' },
+        { id:'Rasalgethi', not:'Olgun, bilgilendirici' },
+        { id:'Schedar', not:'Düz, sakin' },
+        { id:'Algieba', not:'Yumuşak, akıcı' },
+        { id:'Iapetus', not:'Net, berrak' }
+      ];
+      function sesAdi(){ var s=oku('zirve_meal_ses_adi'); for(var i=0;i<SES_LISTESI.length;i++){ if(SES_LISTESI[i].id===s) return s; } return 'Charon'; }
+      // Okuma üslubu: "tok" = derin, vakur hikâye anlatıcısı (videodaki gibi) · "sade" = önceki sürümlerin sakin okuması
+      var USLUP={ tok:'Derin, tok, sıcak ve vakur bir erkek anlatıcı sesiyle; yavaş, ağır ve huşu içinde, cümle sonlarında kısa duraklar vererek, bir kıssa anlatır gibi oku: ',
+                  sade:'Ağırbaşlı, sakin, saygılı ve anlaşılır bir sesle, acele etmeden oku: ' };
+      function uslup(){ return oku('zirve_meal_uslup')==='sade' ? 'sade' : 'tok'; }
+      function norm(m){ return String(m||'').replace(/\s+/g,' ').trim(); }
+      function sesAnahtari(metin, ad){ return (ad||sesAdi())+'|'+uslup()+'|'+norm(metin); }
       function pcmWav(b64, rate){
         var ikili=atob(b64), n=ikili.length, buf=new ArrayBuffer(44+n), v=new DataView(buf), i;
         function s(o,t){ for(var j=0;j<t.length;j++) v.setUint8(o+j,t.charCodeAt(j)); }
         s(0,'RIFF'); v.setUint32(4,36+n,true); s(8,'WAVE'); s(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
         v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); s(36,'data'); v.setUint32(40,n,true);
         for(i=0;i<n;i++) v.setUint8(44+i, ikili.charCodeAt(i));
-        return URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
+        return new Blob([buf],{type:'audio/wav'});
       }
-      function yzSes(metin){
-        metin=String(metin||'').replace(/\s+/g,' ').trim();
-        if(onbellek[metin]) return Promise.resolve(onbellek[metin]);
-        if(bekleyen[metin]) return bekleyen[metin];
-        var govde={ contents:[{ parts:[{ text:'Ağırbaşlı, sakin, saygılı ve anlaşılır bir sesle, acele etmeden oku: '+metin }] }],
-          generationConfig:{ responseModalities:['AUDIO'], speechConfig:{ voiceConfig:{ prebuiltVoiceConfig:{ voiceName:'Charon' } } } } };
+      // ---------- 💾 SES DEPOSU (14. sürüm): üretilen meal sesi ve indirilen tilavet cihazda KALICI saklanır ----------
+      // Bir kez üretilen meal sesi bir daha kasaya gitmez → mobil veride, tünelde, kasa kapalıyken bile çalar.
+      var MDEPO='zirve-meal-ses', TDEPO='zirve-tilavet-ses', MSINIR=400*1024*1024, TSINIR=250*1024*1024;
+      function ozet(s){ var h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(36)+'-'+s.length.toString(36); }
+      function depoKok(){ return location.origin+location.pathname.replace(/[^\/]*$/,'')+'__zirve_ses__/'; }
+      function depoOku(){ try{ var o=JSON.parse(oku('zirve_ses_depo')||'{}')||{}; return { mn:+o.mn||0, mb:+o.mb||0, tn:+o.tn||0, tb:+o.tb||0 }; }catch(e){ return { mn:0, mb:0, tn:0, tb:0 }; } }
+      function depoSay(x){ var o=depoOku(); for(var k in x) o[k]=Math.max(0,(o[k]||0)+x[k]); yaz('zirve_ses_depo', JSON.stringify(o)); try{ window.dispatchEvent(new CustomEvent('zirve-ses-depo')); }catch(e){} }
+      function kaliciAl(k){
+        if(!window.caches || !depoOku().mn) return Promise.resolve(null);
+        return caches.open(MDEPO).then(function(c){ return c.match(depoKok()+'meal/'+ozet(k)); }).then(function(r){ return r ? r.blob() : null; })
+          .then(function(b){ return (b && b.size>44) ? b : null; }).catch(function(){ return null; });
+      }
+      // Sınır aşılınca EN ESKİ kayıtlar silinir (Cache Storage anahtarları ekleme sırasıyla döner)
+      function budama(ad, sinir, nAlan, bAlan){
+        return caches.open(ad).then(function(c){ return c.keys().then(function(ks){
+          var o=depoOku(); if(o[bAlan]<=sinir) return; var fazla=o[bAlan]-sinir*0.85, i=0, silinen=0, silinenN=0;
+          function adim(){ if(silinen>=fazla || i>=ks.length){ var x={}; x[nAlan]=-silinenN; x[bAlan]=-silinen; depoSay(x); return; }
+            var k=ks[i++]; return c.match(k).then(function(r){ var b=r ? (+r.headers.get('X-Boyut')||0) : 0; return c.delete(k).then(function(){ silinen+=b; silinenN++; }); }).then(adim); }
+          return adim(); }); }).catch(function(){});
+      }
+      function kaliciYaz(k, blob){
+        if(!window.caches) return Promise.resolve();
+        return caches.open(MDEPO).then(function(c){ var u=depoKok()+'meal/'+ozet(k); return c.match(u).then(function(eski){ if(eski) return;
+          return c.put(u, new Response(blob, { headers:{ 'Content-Type':'audio/wav', 'X-Boyut':String(blob.size) } })).then(function(){ depoSay({ mn:1, mb:blob.size }); return budama(MDEPO, MSINIR, 'mn', 'mb'); }); }); }).catch(function(){});
+      }
+      function depodaMi(metin){ var k=sesAnahtari(metin); if(onbellek[k]) return Promise.resolve(true); if(!window.caches) return Promise.resolve(false);
+        return caches.open(MDEPO).then(function(c){ return c.match(depoKok()+'meal/'+ozet(k)); }).then(function(r){ return !!r; }).catch(function(){ return false; }); }
+      function hafizaKoy(k, url){ onbellek[k]=url; sira.push(k); if(sira.length>40){ var eski=sira.shift(); try{ URL.revokeObjectURL(onbellek[eski]); }catch(e){} delete onbellek[eski]; } }
+      function agdan(metin, ad, k, kaydet){
+        var govde={ contents:[{ parts:[{ text:USLUP[uslup()]+metin }] }],
+          generationConfig:{ responseModalities:['AUDIO'], speechConfig:{ voiceConfig:{ prebuiltVoiceConfig:{ voiceName:ad } } } } };
         var zaman=new Promise(function(_,red){ setTimeout(function(){ red(new Error('zaman')); }, 35000); }); // uzun ayetlerde ses üretimi 15-25 sn sürebilir
-        var p=Promise.race([fetch('https://generativelanguage.googleapis.com/v1beta/models/'+TTS_MODEL+':generateContent?key='+encodeURIComponent(anahtar()),
+        return Promise.race([fetch('https://generativelanguage.googleapis.com/v1beta/models/'+TTS_MODEL+':generateContent?key='+encodeURIComponent(anahtar()),
           { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(govde) }), zaman])
           .then(function(r){ if(!r.ok){ if(r.status===429||r.status>=500) sogumaBitis=Date.now()+90*1000; throw new Error('tts '+r.status); } return r.json(); })
           .then(function(j){
             var p0=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[];
             var d=null; for(var i=0;i<p0.length;i++){ if(p0[i].inlineData&&p0[i].inlineData.data){ d=p0[i].inlineData; break; } }
             if(!d) throw new Error('ses yok');
-            var m=/rate=(\d+)/.exec(d.mimeType||''); var url=pcmWav(d.data, m?+m[1]:24000);
-            onbellek[metin]=url; sira.push(metin); if(sira.length>40){ var eski=sira.shift(); try{ URL.revokeObjectURL(onbellek[eski]); }catch(e){} delete onbellek[eski]; }
-            return url;
+            var m=/rate=(\d+)/.exec(d.mimeType||''); var blob=pcmWav(d.data, m?+m[1]:24000);
+            if(kaydet) kaliciYaz(k, blob);
+            return URL.createObjectURL(blob);
           }).then(function(u){ ardHata=0; return u; }, function(e){ ardHata++; if(((e && e.name==='TypeError') || ardHata>=2) && Date.now()>sogumaBitis) sogumaBitis=Date.now()+60*1000; throw e; }); // ağ yoksa ya da üst üste 2 hata: 1 dk denenmez, Arapça beklemeden sürer
-        bekleyen[metin]=p; p.then(function(){ delete bekleyen[metin]; }, function(){ delete bekleyen[metin]; });
+      }
+      // Sıra: hafıza → cihazdaki kalıcı depo (kasa kapalıyken de çalışır) → kasa (Gemini TTS)
+      function yzSes(metin, sec){
+        sec=sec||{}; metin=norm(metin); var ad=sec.ses||sesAdi(), k=sesAnahtari(metin, ad);
+        if(onbellek[k]) return Promise.resolve(onbellek[k]);
+        if(bekleyen[k]) return bekleyen[k];
+        var p=(sec.onizleme ? Promise.resolve(null) : kaliciAl(k)).then(function(b){
+          if(b){ if(sec.sadeceDepo) return 'depo'; var u=URL.createObjectURL(b); hafizaKoy(k,u); return u; }
+          if(!yzSesAcik()) throw new Error('kapali');
+          return agdan(metin, ad, k, !sec.onizleme).then(function(u){ if(sec.sadeceDepo){ try{ URL.revokeObjectURL(u); }catch(e){} return 'depo'; } hafizaKoy(k,u); return u; });
+        });
+        bekleyen[k]=p; p.then(function(){ delete bekleyen[k]; }, function(){ delete bekleyen[k]; });
         return p;
       }
+      // Tilavet (Arapça) dosyasını depoya indir — "Yolculuğa hazırla" kullanır
+      var arUrller={}, arSira=[];
+      function arIndir(url){
+        if(!window.caches || !url) return Promise.resolve(false);
+        return caches.open(TDEPO).then(function(c){ return c.match(url).then(function(var_){ if(var_) return true;
+          return Promise.race([fetch(url, { mode:'cors' }), new Promise(function(_,red){ setTimeout(function(){ red(new Error('zaman')); }, 30000); })]).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
+            .then(function(b){ if(!b || b.size<200) throw new Error('bos'); return c.put(url, new Response(b, { headers:{ 'Content-Type':b.type||'audio/mpeg', 'X-Boyut':String(b.size) } })).then(function(){ depoSay({ tn:1, tb:b.size }); return budama(TDEPO, TSINIR, 'tn', 'tb'); }).then(function(){ return true; }); }); }); });
+      }
+      // Çalarken: depoda varsa cihazdan (internetsiz), yoksa internetten
+      function arKaynak(url){
+        if(!window.caches || !url || !depoOku().tn) return Promise.resolve(url);
+        if(arUrller[url]) return Promise.resolve(arUrller[url]);
+        return caches.open(TDEPO).then(function(c){ return c.match(url); }).then(function(r){ return r ? r.blob() : null; }).then(function(b){
+          if(!b || b.size<200) return url; var u=URL.createObjectURL(b); arUrller[url]=u; arSira.push(url);
+          if(arSira.length>6){ var e=arSira.shift(); try{ URL.revokeObjectURL(arUrller[e]); }catch(x){} delete arUrller[e]; }
+          return u; }).catch(function(){ return url; });
+      }
+      function depoTemizle(){
+        var bitti=function(){ yaz('zirve_ses_depo', JSON.stringify({ mn:0, mb:0, tn:0, tb:0 })); try{ window.dispatchEvent(new CustomEvent('zirve-ses-depo')); }catch(e){} };
+        if(!window.caches) { bitti(); return Promise.resolve(); }
+        return Promise.all([caches.delete(MDEPO), caches.delete(TDEPO)]).catch(function(){}).then(bitti);
+      }
+      // Sayaçlar gerçek depoyla eşitlenir (tarayıcı yer açmak için silmişse ekranda olmayan ses gösterilmez)
+      function depoEsitle(){
+        if(!window.caches) return Promise.resolve();
+        function say(ad, nA, bA){ return caches.open(ad).then(function(c){ return c.keys().then(function(ks){ var o=depoOku(); if(ks.length===o[nA]) return;
+          return Promise.all(ks.map(function(k){ return c.match(k).then(function(r){ return r ? (+r.headers.get('X-Boyut')||0) : 0; }); })).then(function(b){
+            var x=depoOku(); x[nA]=ks.length; x[bA]=b.reduce(function(a,c){ return a+c; },0); yaz('zirve_ses_depo', JSON.stringify(x)); try{ window.dispatchEvent(new CustomEvent('zirve-ses-depo')); }catch(e){} }); }); }).catch(function(){}); }
+        return say(MDEPO,'mn','mb').then(function(){ return say(TDEPO,'tn','tb'); });
+      }
+      setTimeout(depoEsitle, 5000);
+      window.ZSESDEPO={ ozet:depoOku, arIndir:arIndir, arKaynak:arKaynak, temizle:depoTemizle, depodaMi:depodaMi, esitle:depoEsitle };
       // 8. sürüm: meal YALNIZCA erkek sesle okunur. Cihazda erkek Türkçe ses yoksa cihaz sesi hiç kullanılmaz (kadın ses ya da perdesi bozulmuş ses yok).
       var KADIN_SES=/yelda|emel|filiz|seda|zeynep|ay[sş]e|elif|female|kad[ıi]n|woman|google t[uü]rk|samantha|karen|-(tra|trb|trc)-|x-(mfm|efm|cfs)/i;
       var ERKEK_SES=/tolga|ahmet|cem\b|kerem|mehmet|murat|emre|erkek|\bmale\b/i;
@@ -1811,7 +1906,9 @@
         });
       }
       window.addEventListener('online', function(){ sogumaBitis=0; });
-      window.ZTTS={ sifirla:function(){ sogumaBitis=0; ardHata=0; }, sesYok:function(){ return !yzSesAcik() && !erkekSesVar(); }, sesYokNeden:function(){ if(oku('zirve_meal_ses')==='cihaz') return 'cihazda erkek ses yok'; if(!anahtar()) return 'yapay zekâ anahtarı yok'; return 'kasaya ulaşılamıyor'; }, yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, erkekSesVar:erkekSesVar, hazir:function(m){ return !!onbellek[String(m||'').replace(/\s+/g,' ').trim()]; }, onYukle:function(m){ if(m && yzSesAcik()) yzSes(m).catch(function(){}); } };
+      window.ZTTS={ sifirla:function(){ sogumaBitis=0; ardHata=0; }, sesYok:function(){ return !yzSesAcik() && !erkekSesVar() && !(yzMod() && depoOku().mn); }, sesYokNeden:function(){ if(oku('zirve_meal_ses')==='cihaz') return 'cihazda erkek ses yok'; if(!anahtar()) return 'yapay zekâ anahtarı yok'; return 'kasaya ulaşılamıyor ve bu ayetin sesi cihazda hazır değil'; }, yzSes:yzSes, cihazSes:cihazSes, yzSesAcik:yzSesAcik, erkekSesVar:erkekSesVar, hazir:function(m){ return !!onbellek[sesAnahtari(m)]; }, onYukle:function(m){ if(m && yzMod()) yzSes(m).catch(function(){}); },
+        yzMod:yzMod, sesAdi:sesAdi, uslup:uslup, SES_LISTESI:SES_LISTESI, sogumaKalan:function(){ return Math.max(0, sogumaBitis-Date.now()); },
+        onizle:function(ad){ return yzSes('Rahmân ve Rahîm olan Allah\'ın adıyla. Hamd, âlemlerin Rabbi Allah\'a mahsustur.', { ses:ad, onizleme:true }); } };
 
       // ---------- 🎧 TİLAVET ----------
       var ses=new Audio(); ses.preload='auto'; try{ ses.setAttribute('playsinline',''); }catch(e){}
@@ -1877,15 +1974,21 @@
         D.caliyor=true; medyaOturumu(); yay();
         try{ if(D.mod!=='ar' && a.tr) window.ZTTS.onYukle(a.tr); var ileri= D.devamFn? 3 : 1; for(var oi=1; oi<=ileri; oi++){ var sonrakiA=D.ayetler[D.idx+oi]; if(D.mod!=='ar' && sonrakiA && sonrakiA.tr) window.ZTTS.onYukle(sonrakiA.tr); } }catch(e){} // sürekli dinlemede (araba/arka plan) 3 ayet önceden hazırlanır
         if(D.asama==='ar'){
-          gercek(); ses.src=a.audio; ses.playbackRate=D.hiz; try{ ses.preservesPitch=true; ses.webkitPreservesPitch=true; }catch(e){}
-          var p=ses.play(); if(p&&p.catch) p.catch(function(e){ if(e && e.name==='AbortError') return; D.caliyor=false; yay(); if(e && e.name!=='NotAllowedError'){ try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('📶 Ses yüklenemedi. İnternet bağlantını kontrol edip ▶ ile devam et.','red'); }catch(_){} } });
+          var arCal=function(src){
+            gercek(); ses.src=src; ses.playbackRate=D.hiz; try{ ses.preservesPitch=true; ses.webkitPreservesPitch=true; }catch(e){}
+            var p=ses.play(); if(p&&p.catch) p.catch(function(e){ if(e && e.name==='AbortError') return; D.caliyor=false; yay(); if(e && e.name!=='NotAllowedError'){ try{ if(window.ZIRVE && window.ZIRVE.toast) window.ZIRVE.toast('📶 Ses yüklenemedi. İnternet bağlantını kontrol edip ▶ ile devam et.','red'); }catch(_){} } });
+          };
+          if(window.ZSESDEPO && window.ZSESDEPO.ozet().tn){ // 14. sürüm: "Yolculuğa hazırla" ile indirilen tilavet cihazdan çalar (internetsiz)
+            var arJ=++arJeton, arA=a; bekle();
+            window.ZSESDEPO.arKaynak(a.audio).then(function(src){ if(arJ!==arJeton || !D.aktif || !D.caliyor || D.ayetler[D.idx]!==arA || D.asama!=='ar') return; arCal(src); });
+          } else arCal(a.audio);
           setTimeout(kelimeleriHazirla, 60);
         } else {
           mealOku(a);
         }
         if(D.takip) kaydir(a.no);
       }
-      var mealJeton=0;
+      var mealJeton=0, arJeton=0;
       function mealOku(a){
         var jeton=++mealJeton;
         var metin=(a.tr||'').replace(/\s+/g,' ').trim();
@@ -1897,10 +2000,10 @@
           if(jeton!==mealJeton || !D.aktif) return;
           if(window.ZTTS.erkekSesVar()){ bekle(); window.ZTTS.cihazSes(metin, D.hiz).then(git); return; }
           window.ZTTS.cihazSes('', D.hiz); // tek seferlik bilgilendirme
-          if(D.mod==='meal' && a.audio){ D.asama='ar'; gercek(); ses.src=a.audio; ses.playbackRate=D.hiz; var p3=ses.play(); if(p3&&p3.catch) p3.catch(function(){}); return; }
+          if(D.mod==='meal' && a.audio){ D.asama='ar'; var mJ=mealJeton; (window.ZSESDEPO ? window.ZSESDEPO.arKaynak(a.audio) : Promise.resolve(a.audio)).then(function(src){ if(mJ!==mealJeton || !D.aktif || !D.caliyor) return; gercek(); ses.src=src; ses.playbackRate=D.hiz; var p3=ses.play(); if(p3&&p3.catch) p3.catch(function(){}); }); return; }
           git();
         };
-        if(window.ZTTS.yzSesAcik()){
+        if(window.ZTTS.yzMod()){ // 14. sürüm: önce cihazdaki kalıcı depo (kasa kapalı/mobil veri olsa da), sonra kasa
           if(!window.ZTTS.hazir(on+metin)) bekle();
           window.ZTTS.yzSes(on+metin).then(function(url){
             if(jeton!==mealJeton || !D.aktif) return;
@@ -2423,7 +2526,7 @@
         iskelet:iskelet, katla:katla, arapcaMi:arapcaMi, KAVRAM:KAVRAM, veri:function(){ return veri; }, refs:function(){ return refs; }, kokVarMi:function(k){ return !!veri && veri.kok.indexOf(k)>=0; } };
     })();
 </script>
-<script type="text/babel">
+<script type="text/x-zirve-jsx" id="zirve-jsx">
         // --- ICONLAR ---
         const Icons = {
             BookOpen: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
@@ -2756,7 +2859,7 @@ Kullanıcının isteği: `;
                     contents: [{ parts: [{ text: textToSpeak }] }],
                     generationConfig: {
                         responseModalities: ["AUDIO"],
-                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Charon" } } } // 8. sürüm: her yerde erkek ses
+                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: (window.ZTTS && window.ZTTS.sesAdi && window.ZTTS.sesAdi()) || "Charon" } } } // 8. sürüm: her yerde erkek ses · 14: seçilen erkek ses
                     }
                 };
 
@@ -5850,7 +5953,7 @@ JSON ŞEMASI:
                                     <button onClick={() => setKucuk(true)} className="min-h-[40px] rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-[12px] font-bold">⌄ Küçült · dinleme sürer</button>
                                     <button onClick={() => { Z.durdur(); setGenis(false); }} className="min-h-[40px] rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-[12px] font-bold">⏹ Dinlemeyi bitir</button>
                                 </div>
-                                <p className="text-[10px] text-slate-500">Meal sesi: yalnız erkek ses — {window.ZTTS && window.ZTTS.yzSesAcik() ? 'yapay zekâ erkek sesi (Charon)' : (window.ZTTS && window.ZTTS.erkekSesVar() ? 'cihazın erkek sesi' : 'erkek ses yok, meal yazılı')} · Başka sayfaya geçebilir, ekranı kilitleyebilirsin; dinleme sürer.</p>
+                                <p className="text-[10px] text-slate-500">Meal sesi: yalnız erkek ses — {window.ZTTS && window.ZTTS.yzSesAcik() ? 'yapay zekâ erkek sesi (' + window.ZTTS.sesAdi() + ')' : (window.ZTTS && window.ZTTS.erkekSesVar() ? 'cihazın erkek sesi' : 'erkek ses yok, meal yazılı')} · Başka sayfaya geçebilir, ekranı kilitleyebilirsin; dinleme sürer.</p>
                             </div>
                         )}
                     </div>
@@ -5973,7 +6076,57 @@ JSON ŞEMASI:
                     veriAl(A.sure, A).catch(() => {}); // yalnız sure verisi (kota harcamaz)
                 } catch (e) {}
             }, 2500);
-            return { ayar, yaz, baslat, devam, durum, abone, sira, elleSayi, kur };
+            // 🚗 Yolculuğa hazırla (14. sürüm): kaldığın yerden itibaren tilavet + meal sesi cihaza kaydedilir;
+            // arabada mobil veride, tünelde ya da kasa kapalıyken bile dinleme kesintisiz sürer.
+            let H = { calisiyor: false, toplam: 0, bitti: 0, mealHazir: 0, arHazir: 0, hata: 0, mesaj: '', sonuc: '', dur: false };
+            const hDinleyici = [];
+            const hYay = () => { const x = { ...H }; hDinleyici.forEach(f => { try { f(x); } catch (e) {} }); };
+            const hAbone = (f) => { hDinleyici.push(f); return () => { const i = hDinleyici.indexOf(f); if (i >= 0) hDinleyici.splice(i, 1); }; };
+            const uyuDur = async (ms) => { const son = Date.now() + ms; while (Date.now() < son && !H.dur) await new Promise(c => setTimeout(c, Math.min(1000, son - Date.now()))); };
+            const hazirla = async (adet) => {
+                if (H.calisiyor) return;
+                const T = window.ZTTS, SD = window.ZSESDEPO; if (!T || !SD) return;
+                H = { calisiyor: true, toplam: adet, bitti: 0, mealHazir: 0, arHazir: 0, hata: 0, mesaj: 'Başlıyor…', sonuc: '', dur: false }; hYay();
+                let kilit = null; try { if ('wakeLock' in navigator && document.visibilityState === 'visible') kilit = await navigator.wakeLock.request('screen'); } catch (e) {}
+                try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
+                const A = ayar(); const t = window.ZTILAVET ? window.ZTILAVET.durum() : {};
+                const mod = t.mod || 'armeal'; const mealGerek = mod !== 'ar' && T.yzMod();
+                let s = (t.hatim && t.aktif && t.sure) ? t.sure : A.sure; const bas = (t.hatim && t.aktif && t.sure) ? Math.max(0, t.ayet) : (A.ayet || 0);
+                let ardHata = 0, mealUyari = '';
+                try {
+                    let liste = await veriAl(s, A); let idx = Math.max(0, liste.findIndex(x => x.no >= bas));
+                    while (H.bitti < adet && !H.dur) {
+                        if (idx >= liste.length) { if (s >= 114) break; s++; liste = await veriAl(s, A); idx = 0; }
+                        const x = liste[idx++];
+                        H.mesaj = `${getTurkishName(s)} · ${x.no ? x.no + '. ayet' : 'besmele'}`; hYay();
+                        try { if (await SD.arIndir(x.audio)) H.arHazir++; } catch (e) {}
+                        const metin = String(x.tr || '').replace(/\s+/g, ' ').trim();
+                        if (mealGerek && metin && metin !== '...') {
+                            let ok = await SD.depodaMi(metin);
+                            for (let d = 0; d < 4 && !ok && !H.dur && !mealUyari; d++) {
+                                const kalan = T.sogumaKalan();
+                                if (kalan > 0) { H.mesaj = `⏳ Kasa kısa bir mola istedi · ${Math.ceil(kalan / 1000)} sn sonra sürer`; hYay(); await uyuDur(kalan + 500); if (H.dur) break; }
+                                if (!T.yzSesAcik()) { if (T.sogumaKalan() > 0) continue; mealUyari = 'Yapay zekâ sesine (kasaya) şu an ulaşılamıyor. Wi-Fi\'da tekrar dene.'; break; }
+                                try { await T.yzSes(metin, { sadeceDepo: true }); ok = true; await uyuDur(1500); } catch (e) { if (!navigator.onLine) { mealUyari = '📶 İnternet yok.'; break; } }
+                            }
+                            if (ok) { H.mealHazir++; ardHata = 0; } else if (!H.dur) { H.hata++; ardHata++; }
+                            if (ardHata >= 3 && !mealUyari) mealUyari = 'Kasa şu an meal sesi üretmiyor (günlük kota dolmuş olabilir). Hazırlanan kısım kullanılır; kalanı sonra tekrar dene.';
+                            if (mealUyari) break;
+                        }
+                        if (!H.dur) H.bitti++;
+                        hYay();
+                    }
+                } catch (e) { mealUyari = mealUyari || '📶 Sure verisi alınamadı; internet bağlantını kontrol et.'; }
+                try { kilit && kilit.release(); } catch (e) {}
+                H.calisiyor = false; H.mesaj = '';
+                const arEksik = H.arHazir < H.bitti, mealEksik = mealGerek && H.mealHazir < H.bitti;
+                const ayrinti = `tilavet ${H.arHazir}/${H.bitti}${mealGerek ? ` · meal sesi ${H.mealHazir}/${H.bitti}` : ''}`;
+                H.sonuc = mealUyari ? `⚠️ ${mealUyari} (${ayrinti})` : H.dur ? `⏹ Durduruldu · ${ayrinti}` : (arEksik || mealEksik) ? `⚠️ Bir kısmı indirilemedi (${ayrinti}). Hazırlanmayanlar internetten çalar; Wi-Fi'da tekrar dene.` : `✅ ${H.bitti} ayet cihazda hazır (${ayrinti}) · İnternetsiz de çalar.`;
+                hYay(); toast(H.sonuc, H.sonuc.indexOf('✅') === 0 ? 'green' : 'amber');
+            };
+            const hazirlaDur = () => { H.dur = true; hYay(); };
+            const hDurum = () => ({ ...H });
+            return { ayar, yaz, baslat, devam, durum, abone, sira, elleSayi, kur, hazirla, hazirlaDur, hAbone, hDurum };
         })();
         window.ZDINLE = ZDINLE;
         const useDinle = () => {
@@ -6024,6 +6177,95 @@ JSON ŞEMASI:
                 </div>
             );
         };
+        // 🎙️ 14. sürüm: meal sesi seçici — yalnız ERKEK sesler, her birini dinleyip seç; okuma üslubu "tok anlatıcı" ya da "sade"
+        const MealSesSecici = ({ kompakt }) => {
+            const T = window.ZTTS;
+            const [ad, setAd] = React.useState(() => (T ? T.sesAdi() : 'Charon'));
+            const [usl, setUsl] = React.useState(() => (T ? T.uslup() : 'tok'));
+            const [calan, setCalan] = React.useState('');
+            const [hata, setHata] = React.useState('');
+            const onizSes = React.useRef(null), onizJeton = React.useRef(0);
+            React.useEffect(() => () => { onizJeton.current++; try { onizSes.current && onizSes.current.pause(); } catch (e) {} }, []);
+            if (!T || !T.SES_LISTESI) return null;
+            const sec = (id) => { try { localStorage.setItem('zirve_meal_ses_adi', id); } catch (e) {} setAd(id); };
+            const uslupSec = (u) => { try { localStorage.setItem('zirve_meal_uslup', u); } catch (e) {} setUsl(u); };
+            const dinle = (id) => {
+                setHata('');
+                const j = ++onizJeton.current;
+                try { onizSes.current && onizSes.current.pause(); } catch (e) {}
+                if (calan === id) { setCalan(''); return; }
+                if (!T.yzSesAcik()) { setHata('Önizleme için yapay zekâ sesine (kasaya) ulaşılamıyor. Wi-Fi\'da dene.'); return; }
+                setCalan(id + '…');
+                T.onizle(id).then(u => { if (j !== onizJeton.current) return; const a = new Audio(u); onizSes.current = a; a.onended = () => setCalan(''); setCalan(id); a.play().catch(() => setCalan('')); },
+                    () => { if (j !== onizJeton.current) return; setCalan(''); setHata('Ses şu an üretilemedi. Biraz sonra tekrar dene.'); });
+            };
+            const cip = (on) => `px-3 min-h-[38px] rounded-full text-[12px] font-bold border transition-colors ${on ? 'bg-emerald-500 text-emerald-950 border-emerald-400' : 'bg-black/30 text-slate-300 border-slate-700 hover:bg-white/10'}`;
+            return (
+                <div className="space-y-2">
+                    <div className={`grid ${kompakt ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} gap-1.5`}>
+                        {T.SES_LISTESI.map(s => (
+                            <div key={s.id} className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 ${ad === s.id ? 'bg-emerald-500/15 border-emerald-400/60' : 'bg-black/25 border-slate-700/70'}`}>
+                                <button onClick={() => sec(s.id)} aria-pressed={ad === s.id} className="flex-1 min-w-0 text-left min-h-[36px]">
+                                    <span className="block text-[13px] font-bold text-white">{ad === s.id ? '✓ ' : ''}{s.id}</span>
+                                    <span className="block text-[11px] text-slate-400 truncate">{s.not}</span>
+                                </button>
+                                <button onClick={() => dinle(s.id)} aria-label={`${s.id} sesini dinle`} className="shrink-0 min-h-[36px] px-3 rounded-full bg-sky-500/15 border border-sky-400/40 text-sky-200 text-[12px] font-bold">{calan === s.id ? '⏸' : calan === s.id + '…' ? '…' : '🔊 Dinle'}</button>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[11px] text-slate-400">Okuyuş:</span>
+                        <button onClick={() => uslupSec('tok')} aria-pressed={usl === 'tok'} className={cip(usl === 'tok')}>🎙️ Tok anlatıcı (ağır, vakur)</button>
+                        <button onClick={() => uslupSec('sade')} aria-pressed={usl === 'sade'} className={cip(usl === 'sade')}>Sade, sakin</button>
+                    </div>
+                    {hata && <p className="text-[11px] text-amber-300">{hata}</p>}
+                    <p className="text-[11px] text-slate-500 leading-relaxed">Hepsi Google'ın <b>erkek</b> sesleridir. Videodaki gibi kalın, tok bir anlatım için <b>Algenib</b>, <b>Orus</b> ya da <b>Charon</b>'u "Tok anlatıcı" ile dinleyip karşılaştır. Bir kişinin sesi birebir kopyalanmaz; en yakın olanı seçersin.</p>
+                </div>
+            );
+        };
+
+        const mbYaz = (b) => (b / 1048576 >= 100 ? Math.round(b / 1048576) : (b / 1048576).toFixed(1).replace('.', ',')) + ' MB';
+        const YolculukHazirlaKarti = () => {
+            const [h, setH] = React.useState(() => ZDINLE.hDurum());
+            const [dep, setDep] = React.useState(() => (window.ZSESDEPO ? window.ZSESDEPO.ozet() : { mn: 0, mb: 0, tn: 0, tb: 0 }));
+            React.useEffect(() => {
+                const f = () => setDep(window.ZSESDEPO ? window.ZSESDEPO.ozet() : dep);
+                window.addEventListener('zirve-ses-depo', f); const iptal = ZDINLE.hAbone(setH);
+                return () => { window.removeEventListener('zirve-ses-depo', f); iptal(); };
+            }, []);
+            const [sor, setSor] = React.useState(false);
+            const yuzde = h.toplam ? Math.min(100, h.bitti / h.toplam * 100) : 0;
+            const hucre = 'min-h-[44px] rounded-xl text-[12px] font-bold border';
+            return (
+                <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-emerald-500/5 border border-amber-400/30 p-4 space-y-3">
+                    <div>
+                        <p className="text-[14px] font-bold text-amber-100">🚗 Yolculuğa hazırla <span className="text-[11px] font-normal text-amber-200/70">(Wi-Fi'dayken)</span></p>
+                        <p className="text-[12px] text-slate-300 mt-1 leading-relaxed">Kaldığın yerden itibaren hafız tilaveti ve meal sesi <b>bu cihaza kaydedilir</b>. Hazırlanan kısım sonra arabada mobil veride, tünelde ya da kasa kapalıyken bile çalar. Meal sesi kasanın günlük kotası izin verdiği kadar üretilir; her ayet ~5–20 sn sürer.</p>
+                    </div>
+                    {h.calisiyor ? (
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between text-[12px]"><span className="text-amber-100 font-bold truncate">{h.mesaj}</span><span className="text-slate-300 shrink-0">{h.bitti} / {h.toplam}</span></div>
+                            <div className="h-2 rounded-full bg-black/40 overflow-hidden"><div className="h-full bg-amber-400 transition-all" style={{ width: yuzde + '%' }}></div></div>
+                            <p className="text-[11px] text-slate-400">Hazırlarken ekranı açık tut ve bu sayfada kal; telefon uygulamayı arka plana alırsa hazırlık duraklayabilir. Dinlemeye aynı anda devam edebilirsin.</p>
+                            <button onClick={() => ZDINLE.hazirlaDur()} className={`w-full ${hucre} bg-rose-500/10 border-rose-500/30 text-rose-200`}>⏹ Hazırlamayı durdur</button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-3 gap-2">
+                            {[50, 100, 250].map(n => <button key={n} onClick={() => ZDINLE.hazirla(n)} className={`${hucre} bg-amber-500/15 border-amber-400/40 text-amber-100 hover:bg-amber-500/25`}>{n} ayet</button>)}
+                        </div>
+                    )}
+                    {h.sonuc && !h.calisiyor && <p className="text-[12px] text-slate-200">{h.sonuc}</p>}
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                        <span>💾 Cihazda: {dep.mn} meal sesi ({mbYaz(dep.mb)}) · {dep.tn} tilavet ({mbYaz(dep.tb)})</span>
+                        {(dep.mn > 0 || dep.tn > 0) && !h.calisiyor && (sor
+                            ? <span className="flex gap-1.5"><button onClick={() => { window.ZSESDEPO.temizle(); setSor(false); }} className="px-2.5 min-h-[30px] rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-200 font-bold">Evet, sil</button><button onClick={() => setSor(false)} className="px-2.5 min-h-[30px] rounded-full bg-white/5 border border-white/10 text-slate-300">Vazgeç</button></span>
+                            : <button onClick={() => setSor(true)} className="px-2.5 min-h-[30px] rounded-full bg-white/5 border border-white/10 text-slate-300">🗑 Temizle</button>)}
+                    </div>
+                    <p className="text-[10px] text-slate-500">Dinlerken üretilen meal sesleri de kendiliğinden saklanır (en fazla ~400 MB meal + ~250 MB tilavet; dolunca en eskiler silinir). Bir ayetin meal sesi ~0,2–1 MB yer kaplar. Hazırlanan ses, şu an seçili hafız, meal ve ses için geçerlidir; bunları değiştirirsen yeniden hazırla.</p>
+                </div>
+            );
+        };
+
         const DinlePaneli = () => {
             const [acik, setAcik] = React.useState(false);
             const [d, tazele] = useDinle();
@@ -6146,20 +6388,22 @@ JSON ŞEMASI:
                             <div>
                                 <span className={etiket}>Meal sesi</span>
                                 <div className="flex gap-1.5">
-                                    <button onClick={() => { try { localStorage.setItem('zirve_meal_ses', 'yz'); } catch (e) {} setSesTur('yz'); }} aria-pressed={sesTur !== 'cihaz'} className={cip(sesTur !== 'cihaz')}>✨ Yapay zekâ erkek sesi (Charon)</button>
+                                    <button onClick={() => { try { localStorage.setItem('zirve_meal_ses', 'yz'); } catch (e) {} setSesTur('yz'); }} aria-pressed={sesTur !== 'cihaz'} className={cip(sesTur !== 'cihaz')}>✨ Yapay zekâ erkek sesi</button>
                                     <button onClick={() => { try { localStorage.setItem('zirve_meal_ses', 'cihaz'); } catch (e) {} setSesTur('cihaz'); }} disabled={!(window.ZTTS && window.ZTTS.erkekSesVar())} aria-pressed={sesTur === 'cihaz'} className={cip(sesTur === 'cihaz') + ' disabled:opacity-40'}>📱 Cihazın erkek sesi</button>
                                 </div>
+                                {sesTur !== 'cihaz' && <div className="mt-3"><MealSesSecici /></div>}
                                 <label className="flex items-center gap-2 mt-3 text-[13px] text-slate-200"><input type="checkbox" checked={ekran} onChange={e => { setEkran(e.target.checked); ZDINLE.yaz({ ekran: e.target.checked }); }} className="accent-emerald-500 w-5 h-5"/> Dinlerken ekran kapanmasın (araç tutucusunda)</label>
                             </div>
 
+                            <YolculukHazirlaKarti />
                             <AnahtarYedegi />
                             <div className="rounded-2xl bg-sky-500/10 border border-sky-500/25 p-4 text-[12px] text-sky-100 space-y-1.5">
                                 <p className="font-bold text-sky-200">🚗 Arabada ve kilit ekranında dinlemek için</p>
                                 <p>• Telefonu aracın Bluetooth'una bağla; ⏯ ⏭ düğmeleri direksiyondan ve kilit ekranından çalışır.</p>
-                                <p>• iPhone'da en kesintisiz sonuç için uygulamayı <b>Ana Ekrana ekleyip</b> oradan aç ve meal sesini <b>"Yapay zekâ sesi"</b>nde bırak. Sonraki 3 ayetin meal sesi önceden hazırlanır.</p>
+                                <p>• iPhone'da en kesintisiz sonuç için uygulamayı <b>Ana Ekrana ekleyip</b> oradan aç ve meal sesini <b>"Yapay zekâ sesi"</b>nde bırak. Sonraki 3 ayetin meal sesi önceden hazırlanır; bir kez üretilen ses cihazda saklanır.</p>
                                 <p>• Meal yalnız <b>erkek sesle</b> okunur. Cihazında erkek Türkçe ses yoksa cihaz sesi hiç kullanılmaz.</p>
                                 <p>• Oynatıcıdaki <b>⌄</b> dinlemeyi durdurmaz, küçültür; başka sayfalara geçebilir, ekranı kilitleyebilirsin.</p>
-                                <p>• İnternet kesilirse dinleme durur; kaldığın ayet saklanır, ▶ ile aynı yerden sürer.</p>
+                                <p>• İnternet kesilecekse önce <b>🚗 Yolculuğa hazırla</b>'yı kullan; hazırlanan ayetler internetsiz çalar. Hazırlanmamış yerde internet kesilirse kaldığın ayet saklanır, ▶ ile aynı yerden sürer.</p>
                             </div>
                         </div>
                     </div>
@@ -6187,7 +6431,8 @@ JSON ŞEMASI:
                             <button onClick={() => sesAyarla('yz')} className={cip(ses !== 'cihaz')}>✨ Yapay zekâ sesi</button>
                             <button onClick={() => sesAyarla('cihaz')} disabled={!(window.ZTTS && window.ZTTS.erkekSesVar())} className={cip(ses === 'cihaz') + ' disabled:opacity-40'}>📱 Cihazın erkek sesi</button>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1.5">Yapay zekâ sesi daha doğal okur; ulaşılamazsa kendiliğinden cihazın Türkçe sesine geçer.</p>
+                        <p className="text-[11px] text-slate-500 mt-1.5">Meal yalnız erkek sesle okunur. Yapay zekâ sesine ulaşılamazsa önce cihazda saklanan ses, o da yoksa cihazın erkek Türkçe sesi kullanılır.</p>
+                        {ses !== 'cihaz' && <div className="mt-3"><MealSesSecici kompakt /></div>}
                     </div>
                     {rehber && <TecvidRehberi gorunum={rehber} onClose={() => setRehber(null)} />}
                 </div>
@@ -9241,6 +9486,37 @@ JSON ŞEMASI:
       return ham.call(window,hedef,i2).then(function(r){ clearTimeout(sure); if(r.ok||(r.status>=400&&r.status<500&&[401,403,404,429].indexOf(r.status)<0)) return r; if(r.status>=500||(r.status===429&&kisisel)) window.__kasaHataT=Date.now(); return onceki.apply(self,args); },function(e){ clearTimeout(sure); if(!(e && e.name==='AbortError' && !ac)) window.__kasaHataT=Date.now(); return onceki.apply(self,args); }); } }catch(e){}
     return onceki.apply(this,arguments); }; })();
   /* Kasa hata verirse istek eski yola düşer; uygulama asla bozulmaz. */
+    </script>
+    <!-- ⚡ 14. sürüm: HIZLI AÇILIŞ — uygulama kodu ilk açılışta bir kez derlenir ve cihazda saklanır;
+         sonraki açılışlarda derleyici (Babel, ~3 MB) hiç indirilmez, uygulama anında açılır. Kod değişince kendiliğinden yeniden derlenir. -->
+    <script>
+    (function(){
+      var BABEL='https://unpkg.com/@babel/standalone@7/babel.min.js', DEPO='zirve-derleme';
+      var el=document.getElementById('zirve-jsx'); if(!el) return; var kaynak=el.textContent;
+      function ozet(s){ var h=0x811c9dc5, h2=5381; for(var i=0;i<s.length;i++){ var c=s.charCodeAt(i); h^=c; h=Math.imul(h,16777619); h2=(Math.imul(h2,33)+c)|0; } return (h>>>0).toString(36)+(h2>>>0).toString(36)+'-'+s.length.toString(36); }
+      var anahtar=location.origin+location.pathname.replace(/[^\/]*$/,'')+'__zirve_derleme__/'+ozet(kaynak);
+      function calistir(js){ window.__zirveUygulama=0; var s=document.createElement('script'); s.textContent=js+'\n;window.__zirveUygulama=1;\n//# sourceURL=kuran-siyer-uygulama.js'; document.body.appendChild(s); return window.__zirveUygulama===1; }
+      function babelYukle(){ return new Promise(function(coz,red){ if(window.Babel) return coz(); var s=document.createElement('script'); s.src=BABEL; s.onload=function(){ window.Babel ? coz() : red(new Error('babel')); }; s.onerror=function(){ red(new Error('babel indirilemedi')); }; document.head.appendChild(s); }); }
+      function donustur(){
+        var denemeler=[ { presets:['react','es2015'], plugins:['transform-class-properties','transform-object-rest-spread','transform-flow-strip-types'] }, { presets:['react','es2015'] }, { presets:['react','env'] } ];
+        for(var i=0;i<denemeler.length;i++){ try{ var o=denemeler[i]; o.filename='kuran-siyer-uygulama.jsx'; return window.Babel.transform(kaynak, o).code; }catch(e){ if(e && /SyntaxError|Unexpected token/.test(String(e))) throw e; } }
+        throw new Error('derleme');
+      }
+      function eskiYol(){ try{ el.type='text/babel'; window.Babel.transformScriptTags(); }catch(e){ try{ console.error('Uygulama başlatılamadı', e); }catch(_){} } }
+      function derleVeCalistir(){
+        return babelYukle().then(function(){
+          var js; try{ js=donustur(); }catch(e){ eskiYol(); return; }
+          if(calistir(js) && window.caches){ caches.open(DEPO).then(function(c){ return c.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return c.delete(k); })); }).then(function(){ return c.put(anahtar, new Response(js, { headers:{ 'Content-Type':'application/javascript' } })); }); }).catch(function(){}); }
+        }, function(){ try{ var d=document.getElementById('root'); if(d && !d.children.length) d.innerHTML='<div style="padding:32px;color:#e2e8f0;font:16px system-ui;text-align:center">📶 Uygulama ilk kez açılırken internet gerekiyor. Bağlanınca sayfayı yenile.</div>'; }catch(e){} });
+      }
+      function basla(){
+        if(!window.caches){ derleVeCalistir(); return; }
+        caches.open(DEPO).then(function(c){ return c.match(anahtar); }).then(function(r){ return r ? r.text() : null; }).then(function(js){
+          if(js && js.length>1000){ if(!calistir(js)){ caches.delete(DEPO).catch(function(){}); } } else derleVeCalistir();
+        }, function(){ derleVeCalistir(); });
+      }
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', basla); else basla();
+    })();
     </script>
 </body>
 </html>
